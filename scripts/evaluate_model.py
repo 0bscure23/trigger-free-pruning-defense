@@ -12,7 +12,8 @@ from pathlib import Path
 import torch
 
 _THIS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(_THIS_DIR))
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
 
 from pipeline_utils import (
     DEFAULT_MODEL_PATH,
@@ -25,6 +26,7 @@ from pipeline_utils import (
     now_ts,
     read_asr_eval_items_jsonl,
     read_prompts,
+    resolve_run_dir,
 )
 
 
@@ -101,6 +103,7 @@ def _resolve_eval_model_path(model_path: str, run_dir: Path) -> str:
 
 def main() -> None:
     args = parse_args()
+    args.run_dir = resolve_run_dir(args.run_dir)
     args.run_dir.mkdir(parents=True, exist_ok=True)
 
     if not args.eval_asr_jsonl.exists():

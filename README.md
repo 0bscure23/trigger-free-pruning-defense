@@ -1,36 +1,37 @@
 # Trigger-Free Pruning Defense
 
-This directory contains the final paper-facing implementation of the `v2` defense pipeline. It keeps only the trigger-free path, renames the stage scripts to descriptive entrypoints, and standardizes intermediate artifacts for reproduction and release.
+This directory contains the final paper-facing implementation of the `v2` defense pipeline. It keeps only the trigger-free path, places runnable entrypoints under `scripts/`, and standardizes intermediate artifacts for reproduction and release.
 
 ## Overview
 
 The pipeline has four stages:
 
-1. `train_alignment.py`
+1. `scripts/train_alignment.py`
    Trains hidden-state alignment on clean data and perturbation-proxy inputs.
-2. `score_and_prune.py`
+2. `scripts/score_and_prune.py`
    Collects unit scores, filters the ranked list, and writes the pruning plan.
-3. `recover_model.py`
+3. `scripts/recover_model.py`
    Finetunes the pruned model and can reapply the structural mask after every optimizer step.
-4. `evaluate_model.py`
+4. `scripts/evaluate_model.py`
    Evaluates refusal/jailbreak ASR, clean or no-trigger behavior, and downstream utility.
 
-An extra helper script, `apply_pruning_from_scores.py`, can reuse a saved `unit_scores.json` without rerunning the scoring pass.
+An extra helper script, `scripts/apply_pruning_from_scores.py`, can reuse a saved `unit_scores.json` without rerunning the scoring pass.
 
 ## Repository Layout
 
-- `train_alignment.py`: stage-1 alignment training
-- `score_and_prune.py`: stage-2 scoring and pruning
-- `recover_model.py`: stage-3 recovery finetuning
-- `evaluate_model.py`: final evaluation and report generation
-- `apply_pruning_from_scores.py`: pruning replay from saved score files
+- `scripts/`: runnable stage entrypoints
+- `scripts/train_alignment.py`: stage-1 alignment training
+- `scripts/score_and_prune.py`: stage-2 scoring and pruning
+- `scripts/recover_model.py`: stage-3 recovery finetuning
+- `scripts/evaluate_model.py`: final evaluation and report generation
+- `scripts/apply_pruning_from_scores.py`: pruning replay from saved score files
 - `pipeline_utils.py`: data loading, proxy construction, scoring, evaluation helpers
 - `pruning_backend.py`: structured pruning backend
 - `.gitignore`: release-side ignore rules
 
 ## Standard Artifacts
 
-Each run directory uses the following artifact names:
+Each run directory uses the following artifact names. When `--run-dir` is a relative path, the scripts automatically place it under `result/`, so `--run-dir refusal_final_run` becomes `result/refusal_final_run`.
 
 - `alignment_config.json`
 - `alignment_losses.json`
@@ -72,13 +73,13 @@ pip install -r requirements.txt
 ## Minimal Usage
 
 ```bash
-RUN=results/refusal_final_run
+RUN=refusal_final_run
 
-python train_alignment.py \
+python scripts/train_alignment.py \
   --run-dir "$RUN" \
   --clean-jsonl clean.jsonl
 
-python score_and_prune.py \
+python scripts/score_and_prune.py \
   --run-dir "$RUN" \
   --clean-jsonl clean.jsonl \
   --kappa 1000000000 \
@@ -86,14 +87,14 @@ python score_and_prune.py \
   --max-score-to-prune 0.0 \
   --min-prune-layer 2
 
-python recover_model.py \
+python scripts/recover_model.py \
   --run-dir "$RUN" \
   --clean-jsonl clean.jsonl \
   --steps 20 \
   --lr 1.5e-5 \
   --mask-policy strict
 
-python evaluate_model.py \
+python scripts/evaluate_model.py \
   --run-dir "$RUN" \
   --eval-asr-jsonl refusal_eval.json \
   --eval-clean-jsonl clean_eval.json \
@@ -102,14 +103,14 @@ python evaluate_model.py \
 
 Default model resolution:
 
-- `score_and_prune.py` prefers `run_dir/stage1_model`
-- `recover_model.py` prefers `run_dir/pruned_model`
-- `evaluate_model.py` prefers `run_dir/recovered_model`, then `run_dir/pruned_model`
+- `scripts/score_and_prune.py` prefers `run_dir/stage1_model`
+- `scripts/recover_model.py` prefers `run_dir/pruned_model`
+- `scripts/evaluate_model.py` prefers `run_dir/recovered_model`, then `run_dir/pruned_model`
 
 ## Reusing Saved Scores
 
 ```bash
-python apply_pruning_from_scores.py \
+python scripts/apply_pruning_from_scores.py \
   --run-dir "$RUN" \
   --scores-json unit_scores.json \
   --kappa 1000000000 \

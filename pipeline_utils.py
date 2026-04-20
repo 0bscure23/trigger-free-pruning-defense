@@ -25,6 +25,8 @@ from pruning_backend import BaseSafetyPruner
 
 
 DEFAULT_MODEL_PATH = "meta-llama/Llama-2-7b-chat-hf"
+REPO_ROOT = Path(__file__).resolve().parent
+DEFAULT_RESULT_ROOT = REPO_ROOT / "result"
 
 PromptTemplate: TypeAlias = str
 PromptLike: TypeAlias = str | Mapping[str, Any]
@@ -79,6 +81,15 @@ class CleanEvalStats:
 
 def now_ts() -> int:
     return int(time.time())
+
+
+def resolve_run_dir(run_dir: Path) -> Path:
+    path = Path(run_dir)
+    if path.is_absolute():
+        return path
+    if path.parts and path.parts[0].lower() == "result":
+        return REPO_ROOT / path
+    return DEFAULT_RESULT_ROOT / path
 
 
 def parse_layer_weights(raw: str, layer_indices: Sequence[int]) -> dict[int, float]:

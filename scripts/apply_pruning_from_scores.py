@@ -11,9 +11,10 @@ from pathlib import Path
 import torch
 
 _THIS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(_THIS_DIR))
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
 
-from pipeline_utils import DEFAULT_MODEL_PATH, UnitScore, apply_structured_prune, load_backdoorllm_model_and_tokenizer, now_ts
+from pipeline_utils import DEFAULT_MODEL_PATH, UnitScore, apply_structured_prune, load_backdoorllm_model_and_tokenizer, now_ts, resolve_run_dir
 from pruning_backend import BaseSafetyPruner
 
 
@@ -75,6 +76,7 @@ def _load_scores(path: Path) -> list[UnitScore]:
 
 def main() -> None:
     args = parse_args()
+    args.run_dir = resolve_run_dir(args.run_dir)
     args.run_dir.mkdir(parents=True, exist_ok=True)
 
     if args.max_prune_units <= 0:
