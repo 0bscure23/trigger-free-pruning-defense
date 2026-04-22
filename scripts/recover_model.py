@@ -17,6 +17,7 @@ sys.path.insert(0, str(_ROOT_DIR))
 from pipeline_utils import (
     DEFAULT_MODEL_PATH,
     UnitScore,
+    _tokenize_supervised_response,
     _tokenize_one,
     apply_structured_prune,
     compute_proxy_alignment_loss,
@@ -51,40 +52,78 @@ def _preload_clean_batches(
     return batches
 
 
+def _preload_safe_batches(
+    tokenizer,
+    safe_prompts,
+    *,
+    max_length: int,
+    prompt_template: str,
+    safe_target_text: str,
+    pruner: BaseSafetyPruner,
+) -> list[dict[str, dict[str, torch.Tensor]]]:
+    batches: list[dict[str, dict[str, torch.Tensor]]] = []
+    for prompt in safe_prompts:
+        safe_batch = _tokenize_supervised_response(
+            tokenizer,
+            prompt,
+            target_text=safe_target_text,
+            max_length=max_length,
+            prompt_template=prompt_template,
+        )
+        batches.append({"safe": pruner._move_to_device(safe_batch)})
+    return batches
+
+
 def _compose_recovery_loss(
     *,
     clean_loss: torch.Tensor,
     proxy_loss: torch.Tensor,
+    safe_loss: torch.Tensor | None,
     l1_tensor: torch.Tensor | None,
     lambda_align: float,
+    lambda_safe: float,
     lambda_reg: float,
     loss_normalization: str,
     norm_eps: float,
     ema_clean: torch.Tensor | None,
     ema_align: torch.Tensor | None,
+    ema_safe: torch.Tensor | None,
     ema_l1: torch.Tensor | None,
     stable_loss_mode: bool,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     if stable_loss_mode:
         clean_norm = clean_loss
         proxy_norm = proxy_loss
+        safe_norm = safe_loss if safe_loss is not None else torch.zeros_like(clean_loss)
         l1_norm = l1_tensor if l1_tensor is not None else torch.zeros_like(clean_loss)
     elif loss_normalization == "minmax":
+        terms_list = [clean_loss, proxy_loss]
+        if safe_loss is not None:
+            terms_list.append(safe_loss)
         if l1_tensor is not None:
-            terms = torch.stack([clean_loss, proxy_loss, l1_tensor])
-        else:
-            terms = torch.stack([clean_loss, proxy_loss])
+            terms_list.append(l1_tensor)
+        terms = torch.stack(terms_list)
         t_min = terms.detach().min()
         t_max = terms.detach().max()
         denom = torch.clamp(t_max - t_min, min=norm_eps)
         clean_norm = torch.clamp((clean_loss - t_min) / denom, min=0.0, max=1.0)
         proxy_norm = torch.clamp((proxy_loss - t_min) / denom, min=0.0, max=1.0)
+        safe_norm = (
+            torch.clamp((safe_loss - t_min) / denom, min=0.0, max=1.0)
+            if safe_loss is not None
+            else torch.zeros_like(clean_norm)
+        )
         l1_norm = torch.clamp((l1_tensor - t_min) / denom, min=0.0, max=1.0) if l1_tensor is not None else torch.zeros_like(clean_norm)
     elif loss_normalization == "ema_ratio":
         ref_clean = ema_clean if ema_clean is not None else clean_loss.detach()
         ref_proxy = ema_align if ema_align is not None else proxy_loss.detach()
         clean_norm = clean_loss / torch.clamp(ref_clean, min=norm_eps)
         proxy_norm = proxy_loss / torch.clamp(ref_proxy, min=norm_eps)
+        if safe_loss is not None:
+            ref_safe = ema_safe if ema_safe is not None else safe_loss.detach()
+            safe_norm = safe_loss / torch.clamp(ref_safe, min=norm_eps)
+        else:
+            safe_norm = torch.zeros_like(clean_norm)
         if l1_tensor is not None:
             ref_l1 = ema_l1 if ema_l1 is not None else l1_tensor.detach()
             l1_norm = l1_tensor / torch.clamp(ref_l1, min=norm_eps)
@@ -93,10 +132,11 @@ def _compose_recovery_loss(
     else:
         clean_norm = clean_loss
         proxy_norm = proxy_loss
+        safe_norm = safe_loss if safe_loss is not None else torch.zeros_like(clean_loss)
         l1_norm = l1_tensor if l1_tensor is not None else torch.zeros_like(clean_loss)
 
-    total_loss = clean_norm + lambda_align * proxy_norm + lambda_reg * l1_norm
-    return total_loss, clean_norm, proxy_norm, l1_norm
+    total_loss = clean_norm + lambda_align * proxy_norm + lambda_safe * safe_norm + lambda_reg * l1_norm
+    return total_loss, clean_norm, proxy_norm, safe_norm, l1_norm
 
 
 def _deserialize_pruned_units(pruning_meta: dict[str, object]) -> list[UnitScore]:
@@ -117,6 +157,8 @@ def _deserialize_pruned_units(pruning_meta: dict[str, object]) -> list[UnitScore
                     proxy_grad_mean=float(raw["proxy_grad_mean"]),
                     cosine=float(raw["cosine"]),
                     score=float(raw["score"]),
+                    safe_grad_mean=float(raw.get("safe_grad_mean", 0.0) or 0.0),
+                    protect_grad_mean=float(raw.get("protect_grad_mean", raw.get("clean_grad_mean", 0.0)) or 0.0),
                 )
             )
         except (KeyError, TypeError, ValueError):
@@ -140,13 +182,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lora-model-path", default=None)
     parser.add_argument("--prompt-template", choices=["alpaca", "chat", "none"], default="alpaca")
     parser.add_argument("--pruning-plan", type=Path, default=None, help="Defaults to --run-dir/pruning_plan.json")
-    parser.add_argument("--clean-jsonl", type=Path, required=True)
+    parser.add_argument(
+        "--clean-jsonl",
+        type=Path,
+        default=None,
+        help="Legacy alias for --benign-jsonl; used when --benign-jsonl is not provided",
+    )
+    parser.add_argument(
+        "--benign-jsonl",
+        type=Path,
+        default=None,
+        help="Benign clean split used to preserve general utility during recovery",
+    )
+    parser.add_argument(
+        "--harmful-no-trigger-jsonl",
+        type=Path,
+        default=None,
+        help="Optional harmful-but-no-trigger split used to preserve refusal behavior",
+    )
+    parser.add_argument(
+        "--safe-target-text",
+        type=str,
+        default="I cannot assist with that request.",
+        help="Target refusal text used when supervising harmful no-trigger samples",
+    )
     parser.add_argument("--dtype", choices=["bf16", "fp16"], default="bf16")
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--align-layer-indices", type=str, default="", help="Comma-separated layer indices; empty=all layers")
     parser.add_argument("--align-layer-weights", type=str, default="", help="Comma-separated weights matching --align-layer-indices")
     parser.add_argument("--proxy-epsilon", type=float, default=0.1, help="FGSM epsilon used to build the perturbation proxy")
     parser.add_argument("--lambda-align", type=float, default=1.0)
+    parser.add_argument("--lambda-safe", type=float, default=0.0, help="Weight of the harmful-no-trigger refusal preservation loss")
     parser.add_argument("--lambda-reg", type=float, default=0.0, help="Optional L1-style proxy regularization on trainable weights")
     parser.add_argument("--loss-normalization", choices=["none", "minmax", "ema_ratio"], default="ema_ratio")
     parser.add_argument("--norm-eps", type=float, default=1e-8, help="Epsilon for loss normalization")
@@ -171,8 +237,13 @@ def main() -> None:
     args.run_dir = resolve_run_dir(args.run_dir)
     args.run_dir.mkdir(parents=True, exist_ok=True)
 
-    if not args.clean_jsonl.exists():
-        raise FileNotFoundError(f"Missing clean JSONL: {args.clean_jsonl}")
+    benign_jsonl = args.benign_jsonl or args.clean_jsonl
+    if benign_jsonl is None:
+        raise ValueError("Provide --benign-jsonl or --clean-jsonl")
+    if not benign_jsonl.exists():
+        raise FileNotFoundError(f"Missing benign JSONL: {benign_jsonl}")
+    if args.harmful_no_trigger_jsonl is not None and not args.harmful_no_trigger_jsonl.exists():
+        raise FileNotFoundError(f"Missing harmful no-trigger JSONL: {args.harmful_no_trigger_jsonl}")
     if args.steps < 0:
         raise ValueError("--steps must be >= 0")
     if args.lr <= 0:
@@ -187,6 +258,10 @@ def main() -> None:
         raise ValueError("--norm-ema-beta must be in [0,1)")
     if args.proxy_epsilon <= 0:
         raise ValueError("--proxy-epsilon must be > 0")
+    if float(args.lambda_safe) < 0:
+        raise ValueError("--lambda-safe must be >= 0")
+    if float(args.lambda_safe) > 0 and args.harmful_no_trigger_jsonl is None:
+        raise ValueError("--lambda-safe > 0 requires --harmful-no-trigger-jsonl")
 
     pruning_plan_path = args.pruning_plan if args.pruning_plan is not None else (args.run_dir / "pruning_plan.json")
     if not pruning_plan_path.exists():
@@ -209,6 +284,7 @@ def main() -> None:
 
     num_layers = int(getattr(model.config, "num_hidden_layers", 0) or 0)
     hidden_size = int(getattr(model.config, "hidden_size", 0) or 0)
+    num_key_value_heads = int(getattr(model.config, "num_key_value_heads", 0) or 0) or None
     head_info = pruner._infer_llama_head_dim(hidden_size)
     if head_info is None:
         raise RuntimeError("Cannot infer attention head dimension from model config")
@@ -225,17 +301,30 @@ def main() -> None:
             raise ValueError(f"Invalid alignment layer index {layer_idx}, model has {num_layers} layers")
     layer_weights = parse_layer_weights(args.align_layer_weights, align_layers)
 
-    clean_prompts = read_prompts(args.clean_jsonl)
+    benign_prompts = read_prompts(benign_jsonl)
     cached_batches = _preload_clean_batches(
         tokenizer,
-        clean_prompts,
+        benign_prompts,
         max_length=args.max_length,
         prompt_template=str(args.prompt_template),
         pruner=pruner,
     )
+    safe_batches = (
+        _preload_safe_batches(
+            tokenizer,
+            read_prompts(args.harmful_no_trigger_jsonl),
+            max_length=args.max_length,
+            prompt_template=str(args.prompt_template),
+            safe_target_text=str(args.safe_target_text),
+            pruner=pruner,
+        )
+        if args.harmful_no_trigger_jsonl is not None and float(args.lambda_safe) > 0
+        else []
+    )
     batch_count = len(cached_batches)
     if batch_count == 0:
         raise RuntimeError("No usable clean samples for recovery")
+    safe_batch_count = len(safe_batches)
 
     notes = limitations_notes()
     print("=== Trigger-agnostic defense notes ===")
@@ -243,7 +332,12 @@ def main() -> None:
         print(f"- {note}")
 
     if args.mask_policy != "none" and pruned_units:
-        apply_structured_prune(pruner, to_prune=pruned_units, head_dim=head_dim)
+        apply_structured_prune(
+            pruner,
+            to_prune=pruned_units,
+            head_dim=head_dim,
+            num_key_value_heads=num_key_value_heads,
+        )
         print(f"Applied pruning mask before recovery: {len(pruned_units)} units ({args.mask_policy})")
 
     trainable = [parameter for parameter in model.parameters() if parameter.requires_grad]
@@ -252,6 +346,7 @@ def main() -> None:
     recovery_losses: list[dict[str, float]] = []
     ema_clean: torch.Tensor | None = None
     ema_align: torch.Tensor | None = None
+    ema_safe: torch.Tensor | None = None
     ema_l1: torch.Tensor | None = None
     model.train()
 
@@ -259,41 +354,48 @@ def main() -> None:
         optimizer.zero_grad(set_to_none=True)
         raw_clean_total = 0.0
         raw_align_total = 0.0
+        raw_safe_total = 0.0
         raw_l1_total = 0.0
         norm_clean_total = 0.0
         norm_align_total = 0.0
+        norm_safe_total = 0.0
         norm_l1_total = 0.0
         finite_batches = 0
 
         for accum_step in range(args.grad_accum_steps):
             batch_idx = (step * args.grad_accum_steps + accum_step) % batch_count
-            clean_batch = cached_batches[batch_idx]["clean"]
+            benign_batch = cached_batches[batch_idx]["clean"]
+            safe_batch = safe_batches[(step * args.grad_accum_steps + accum_step) % safe_batch_count]["safe"] if safe_batch_count > 0 else None
 
-            clean_loss = pruner._extract_loss(clean_batch, loss_fn=None)
+            clean_loss = pruner._extract_loss(benign_batch, loss_fn=None)
             proxy_loss = compute_proxy_alignment_loss(
                 pruner,
-                clean_batch,
+                benign_batch,
                 layer_indices=align_layers,
                 layer_weights=layer_weights,
                 adv_epsilon=float(args.proxy_epsilon),
                 eps=float(args.norm_eps),
             )
+            safe_loss = pruner._extract_loss(safe_batch, loss_fn=None) if safe_batch is not None else None
 
             l1_tensor: torch.Tensor | None = None
             if float(args.lambda_reg) > 0:
                 l1_tensor = sum(parameter.abs().sum() for parameter in pruner.model.parameters() if parameter.requires_grad)
                 l1_tensor = l1_tensor.to(device=clean_loss.device, dtype=clean_loss.dtype)
 
-            total_loss, clean_norm, proxy_norm, l1_norm = _compose_recovery_loss(
+            total_loss, clean_norm, proxy_norm, safe_norm, l1_norm = _compose_recovery_loss(
                 clean_loss=clean_loss,
                 proxy_loss=proxy_loss,
+                safe_loss=safe_loss,
                 l1_tensor=l1_tensor,
                 lambda_align=float(args.lambda_align),
+                lambda_safe=float(args.lambda_safe),
                 lambda_reg=float(args.lambda_reg),
                 loss_normalization=str(args.loss_normalization),
                 norm_eps=float(args.norm_eps),
                 ema_clean=ema_clean,
                 ema_align=ema_align,
+                ema_safe=ema_safe,
                 ema_l1=ema_l1,
                 stable_loss_mode=bool(args.stable_loss_mode),
             )
@@ -304,8 +406,10 @@ def main() -> None:
             finite_batches += 1
             raw_clean_total += float(clean_loss.detach().item())
             raw_align_total += float(proxy_loss.detach().item())
+            raw_safe_total += float(safe_loss.detach().item()) if safe_loss is not None else 0.0
             norm_clean_total += float(clean_norm.detach().item())
             norm_align_total += float(proxy_norm.detach().item())
+            norm_safe_total += float(safe_norm.detach().item()) if safe_loss is not None else 0.0
             if l1_tensor is not None:
                 raw_l1_total += float(l1_tensor.detach().item())
                 norm_l1_total += float(l1_norm.detach().item())
@@ -316,9 +420,11 @@ def main() -> None:
                     "step": float(step + 1),
                     "l_clean": float("nan"),
                     "l_align": float("nan"),
+                    "l_safe": float("nan"),
                     "l1_proxy": float("nan"),
                     "l_clean_norm": float("nan"),
                     "l_align_norm": float("nan"),
+                    "l_safe_norm": float("nan"),
                     "l1_proxy_norm": float("nan"),
                     "loss_total": float("nan"),
                 }
@@ -330,15 +436,24 @@ def main() -> None:
             torch.nn.utils.clip_grad_norm_(trainable, max_norm=float(args.max_grad_norm))
         optimizer.step()
         if args.mask_policy == "strict" and pruned_units:
-            apply_structured_prune(pruner, to_prune=pruned_units, head_dim=head_dim)
+            apply_structured_prune(
+                pruner,
+                to_prune=pruned_units,
+                head_dim=head_dim,
+                num_key_value_heads=num_key_value_heads,
+            )
 
         avg_clean = raw_clean_total / finite_batches
         avg_align = raw_align_total / finite_batches
+        avg_safe = raw_safe_total / finite_batches if safe_batch_count > 0 else float("nan")
         avg_l1 = raw_l1_total / finite_batches if float(args.lambda_reg) > 0 else float("nan")
         avg_clean_norm = norm_clean_total / finite_batches
         avg_align_norm = norm_align_total / finite_batches
+        avg_safe_norm = norm_safe_total / finite_batches if safe_batch_count > 0 else float("nan")
         avg_l1_norm = norm_l1_total / finite_batches if float(args.lambda_reg) > 0 else float("nan")
         total_value = avg_clean_norm + float(args.lambda_align) * avg_align_norm
+        if float(args.lambda_safe) > 0 and avg_safe_norm == avg_safe_norm:
+            total_value += float(args.lambda_safe) * avg_safe_norm
         if float(args.lambda_reg) > 0 and avg_l1_norm == avg_l1_norm:
             total_value += float(args.lambda_reg) * avg_l1_norm
 
@@ -347,9 +462,11 @@ def main() -> None:
                 "step": float(step + 1),
                 "l_clean": avg_clean,
                 "l_align": avg_align,
+                "l_safe": avg_safe,
                 "l1_proxy": avg_l1,
                 "l_clean_norm": avg_clean_norm,
                 "l_align_norm": avg_align_norm,
+                "l_safe_norm": avg_safe_norm,
                 "l1_proxy_norm": avg_l1_norm,
                 "loss_total": total_value,
             }
@@ -361,6 +478,9 @@ def main() -> None:
             align_ref = torch.tensor(avg_align, device=pruner.device, dtype=torch.float32)
             ema_clean = clean_ref if ema_clean is None else beta * ema_clean + (1.0 - beta) * clean_ref
             ema_align = align_ref if ema_align is None else beta * ema_align + (1.0 - beta) * align_ref
+            if safe_batch_count > 0 and avg_safe == avg_safe:
+                safe_ref = torch.tensor(avg_safe, device=pruner.device, dtype=torch.float32)
+                ema_safe = safe_ref if ema_safe is None else beta * ema_safe + (1.0 - beta) * safe_ref
             if float(args.lambda_reg) > 0 and avg_l1 == avg_l1:
                 l1_ref = torch.tensor(avg_l1, device=pruner.device, dtype=torch.float32)
                 ema_l1 = l1_ref if ema_l1 is None else beta * ema_l1 + (1.0 - beta) * l1_ref
@@ -371,14 +491,19 @@ def main() -> None:
                 "timestamp": now_ts(),
                 "config": {
                     "model_path_effective": effective_model_path,
+                    "benign_jsonl": str(benign_jsonl),
+                    "harmful_no_trigger_jsonl": None if args.harmful_no_trigger_jsonl is None else str(args.harmful_no_trigger_jsonl),
+                    "safe_target_text": str(args.safe_target_text),
                     "proxy_epsilon": float(args.proxy_epsilon),
                     "lambda_align": float(args.lambda_align),
+                    "lambda_safe": float(args.lambda_safe),
                     "lambda_reg": float(args.lambda_reg),
                     "loss_normalization": str(args.loss_normalization),
                     "stable_loss_mode": bool(args.stable_loss_mode),
                     "grad_accum_steps": int(args.grad_accum_steps),
                     "mask_policy": str(args.mask_policy),
                     "pruned_total": int(pruning_meta.get("pruned_total", 0) or 0),
+                    "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
                     "steps": int(args.steps),
                     "optimizer": str(args.optimizer),
                     "lr": float(args.lr),

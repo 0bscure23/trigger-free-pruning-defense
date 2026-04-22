@@ -2,6 +2,12 @@
 
 This directory contains the final paper-facing implementation of the `v2` defense pipeline. It keeps only the trigger-free path, places runnable entrypoints under `scripts/`, and standardizes intermediate artifacts for reproduction and release.
 
+The repository also includes an experimental jailbreak-adaptation branch of the pipeline. That branch keeps the same perturbation-proxy core, but adds:
+
+- safe-aware scoring via `--protect-safe-jsonl` and `--alpha-safe`
+- a dual-objective recovery interface via `--benign-jsonl`, `--harmful-no-trigger-jsonl`, and `--lambda-safe`
+- grouped-query attention compatibility for newer LLaMA-family models such as Llama-3.1
+
 ## Overview
 
 The pipeline has four stages:
@@ -100,6 +106,41 @@ python scripts/evaluate_model.py \
   --eval-clean-jsonl clean_eval.json \
   --asr-mode backdoorllm-refusal
 ```
+
+## Jailbreak Adaptation Workflow
+
+For jailbreak-style backdoors, the currently recommended workflow is to skip stage 1, keep safe-aware scoring enabled, and treat benign utility preservation separately from harmful-no-trigger refusal preservation during recovery.
+
+```bash
+RUN=jailbreak_round2
+
+python scripts/score_and_prune.py \
+  --run-dir "$RUN" \
+  --model-path path/to/backdoor_model \
+  --clean-jsonl benign_clean.jsonl \
+  --protect-safe-jsonl harmful_no_trigger.jsonl \
+  --alpha-safe 0.5 \
+  --kappa 1000000000 \
+  --max-prune-units 320 \
+  --max-score-to-prune 0.0 \
+  --min-prune-layer 2
+
+python scripts/recover_model.py \
+  --run-dir "$RUN" \
+  --model-path path/to/backdoor_model \
+  --benign-jsonl benign_clean.jsonl \
+  --harmful-no-trigger-jsonl harmful_no_trigger.jsonl \
+  --lambda-safe 0.5 \
+  --steps 20 \
+  --lr 1.5e-5 \
+  --mask-policy strict
+```
+
+This jailbreak-oriented path is still experimental. The intended interpretation is:
+
+- `benign-jsonl`: preserve normal helpful behavior
+- `harmful-no-trigger-jsonl`: preserve refusal on harmful prompts without the trigger
+- `protect-safe-jsonl`: prevent stage-23 scoring from pruning units that support safe refusal
 
 Default model resolution:
 

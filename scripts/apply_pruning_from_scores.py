@@ -49,11 +49,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _load_scores(path: Path) -> list[UnitScore]:
+def _load_scores(path: Path) -> tuple[list[UnitScore], dict[str, object]]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     raw_scores = raw.get("scores") if isinstance(raw, dict) else None
     if not isinstance(raw_scores, list):
         raise ValueError(f"Invalid score file format: {path}")
+    score_config = raw.get("score_config", {}) if isinstance(raw, dict) and isinstance(raw.get("score_config", {}), dict) else {}
 
     scores: list[UnitScore] = []
     for item in raw_scores:
@@ -68,10 +69,12 @@ def _load_scores(path: Path) -> list[UnitScore]:
                 proxy_grad_mean=float(item["proxy_grad_mean"]),
                 cosine=float(item["cosine"]),
                 score=float(item["score"]),
+                safe_grad_mean=float(item.get("safe_grad_mean", 0.0) or 0.0),
+                protect_grad_mean=float(item.get("protect_grad_mean", item.get("clean_grad_mean", 0.0)) or 0.0),
             )
         )
     scores.sort(key=lambda score: score.score)
-    return scores
+    return scores, score_config
 
 
 def main() -> None:
@@ -86,7 +89,7 @@ def main() -> None:
     if not args.scores_json.exists():
         raise FileNotFoundError(f"Missing score file: {args.scores_json}")
 
-    scores = _load_scores(args.scores_json)
+    scores, score_config = _load_scores(args.scores_json)
     to_prune = [score for score in scores if score.score <= float(args.kappa)]
     if args.max_score_to_prune is not None:
         to_prune = [score for score in to_prune if score.score <= float(args.max_score_to_prune)]
@@ -106,12 +109,18 @@ def main() -> None:
     pruner = BaseSafetyPruner(model)
 
     hidden_size = int(getattr(model.config, "hidden_size", 0) or 0)
+    num_key_value_heads = int(getattr(model.config, "num_key_value_heads", 0) or 0) or None
     head_info = pruner._infer_llama_head_dim(hidden_size)
     if head_info is None:
         raise RuntimeError("Cannot infer attention head dimension from model config")
     _, head_dim = head_info
 
-    apply_structured_prune(pruner, to_prune=to_prune, head_dim=head_dim)
+    apply_structured_prune(
+        pruner,
+        to_prune=to_prune,
+        head_dim=head_dim,
+        num_key_value_heads=num_key_value_heads,
+    )
 
     (args.run_dir / "pruning_plan.json").write_text(
         json.dumps(
@@ -120,8 +129,13 @@ def main() -> None:
                 "proxy_epsilon": float(args.proxy_epsilon),
                 "proxy_type": "perturbed_proxy_grad",
                 "proxy_explanation": "gradient of perturbed sample loss, where the perturbation is generated from consistency-based FGSM on clean inputs",
-                "score_formula": "alpha * clean_grad_mean - beta * abs(proxy_grad_mean * cosine)",
+                "score_formula": str(
+                    score_config.get("score_formula", "alpha * clean_grad_mean - beta * abs(proxy_grad_mean * cosine)")
+                ),
                 "model_path_effective": effective_model_path,
+                "alpha_safe": float(score_config.get("alpha_safe", 0.0) or 0.0),
+                "protect_safe_jsonl": score_config.get("protect_safe_jsonl"),
+                "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
                 "kappa": float(args.kappa),
                 "max_score_to_prune": None if args.max_score_to_prune is None else float(args.max_score_to_prune),
                 "min_prune_layer": int(args.min_prune_layer),

@@ -68,6 +68,8 @@ class UnitScore:
     proxy_grad_mean: float
     cosine: float
     score: float
+    safe_grad_mean: float = 0.0
+    protect_grad_mean: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -341,6 +343,51 @@ def _tokenize_one(
     raise ValueError(f"Unsupported prompt type: {type(prompt)}")
 
 
+def _split_prompt_fields(prompt: PromptLike) -> tuple[str, str]:
+    if isinstance(prompt, str):
+        return prompt, ""
+    if isinstance(prompt, Mapping):
+        instruction = prompt.get("instruction", "")
+        user_input = prompt.get("input", "")
+        if not isinstance(instruction, str):
+            instruction = str(instruction)
+        if not isinstance(user_input, str):
+            user_input = str(user_input)
+        return instruction, user_input
+    raise ValueError(f"Unsupported prompt type: {type(prompt)}")
+
+
+def _tokenize_supervised_response(
+    tokenizer: Any,
+    prompt: PromptLike,
+    *,
+    target_text: str,
+    max_length: int,
+    prompt_template: PromptTemplate,
+) -> dict[str, Any]:
+    instruction, user_input = _split_prompt_fields(prompt)
+    prompt_encoded, prompt_text = build_model_inputs(
+        tokenizer,
+        instruction=instruction,
+        user_input=user_input,
+        prompt_template=prompt_template,
+        add_generation_prompt=True,
+        max_length=max_length,
+    )
+    full_text = prompt_text + target_text
+    encoded = tokenizer(full_text, return_tensors="pt", truncation=True, max_length=max_length)
+    labels = encoded["input_ids"].clone()
+    prompt_length = min(int(prompt_encoded["input_ids"].shape[-1]), int(labels.shape[-1]))
+    if prompt_length >= int(labels.shape[-1]):
+        raise ValueError(
+            "Target text was truncated away while building the supervised response batch; "
+            "increase --max-length or shorten --safe-target-text"
+        )
+    labels[:, :prompt_length] = -100
+    encoded["labels"] = labels
+    return encoded
+
+
 def align_hidden_pair(a: torch.Tensor, b: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     if a.ndim != b.ndim:
         raise ValueError(f"Hidden state rank mismatch: {a.ndim} vs {b.ndim}")
@@ -428,6 +475,65 @@ def _lookup_param_grad(gradients: Mapping[str, torch.Tensor], module_name: str) 
         if candidate in gradients:
             return gradients[candidate]
     return None
+
+
+def _expand_kv_heads(
+    per_head_tensor: torch.Tensor,
+    *,
+    num_heads: int,
+    num_key_value_heads: int | None,
+) -> torch.Tensor:
+    kv_heads = int(num_key_value_heads or num_heads)
+    if kv_heads == num_heads:
+        return per_head_tensor
+    if kv_heads <= 0 or num_heads <= 0 or num_heads % kv_heads != 0:
+        raise ValueError(
+            f"Invalid GQA head layout: num_heads={num_heads}, num_key_value_heads={num_key_value_heads}"
+        )
+    group_size = num_heads // kv_heads
+    return per_head_tensor.repeat_interleave(group_size, dim=0)
+
+
+def _reshape_projection_grad(
+    grad: torch.Tensor,
+    *,
+    projection: str,
+    num_heads: int,
+    num_key_value_heads: int | None,
+    head_dim: int,
+) -> torch.Tensor:
+    if projection == "q":
+        return grad.view(num_heads, head_dim, grad.shape[1])
+    if projection == "o":
+        return grad.permute(1, 0).contiguous().view(num_heads, head_dim, grad.shape[0])
+    if projection in {"k", "v"}:
+        kv_heads = int(num_key_value_heads or num_heads)
+        reshaped = grad.view(kv_heads, head_dim, grad.shape[1])
+        return _expand_kv_heads(
+            reshaped,
+            num_heads=num_heads,
+            num_key_value_heads=num_key_value_heads,
+        )
+    raise ValueError(f"Unsupported projection kind: {projection}")
+
+
+def _collect_layer_gradients(
+    *,
+    model: torch.nn.Module,
+    pruner: BaseSafetyPruner,
+    modules: Mapping[str, torch.nn.Module],
+    layer_keys: Sequence[Mapping[str, str]],
+    batch: Mapping[str, Any],
+) -> list[dict[str, torch.Tensor]]:
+    model.zero_grad(set_to_none=True)
+    loss = pruner._extract_loss(batch, loss_fn=None)
+    loss.backward(retain_graph=False)
+    gradients = [
+        {key: _module_grad(_get_module(modules, name)).detach().cpu() for key, name in keys.items()}
+        for keys in layer_keys
+    ]
+    model.zero_grad(set_to_none=True)
+    return gradients
 
 
 def compute_proxy_perturbed_gradients(
@@ -546,27 +652,36 @@ def collect_unit_scores(
     pruner: BaseSafetyPruner,
     tokenizer: Any,
     clean_prompts: Sequence[PromptLike],
+    protect_safe_prompts: Sequence[PromptLike] | None = None,
     max_length: int,
     prompt_template: PromptTemplate = "alpaca",
     head_dim: int,
     num_layers: int,
     num_heads: int,
+    num_key_value_heads: int | None = None,
     intermediate_size: int,
     score_samples: int,
     alpha: float,
     beta: float,
+    alpha_safe: float = 0.0,
     eps: float,
     proxy_epsilon: float = 0.1,
 ) -> list[UnitScore]:
-    """Collect per-unit scores using clean gradients and perturbation-proxy gradients."""
+    """Collect per-unit scores using benign gradients, proxy gradients, and optional safe gradients."""
     if alpha <= 0 or beta <= 0:
         raise ValueError("alpha and beta must be > 0")
+    if alpha_safe < 0:
+        raise ValueError("alpha_safe must be >= 0")
     if proxy_epsilon <= 0:
         raise ValueError("proxy_epsilon must be > 0")
     if not clean_prompts:
         raise RuntimeError("Empty clean prompts")
+    if alpha_safe > 0 and not protect_safe_prompts:
+        raise RuntimeError("alpha_safe > 0 requires protect_safe_prompts")
 
     used_samples = min(len(clean_prompts), max(1, int(score_samples)))
+    safe_prompts = list(protect_safe_prompts or [])
+    used_safe_samples = min(len(safe_prompts), max(1, int(score_samples))) if safe_prompts else 0
     modules = dict(model.named_modules())
 
     layer_keys: list[dict[str, str]] = []
@@ -586,9 +701,11 @@ def collect_unit_scores(
     clean_head_mag = np.zeros((num_layers, num_heads), dtype=np.float64)
     proxy_head_mag = np.zeros((num_layers, num_heads), dtype=np.float64)
     head_cosine = np.zeros((num_layers, num_heads), dtype=np.float64)
+    safe_head_mag = np.zeros((num_layers, num_heads), dtype=np.float64)
     clean_channel_mag = np.zeros((num_layers, intermediate_size), dtype=np.float64)
     proxy_channel_mag = np.zeros((num_layers, intermediate_size), dtype=np.float64)
     channel_cosine = np.zeros((num_layers, intermediate_size), dtype=np.float64)
+    safe_channel_mag = np.zeros((num_layers, intermediate_size), dtype=np.float64)
 
     for sample_idx in range(used_samples):
         clean_batch = _tokenize_one(
@@ -600,15 +717,13 @@ def collect_unit_scores(
         clean_batch["labels"] = clean_batch["input_ids"].clone()
         clean_batch = pruner._move_to_device(clean_batch)
 
-        model.zero_grad(set_to_none=True)
-        clean_loss = pruner._extract_loss(clean_batch, loss_fn=None)
-        clean_loss.backward(retain_graph=False)
-        clean_grad_by_layer = [
-            {key: _module_grad(_get_module(modules, name)).detach().cpu() for key, name in keys.items()}
-            for keys in layer_keys
-        ]
-
-        model.zero_grad(set_to_none=True)
+        clean_grad_by_layer = _collect_layer_gradients(
+            model=model,
+            pruner=pruner,
+            modules=modules,
+            layer_keys=layer_keys,
+            batch=clean_batch,
+        )
         proxy_grad_dict = compute_proxy_perturbed_gradients(
             model,
             clean_batch,
@@ -629,15 +744,63 @@ def collect_unit_scores(
             clean_grad = clean_grad_by_layer[layer]
             proxy_grad = proxy_grad_by_layer[layer]
 
-            q_clean = clean_grad["q"].view(num_heads, head_dim, clean_grad["q"].shape[1])
-            k_clean = clean_grad["k"].view(num_heads, head_dim, clean_grad["k"].shape[1])
-            v_clean = clean_grad["v"].view(num_heads, head_dim, clean_grad["v"].shape[1])
-            o_clean = clean_grad["o"].permute(1, 0).contiguous().view(num_heads, head_dim, clean_grad["o"].shape[0])
+            q_clean = _reshape_projection_grad(
+                clean_grad["q"],
+                projection="q",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            k_clean = _reshape_projection_grad(
+                clean_grad["k"],
+                projection="k",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            v_clean = _reshape_projection_grad(
+                clean_grad["v"],
+                projection="v",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            o_clean = _reshape_projection_grad(
+                clean_grad["o"],
+                projection="o",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
 
-            q_proxy = proxy_grad["q"].view(num_heads, head_dim, proxy_grad["q"].shape[1])
-            k_proxy = proxy_grad["k"].view(num_heads, head_dim, proxy_grad["k"].shape[1])
-            v_proxy = proxy_grad["v"].view(num_heads, head_dim, proxy_grad["v"].shape[1])
-            o_proxy = proxy_grad["o"].permute(1, 0).contiguous().view(num_heads, head_dim, proxy_grad["o"].shape[0])
+            q_proxy = _reshape_projection_grad(
+                proxy_grad["q"],
+                projection="q",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            k_proxy = _reshape_projection_grad(
+                proxy_grad["k"],
+                projection="k",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            v_proxy = _reshape_projection_grad(
+                proxy_grad["v"],
+                projection="v",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            o_proxy = _reshape_projection_grad(
+                proxy_grad["o"],
+                projection="o",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
 
             head_clean_flat = torch.cat(
                 [
@@ -672,18 +835,85 @@ def collect_unit_scores(
             channel_proxy_norm = channel_proxy / (channel_proxy.norm(dim=1, keepdim=True) + eps)
             channel_cosine[layer] += (channel_clean_norm * channel_proxy_norm).sum(dim=1).double().numpy()
 
+    for sample_idx in range(used_safe_samples):
+        safe_batch = _tokenize_one(
+            tokenizer,
+            safe_prompts[sample_idx],
+            max_length=max_length,
+            prompt_template=prompt_template,
+        )
+        safe_batch["labels"] = safe_batch["input_ids"].clone()
+        safe_batch = pruner._move_to_device(safe_batch)
+        safe_grad_by_layer = _collect_layer_gradients(
+            model=model,
+            pruner=pruner,
+            modules=modules,
+            layer_keys=layer_keys,
+            batch=safe_batch,
+        )
+
+        for layer in range(num_layers):
+            safe_grad = safe_grad_by_layer[layer]
+
+            q_safe = _reshape_projection_grad(
+                safe_grad["q"],
+                projection="q",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            k_safe = _reshape_projection_grad(
+                safe_grad["k"],
+                projection="k",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            v_safe = _reshape_projection_grad(
+                safe_grad["v"],
+                projection="v",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+            o_safe = _reshape_projection_grad(
+                safe_grad["o"],
+                projection="o",
+                num_heads=num_heads,
+                num_key_value_heads=num_key_value_heads,
+                head_dim=head_dim,
+            )
+
+            head_safe_flat = torch.cat(
+                [
+                    q_safe.reshape(num_heads, -1),
+                    k_safe.reshape(num_heads, -1),
+                    v_safe.reshape(num_heads, -1),
+                    o_safe.reshape(num_heads, -1),
+                ],
+                dim=1,
+            )
+            safe_head_mag[layer] += head_safe_flat.abs().mean(dim=1).double().numpy()
+
+            channel_safe = torch.cat([safe_grad["g"], safe_grad["u"], safe_grad["d"].T], dim=1)
+            safe_channel_mag[layer] += channel_safe.abs().mean(dim=1).double().numpy()
+
     normalizer = max(1.0, used_samples)
+    safe_normalizer = max(1.0, used_safe_samples) if used_safe_samples > 0 else 1.0
     out: list[UnitScore] = []
 
     averaged_clean_head = clean_head_mag / normalizer
     averaged_proxy_head = proxy_head_mag / normalizer
     averaged_head_cosine = head_cosine / normalizer
+    averaged_safe_head = safe_head_mag / safe_normalizer if used_safe_samples > 0 else np.zeros_like(clean_head_mag)
     for layer in range(num_layers):
         for head_idx in range(num_heads):
             clean_value = averaged_clean_head[layer, head_idx]
             proxy_value = averaged_proxy_head[layer, head_idx]
             cosine_value = averaged_head_cosine[layer, head_idx]
-            score = float(alpha * clean_value - beta * abs(proxy_value * cosine_value))
+            safe_value = averaged_safe_head[layer, head_idx]
+            protect_value = clean_value + alpha_safe * safe_value
+            score = float(alpha * protect_value - beta * abs(proxy_value * cosine_value))
             out.append(
                 UnitScore(
                     component="head",
@@ -693,18 +923,23 @@ def collect_unit_scores(
                     proxy_grad_mean=float(proxy_value),
                     cosine=float(cosine_value),
                     score=score,
+                    safe_grad_mean=float(safe_value),
+                    protect_grad_mean=float(protect_value),
                 )
             )
 
     averaged_clean_channel = clean_channel_mag / normalizer
     averaged_proxy_channel = proxy_channel_mag / normalizer
     averaged_channel_cosine = channel_cosine / normalizer
+    averaged_safe_channel = safe_channel_mag / safe_normalizer if used_safe_samples > 0 else np.zeros_like(clean_channel_mag)
     for layer in range(num_layers):
         for channel_idx in range(intermediate_size):
             clean_value = averaged_clean_channel[layer, channel_idx]
             proxy_value = averaged_proxy_channel[layer, channel_idx]
             cosine_value = averaged_channel_cosine[layer, channel_idx]
-            score = float(alpha * clean_value - beta * abs(proxy_value * cosine_value))
+            safe_value = averaged_safe_channel[layer, channel_idx]
+            protect_value = clean_value + alpha_safe * safe_value
+            score = float(alpha * protect_value - beta * abs(proxy_value * cosine_value))
             out.append(
                 UnitScore(
                     component="channel",
@@ -714,6 +949,8 @@ def collect_unit_scores(
                     proxy_grad_mean=float(proxy_value),
                     cosine=float(cosine_value),
                     score=score,
+                    safe_grad_mean=float(safe_value),
+                    protect_grad_mean=float(protect_value),
                 )
             )
 
@@ -726,25 +963,72 @@ def apply_structured_prune(
     *,
     to_prune: Sequence[UnitScore],
     head_dim: int,
+    num_key_value_heads: int | None = None,
 ) -> None:
     units: list[dict[str, Any]] = []
+    config = getattr(pruner.model, "config", None)
+    num_attention_heads = int(getattr(config, "num_attention_heads", 0) or 0) or None
+    resolved_kv_heads = int(num_key_value_heads or getattr(config, "num_key_value_heads", 0) or 0) or num_attention_heads
+
     for unit in to_prune:
         if unit.component == "head":
             base = f"model.layers.{unit.layer}.self_attn"
+            q_proj = f"{base}.q_proj"
+            k_proj = f"{base}.k_proj"
+            v_proj = f"{base}.v_proj"
+            o_proj = f"{base}.o_proj"
+
             units.append(
                 {
                     "type": "head",
                     "indices": [unit.index],
                     "head_dim": head_dim,
-                    "module_names": [f"{base}.q_proj", f"{base}.k_proj", f"{base}.v_proj", f"{base}.o_proj"],
+                    "module_names": [q_proj, o_proj],
                     "module_dims": {
-                        f"{base}.q_proj": 0,
-                        f"{base}.k_proj": 0,
-                        f"{base}.v_proj": 0,
-                        f"{base}.o_proj": 1,
+                        q_proj: 0,
+                        o_proj: 1,
                     },
                 }
             )
+
+            if (
+                num_attention_heads is not None
+                and resolved_kv_heads is not None
+                and resolved_kv_heads > 0
+                and resolved_kv_heads < num_attention_heads
+            ):
+                if num_attention_heads % resolved_kv_heads != 0:
+                    raise ValueError(
+                        f"Invalid GQA head layout for pruning: num_attention_heads={num_attention_heads}, "
+                        f"num_key_value_heads={resolved_kv_heads}"
+                    )
+                group_size = num_attention_heads // resolved_kv_heads
+                kv_index = min(unit.index // group_size, resolved_kv_heads - 1)
+                units.append(
+                    {
+                        "type": "head",
+                        "indices": [kv_index],
+                        "head_dim": head_dim,
+                        "module_names": [k_proj, v_proj],
+                        "module_dims": {
+                            k_proj: 0,
+                            v_proj: 0,
+                        },
+                    }
+                )
+            else:
+                units.append(
+                    {
+                        "type": "head",
+                        "indices": [unit.index],
+                        "head_dim": head_dim,
+                        "module_names": [k_proj, v_proj],
+                        "module_dims": {
+                            k_proj: 0,
+                            v_proj: 0,
+                        },
+                    }
+                )
         elif unit.component == "channel":
             base = f"model.layers.{unit.layer}.mlp"
             units.append({"type": "channel", "module": f"{base}.down_proj", "indices": [unit.index], "dim": 1})
