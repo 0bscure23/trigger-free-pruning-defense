@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--eval-asr-jsonl", type=Path, required=True, help="ASR eval data: .jsonl or BackdoorLLM-style .json")
     parser.add_argument("--eval-clean-jsonl", type=Path, default=None, help="Optional clean or no-trigger evaluation split")
-    parser.add_argument("--eval-max-new-tokens", type=int, default=128)
+    parser.add_argument("--eval-max-new-tokens", type=int, default=64)
     parser.add_argument("--eval-max-length", type=int, default=1024)
     parser.add_argument("--eval-temperature", type=float, default=0.0)
     parser.add_argument("--eval-top-p", type=float, default=0.75)
