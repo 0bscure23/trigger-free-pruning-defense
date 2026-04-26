@@ -245,6 +245,7 @@ def _scheduled_objective_weights(
     lambda_align: float,
     lambda_safe: float,
     objective_schedule: str,
+    alternating_soft_safe_ratio: float = 1.0,
 ) -> tuple[float, float, float]:
     if objective_schedule == "simultaneous":
         return lambda_clean, lambda_align, lambda_safe
@@ -254,10 +255,30 @@ def _scheduled_objective_weights(
             return lambda_clean, lambda_align, 0.0
         return 0.0, 0.0, lambda_safe
 
+    if objective_schedule == "alternating_soft":
+        if step_index % 2 == 0:
+            return lambda_clean, lambda_align, lambda_safe * alternating_soft_safe_ratio
+        return 0.0, 0.0, lambda_safe
+
+    if objective_schedule == "alternating_2c1s":
+        return (
+            (lambda_clean, lambda_align, 0.0)
+            if step_index % 3 in (0, 1)
+            else (0.0, 0.0, lambda_safe)
+        )
+
     if objective_schedule == "warmup_clean_then_mixed":
         warmup_steps = max(1, math.ceil(total_steps * 0.25))
         if step_index < warmup_steps:
             return lambda_clean, lambda_align, 0.0
+        return lambda_clean, lambda_align, lambda_safe
+
+    if objective_schedule == "alternating_then_simultaneous":
+        transition_step = math.ceil(total_steps * 0.6)
+        if step_index < transition_step:
+            if step_index % 2 == 0:
+                return lambda_clean, lambda_align, 0.0
+            return 0.0, 0.0, lambda_safe
         return lambda_clean, lambda_align, lambda_safe
 
     raise ValueError(f"Unsupported --objective-schedule: {objective_schedule}")
@@ -599,9 +620,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stable-loss-mode", action="store_true", help="Use raw losses instead of normalized losses")
     parser.add_argument(
         "--objective-schedule",
-        choices=["simultaneous", "alternating", "warmup_clean_then_mixed"],
+        choices=["simultaneous", "alternating", "alternating_soft", "alternating_2c1s", "alternating_then_simultaneous", "warmup_clean_then_mixed"],
         default="simultaneous",
         help="How to combine clean and safe recovery objectives across training steps",
+    )
+    parser.add_argument(
+        "--alternating-soft-safe-ratio",
+        type=float,
+        default=0.25,
+        help="Safe weight ratio on clean steps when using alternating_soft schedule (0.0 = pure alternating, 1.0 = simultaneous)",
     )
     parser.add_argument("--steps", type=int, default=30)
     parser.add_argument("--lr", type=float, default=5e-6)
@@ -873,6 +900,7 @@ def main() -> None:
             lambda_align=float(args.lambda_align),
             lambda_safe=float(args.lambda_safe),
             objective_schedule=str(args.objective_schedule),
+            alternating_soft_safe_ratio=float(args.alternating_soft_safe_ratio),
         )
         raw_clean_total = 0.0
         raw_align_total = 0.0
@@ -1469,6 +1497,7 @@ def main() -> None:
                     "lambda_align": float(args.lambda_align),
                     "lambda_safe": float(args.lambda_safe),
                     "objective_schedule": str(args.objective_schedule),
+                    "alternating_soft_safe_ratio": float(args.alternating_soft_safe_ratio),
                     "lambda_reg": float(args.lambda_reg),
                     "loss_normalization": str(args.loss_normalization),
                     "stable_loss_mode": bool(args.stable_loss_mode),
