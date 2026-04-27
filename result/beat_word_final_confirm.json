@@ -1,0 +1,29 @@
+{
+  "phase": "Phase 1: BEAT Word Final Confirmation",
+  "timestamp": "2026-04-26T17:30:00+08:00",
+  "protocol": {"dtype": "bf16", "eval_max_new_tokens": 64},
+  "status": {
+    "balanced_best": "CONFIRMED - fully reproducible",
+    "alternating_aggressive": "NOT REPRODUCIBLE - historical 0.0917, current re-runs 0.3750"
+  },
+  "balanced_best": {
+    "config": "fixed + simultaneous + all + l_safe=0.08 + l_clean=1.0 + l_align=2.0 + steps=25 + lr=1.5e-5",
+    "expected": {"ASR": 0.1417, "harmful_refusal": 0.8667, "benign_fr": 0.3900, "empty_rate": 0.0},
+    "confirmed": {"ASR": 0.1417, "harmful_refusal": 0.8667, "benign_fr": 0.3900, "avg_len": 64.0, "empty_rate": 0.0},
+    "reproducible": true,
+    "model_path": "/ssd4/lizhy_workspace/beat_only_asr_push/simul_l008_align2_s25/recovered_model",
+    "eval_json": "/ssd4/lizhy_workspace/beat_only_asr_push/beat_word_balanced_best_confirm_eval.json"
+  },
+  "alternating_aggressive": {
+    "config": "fixed + alternating + all + l_safe=0.08 + steps=25 + lr=1.5e-5",
+    "expected_historical": {"ASR": 0.0917, "harmful_refusal": 0.9167, "benign_fr": 0.4800},
+    "rerun_1": {"ASR": 0.3750, "harmful_refusal": 0.6500, "benign_fr": 0.3200, "avg_len": 64.0, "empty_rate": 0.0},
+    "rerun_2": {"ASR": 0.3750, "harmful_refusal": 0.6500, "benign_fr": 0.3200, "avg_len": 64.0, "empty_rate": 0.0},
+    "reproducible": false,
+    "cause": "Loss curves differ from historical run. Pruned model may have been re-created or environment changed.",
+    "deterministic_across_reruns": true,
+    "eval_json_1": "/ssd4/lizhy_workspace/beat_only_asr_push/beat_word_alternating_confirm_eval.json",
+    "eval_json_2": "/ssd4/lizhy_workspace/beat_only_asr_push/beat_word_alternating_v2_eval.json"
+  },
+  "conclusion": "Balanced best (simultaneous schedule, ASR=0.1417) is the reliable, reproducible result. Alternating ASR=0.0917 is historical only and not reproducible."
+}

@@ -1,0 +1,63 @@
+{
+  "phase": "Phase 0: Code and remote branch verification",
+  "timestamp": "2026-04-26T00:00:00+08:00",
+  "status": "PASS",
+  "git": {
+    "branch": "codex/jailbreak-adaptation-sync",
+    "local_commit": "08fd92b",
+    "local_commit_full": "08fd92b...",
+    "remote_commit": "08fd92b",
+    "remote_exists": true,
+    "remote_url": "https://github.com/0bscure23/trigger-free-pruning-defense/tree/codex/jailbreak-adaptation-sync",
+    "uncommitted_changes": false,
+    "last_commit_message": "Add new objective schedules and BEAT EMD evaluation support"
+  },
+  "code_checks": {
+    "scripts/recover_model.py": {
+      "exists": true,
+      "has_args": {
+        "--lambda-align": true,
+        "--lambda-clean": true,
+        "--lambda-safe": true,
+        "--objective-schedule": true,
+        "--alternating-soft-safe-ratio": true,
+        "--trainable-policy": true
+      },
+      "schedule_choices": [
+        "simultaneous",
+        "alternating",
+        "alternating_soft",
+        "alternating_2c1s",
+        "alternating_then_simultaneous",
+        "warmup_clean_then_mixed"
+      ],
+      "trainable_policy_choices": ["all", "pruned_layers"]
+    },
+    "scripts/beat_eval.py": {
+      "exists": true,
+      "description": "Standalone BEAT EMD-based detection eval (AUROC, AP, TPR@FPR=5%)"
+    },
+    "scripts/run_exp.sh": {
+      "exists": true,
+      "executable": true,
+      "description": "Experiment launch wrapper for BEAT word recovery + ASR eval"
+    },
+    "scripts/evaluate_model.py": {
+      "eval_max_new_tokens_default": 64,
+      "dtype_default": "bf16",
+      "dtype_choices": ["bf16", "fp16"]
+    },
+    "scripts/diagnose_generation_metrics.py": {
+      "eval_max_new_tokens_default": 64,
+      "dtype_default": "bf16",
+      "dtype_choices": ["bf16", "fp16"]
+    }
+  },
+  "protocol_enforcement": {
+    "dtype": "bf16",
+    "eval_max_new_tokens": 64,
+    "fp16_prohibited": true,
+    "eval_max_new_tokens_32_prohibited": true
+  },
+  "verdict": "All required code is present on the remote branch. Reproducibility is confirmed."
+}

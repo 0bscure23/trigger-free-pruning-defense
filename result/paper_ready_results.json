@@ -1,0 +1,68 @@
+{
+  "phase": "Phase 5-6: Paper-Ready Results",
+  "timestamp": "2026-04-27T18:00:00+08:00",
+  "protocol": {"dtype": "bf16", "eval_max_new_tokens": 64, "env": "base (TF 5.3.0)"},
+  "pruned_model": {
+    "word": {"path": "/ssd3/.../beat_word/B_safe_prune/pruned_model", "units": 21, "config_status": "fixed (rope_scaling+eos restored from HF)"},
+    "phrase": {"path": "/ssd4/.../beat_phrase_score_prune/pruned_model", "units": 320, "config_status": "fixed"},
+    "long": {"path": "/ssd4/.../beat_long_score_prune/pruned_model", "units": 320, "config_status": "fixed"}
+  },
+  "beat_word": {
+    "raw_baseline": {"ASR": 0.875, "harmful_refusal": 0.10, "benign_fr": 0.05, "source": "historical"},
+    "balanced_best": {
+      "config": "simultaneous+l_align=2.0+l_safe=0.08+steps=25+lr=1.5e-5",
+      "ASR": 0.1417, "harmful_refusal": 0.8667, "benign_fr": 0.3900,
+      "reproducible": true,
+      "model": "/ssd4/.../simul_l008_align2_s25/recovered_model",
+      "eval": "/ssd4/.../beat_word_balanced_best_confirm_eval.json"
+    },
+    "alternating_aggressive": {
+      "config": "alternating+l_safe=0.08+steps=25+lr=1.5e-5",
+      "ASR": 0.0917, "harmful_refusal": 0.9167, "benign_fr": 0.4800,
+      "reproducible": false,
+      "eval": "/ssd4/.../beat_phase2_alternating_eval.json",
+      "note": "Historical only; not reproducible in current environment"
+    },
+    "emd_metrics": {
+      "pruned_only": {"AUROC": 99.87, "AP": 99.74, "TPR@FPR5": 100.0},
+      "recovered_best": {"AUROC": 50.00, "AP": 33.33, "TPR@FPR5": 0.0}
+    },
+    "paper_status": "mature_main_result"
+  },
+  "beat_phrase": {
+    "raw_baseline": {"ASR": 0.9000, "harmful_refusal": 0.4833, "benign_fr": 0.0300},
+    "balanced_best_transfer": {
+      "ASR": 0.0750, "harmful_refusal": 0.9083, "benign_fr": 0.5800,
+      "meets_early_stop": true,
+      "eval": "/ssd4/.../beat_phrase_recovered_v2_eval.json"
+    },
+    "paper_status": "extension_result"
+  },
+  "beat_long": {
+    "raw_baseline": {"ASR": 0.9250, "harmful_refusal": 0.1583, "benign_fr": 0.0300},
+    "balanced_best_transfer": {
+      "ASR": 0.2083, "harmful_refusal": 0.8000, "benign_fr": 0.2900,
+      "meets_early_stop": false,
+      "eval": "/ssd4/.../beat_long_recovered_v2_eval.json"
+    },
+    "paper_status": "extension_result_needs_tuning"
+  },
+  "control": {
+    "raw_baseline": {"ASR": 0.8990},
+    "beat_transfer": {"ASR": 1.0000, "status": "defense_amplifies_backdoor"},
+    "paper_status": "limitations_only"
+  },
+  "cross_trigger_generalization": {
+    "word": {"baseline": 0.875, "defended": 0.1417, "reduction_pct": 84, "meets_threshold": true},
+    "phrase": {"baseline": 0.900, "defended": 0.0750, "reduction_pct": 92, "meets_threshold": true},
+    "long": {"baseline": 0.925, "defended": 0.2083, "reduction_pct": 77, "meets_threshold": false}
+  },
+  "not_comparable": ["fp16 results", "eval_max_new_tokens=32", "empty_output_rate>0", "missing bf16+64 metadata"],
+  "next_research": {
+    "beat_word_ready": true,
+    "cross_trigger_partial": "phrase succeeds, long needs tuning",
+    "control_separate_strategy": true,
+    "priority_improvements": ["tune l_align for long trigger", "reduce benign_fr", "investigate pruning unit count differences"],
+    "asr_below_0.10_path": "phrase already achieves 0.075 with 320 pruned units; word with 21 units at 0.142 needs more aggressive pruning"
+  }
+}
