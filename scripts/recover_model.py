@@ -515,6 +515,11 @@ def _parse_debug_save_steps(raw: str) -> set[int]:
     return steps
 
 
+def _parse_save_steps(raw: str) -> set[int]:
+    """Parse --save-steps into a set of step indices (1-indexed, same as debug)."""
+    return _parse_debug_save_steps(raw)
+
+
 def _compute_grad_norm(trainable: list[torch.nn.Parameter]) -> float:
     total_sq = 0.0
     has_grad = False
@@ -631,6 +636,12 @@ def parse_args() -> argparse.Namespace:
         help="Safe weight ratio on clean steps when using alternating_soft schedule (0.0 = pure alternating, 1.0 = simultaneous)",
     )
     parser.add_argument("--steps", type=int, default=30)
+    parser.add_argument(
+        "--save-steps",
+        type=str,
+        default="",
+        help="Comma-separated step indices at which to save intermediate checkpoints (e.g. '12,16,20,25')",
+    )
     parser.add_argument("--lr", type=float, default=5e-6)
     parser.add_argument("--optimizer", choices=["adamw", "sgd"], default="adamw")
     parser.add_argument(
@@ -735,6 +746,7 @@ def main() -> None:
     if float(args.lambda_safe) > 0 and args.harmful_no_trigger_jsonl is None:
         raise ValueError("--lambda-safe > 0 requires --harmful-no-trigger-jsonl")
     debug_save_steps = _parse_debug_save_steps(str(args.debug_save_steps))
+    save_steps = _parse_save_steps(str(args.save_steps))
     debug_checkpoint_dir = (
         Path(args.debug_checkpoint_dir)
         if args.debug_checkpoint_dir is not None
@@ -1430,6 +1442,11 @@ def main() -> None:
                 tokenizer=tokenizer,
                 output_dir=debug_checkpoint_dir / f"step_{step + 1:03d}",
             )
+
+        if int(step + 1) in save_steps:
+            ckpt_dir = args.run_dir / f"checkpoint_step_{step + 1:03d}"
+            ckpt_dir.mkdir(parents=True, exist_ok=True)
+            save_model_and_tokenizer_safe(model, tokenizer, str(ckpt_dir))
 
         if (not args.stable_loss_mode) and args.loss_normalization == "ema_ratio":
             beta = float(args.norm_ema_beta)
