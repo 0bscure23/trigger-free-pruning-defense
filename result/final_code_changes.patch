@@ -1,0 +1,179 @@
+diff --git a/pipeline_utils.py b/pipeline_utils.py
+index 4d8b960..6f3e842 100644
+--- a/pipeline_utils.py
++++ b/pipeline_utils.py
+@@ -310,11 +310,119 @@ def load_backdoorllm_model_and_tokenizer(
+     if tokenizer.bos_token_id is not None:
+         model.config.bos_token_id = tokenizer.bos_token_id
+     if tokenizer.eos_token_id is not None:
+-        model.config.eos_token_id = tokenizer.eos_token_id
++        # Preserve existing eos_token_id; never force Llama-3.1 values on other models
++        existing = getattr(model.config, "eos_token_id", None)
++        if isinstance(existing, list) and len(existing) > 1:
++            model.config.eos_token_id = existing
++        else:
++            model.config.eos_token_id = tokenizer.eos_token_id
+ 
+     return model, tokenizer
+ 
+ 
++# ── Config repair: TF 5.x save_pretrained drops fields that 4.x needs ──
++
++def _looks_like_llama3(config_dict: dict) -> bool:
++    """Return True if the config looks like a Llama-3.x model."""
++    model_type = config_dict.get("model_type", "")
++    if model_type != "llama":
++        return False
++    # Llama-3.x uses a larger vocab and has rope_scaling with rope_type llama3
++    rope = config_dict.get("rope_scaling") or {}
++    if isinstance(rope, dict) and rope.get("rope_type") == "llama3":
++        return True
++    # Fallback: vocab size 128256 is unique to Llama-3 tokenizer
++    if config_dict.get("vocab_size") == 128256:
++        return True
++    return False
++
++
++# Fields that TF 5.x drops from the config when the model has them
++_ROPE_KEYS = ("rope_scaling", "rope_theta")
++
++
++def save_model_and_tokenizer_safe(model, tokenizer, output_dir: str) -> None:
++    """Save model+tokenizer, then repair config.json fields that TF 5.x corrupts.
++
++    TF 5.3.0 save_pretrained() mutates config.json:
++    1. Drops ``rope_scaling`` and ``rope_theta`` (moves them to ``rope_parameters``).
++    2. May flatten ``eos_token_id`` from list to scalar.
++
++    Repairs are applied conditionally based on what the source model config contains.
++    No Llama-family hardcoded values are forced onto other model architectures.
++    """
++    import json
++    from pathlib import Path
++
++    out = Path(output_dir)
++    out.mkdir(parents=True, exist_ok=True)
++
++    model.save_pretrained(str(out))
++    tokenizer.save_pretrained(str(out))
++
++    config_path = out / "config.json"
++    if not config_path.exists():
++        return
++
++    with open(config_path, "r") as f:
++        saved_cfg = json.load(f)
++
++    src_cfg = model.config.to_dict()
++    is_llama3 = _looks_like_llama3(src_cfg)
++    repaired = False
++
++    # 1. Restore rope fields if they exist in source but were dropped by TF 5.x
++    for key in _ROPE_KEYS:
++        src_val = src_cfg.get(key)
++        if src_val is None:
++            continue
++        if key not in saved_cfg:
++            saved_cfg[key] = src_val
++            repaired = True
++        elif saved_cfg.get(key) != src_val:
++            saved_cfg[key] = src_val
++            repaired = True
++
++    # 2. Remove TF5.x-only rope_parameters (redundant with rope_scaling, confuses TF 4.x)
++    if "rope_parameters" in saved_cfg:
++        del saved_cfg["rope_parameters"]
++        repaired = True
++
++    # 3. Remove bare "dtype" (TF5.x artifact; torch_dtype is the standard key)
++    if "dtype" in saved_cfg and "torch_dtype" in saved_cfg:
++        del saved_cfg["dtype"]
++        repaired = True
++
++    # 4. eos_token_id: restore list form only when source had it
++    src_eos = src_cfg.get("eos_token_id")
++    saved_eos = saved_cfg.get("eos_token_id")
++    if isinstance(src_eos, list) and len(src_eos) > 1:
++        # Source had a multi-token eos list — TF 5.x may have flattened it
++        if not isinstance(saved_eos, list) or saved_eos != src_eos:
++            saved_cfg["eos_token_id"] = list(src_eos)
++            repaired = True
++    elif is_llama3 and isinstance(src_eos, int) and isinstance(saved_eos, int):
++        # Both scalar — leave as-is (this is normal for some Llama-3 variants)
++        pass
++    elif not is_llama3:
++        # Non-Llama model — do not touch eos_token_id
++        pass
++
++    # 5. Fix tokenizer_config if tokenizer_class was written as TokenizersBackend
++    tok_cfg_path = out / "tokenizer_config.json"
++    if tok_cfg_path.exists():
++        with open(tok_cfg_path, "r") as f:
++            tok_cfg = json.load(f)
++        if tok_cfg.get("tokenizer_class") == "TokenizersBackend":
++            tok_cfg["tokenizer_class"] = "PreTrainedTokenizerFast"
++            with open(tok_cfg_path, "w") as f:
++                json.dump(tok_cfg, f, indent=2)
++
++    if repaired:
++        with open(config_path, "w") as f:
++            json.dump(saved_cfg, f, indent=2)
++
++
+ def _tokenize_one(
+     tokenizer: Any,
+     prompt: PromptLike,
+diff --git a/scripts/recover_model.py b/scripts/recover_model.py
+index f2fd67c..29e67b5 100644
+--- a/scripts/recover_model.py
++++ b/scripts/recover_model.py
+@@ -32,6 +32,7 @@ from pipeline_utils import (
+     parse_layer_weights,
+     read_prompts,
+     resolve_run_dir,
++    save_model_and_tokenizer_safe,
+ )
+ from pruning_backend import BaseSafetyPruner
+ 
+@@ -551,8 +552,7 @@ def _save_debug_checkpoint(
+     output_dir: Path,
+ ) -> None:
+     output_dir.mkdir(parents=True, exist_ok=True)
+-    tokenizer.save_pretrained(output_dir)
+-    model.save_pretrained(output_dir)
++    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
+ 
+ 
+ def _write_recovery_memory_debug(path: Path, payload: dict[str, object]) -> None:
+@@ -1531,8 +1531,7 @@ def main() -> None:
+ 
+     output_dir = args.run_dir / "recovered_model"
+     output_dir.mkdir(parents=True, exist_ok=True)
+-    tokenizer.save_pretrained(output_dir)
+-    model.save_pretrained(output_dir)
++    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
+ 
+     print(f"Wrote losses to {args.run_dir / 'recovery_losses.json'}")
+     print(f"Wrote recovered model to {output_dir}")
+diff --git a/scripts/score_and_prune.py b/scripts/score_and_prune.py
+index 55b3c80..345bad5 100644
+--- a/scripts/score_and_prune.py
++++ b/scripts/score_and_prune.py
+@@ -22,6 +22,7 @@ from pipeline_utils import (
+     now_ts,
+     read_prompts,
+     resolve_run_dir,
++    save_model_and_tokenizer_safe,
+ )
+ from pruning_backend import BaseSafetyPruner
+ 
+@@ -214,8 +215,7 @@ def main() -> None:
+ 
+     output_dir = args.run_dir / "pruned_model"
+     output_dir.mkdir(parents=True, exist_ok=True)
+-    tokenizer.save_pretrained(output_dir)
+-    model.save_pretrained(output_dir)
++    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
+ 
+     print(f"Wrote unit scores to {args.run_dir / 'unit_scores.json'}")
+     print(f"Wrote pruning plan to {args.run_dir / 'pruning_plan.json'}")

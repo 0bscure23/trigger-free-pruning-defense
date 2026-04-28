@@ -22,6 +22,7 @@ from pipeline_utils import (
     now_ts,
     read_prompts,
     resolve_run_dir,
+    save_model_and_tokenizer_safe,
 )
 from pruning_backend import BaseSafetyPruner
 
@@ -214,8 +215,7 @@ def main() -> None:
 
     output_dir = args.run_dir / "pruned_model"
     output_dir.mkdir(parents=True, exist_ok=True)
-    tokenizer.save_pretrained(output_dir)
-    model.save_pretrained(output_dir)
+    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
 
     print(f"Wrote unit scores to {args.run_dir / 'unit_scores.json'}")
     print(f"Wrote pruning plan to {args.run_dir / 'pruning_plan.json'}")

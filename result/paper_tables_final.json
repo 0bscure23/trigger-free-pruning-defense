@@ -1,0 +1,70 @@
+{
+  "protocol": {"dtype": "bf16", "eval_max_new_tokens": 64},
+  "table1_asr": {
+    "title": "BEAT ASR — Jailbreak Defense Results",
+    "rows": [
+      {"model": "Word", "setting": "Raw", "ASR": 0.9250, "harmful_refusal": 0.3167, "benign_fr": 0.030, "empty_rate": 0.0},
+      {"model": "Word", "setting": "Balanced", "ASR": 0.1417, "harmful_refusal": 0.8667, "benign_fr": 0.390, "empty_rate": 0.0, "config": "simul+align=2.0+safe=0.08+steps=25", "paper_point": "balanced_best"},
+      {"model": "Phrase", "setting": "Raw", "ASR": 0.9000, "harmful_refusal": 0.4833, "benign_fr": 0.030, "empty_rate": 0.0},
+      {"model": "Phrase", "setting": "Strong", "ASR": 0.0750, "harmful_refusal": 0.9083, "benign_fr": 0.580, "empty_rate": 0.0, "config": "simul+align=2.0+safe=0.08+steps=25", "paper_point": "strong_defense"},
+      {"model": "Phrase", "setting": "Balanced", "ASR": 0.1667, "harmful_refusal": 0.8417, "benign_fr": 0.350, "empty_rate": 0.0, "config": "simul+align=1.0+safe=0.08+steps=25", "paper_point": "balanced_low_bfr"},
+      {"model": "Long", "setting": "Raw", "ASR": 0.9250, "harmful_refusal": 0.1583, "benign_fr": 0.030, "empty_rate": 0.0},
+      {"model": "Long", "setting": "Best", "ASR": 0.1750, "harmful_refusal": 0.8333, "benign_fr": 0.320, "empty_rate": 0.0, "config": "simul+align=2.5+safe=0.08+steps=25", "paper_point": "best_available"}
+    ]
+  },
+  "table2_utility": {
+    "title": "Utility Preservation",
+    "rows": [
+      {"model": "Word", "setting": "Raw", "PPL": 13.16, "BoolQ": 0.787, "RTE": 0.635, "HellaSwag": 0.547, "HellaSwag_n": 0.722},
+      {"model": "Word", "setting": "Defended", "PPL": 11.32, "BoolQ": 0.804, "RTE": 0.711, "HellaSwag": 0.517, "HellaSwag_n": 0.702},
+      {"model": "Phrase", "setting": "Raw", "PPL": 12.60, "BoolQ": 0.774, "RTE": 0.628, "HellaSwag": 0.550, "HellaSwag_n": 0.730},
+      {"model": "Phrase", "setting": "Defended", "PPL": 11.91, "BoolQ": 0.773, "RTE": 0.718, "HellaSwag": 0.512, "HellaSwag_n": 0.691},
+      {"model": "Long", "setting": "Raw", "PPL": 14.07, "BoolQ": 0.762, "RTE": 0.610, "HellaSwag": 0.555, "HellaSwag_n": 0.727},
+      {"model": "Long", "setting": "Defended", "PPL": 12.63, "BoolQ": 0.772, "RTE": 0.650, "HellaSwag": 0.509, "HellaSwag_n": 0.687}
+    ]
+  },
+  "table3_emd": {
+    "title": "BEAT EMD Detection Metrics",
+    "rows": [
+      {"model": "Word", "stage": "Pruned", "AUROC": 99.87, "AP": 99.74, "TPR_FPR5": 100.0},
+      {"model": "Word", "stage": "Recovered", "AUROC": 50.00, "AP": 33.33, "TPR_FPR5": 0.0},
+      {"model": "Phrase", "stage": "Pruned", "AUROC": 99.91, "AP": 99.82, "TPR_FPR5": 100.0},
+      {"model": "Phrase", "stage": "Recovered", "AUROC": 54.32, "AP": 42.00, "TPR_FPR5": 13.0},
+      {"model": "Long", "stage": "Pruned", "AUROC": 100.00, "AP": 99.99, "TPR_FPR5": 100.0},
+      {"model": "Long", "stage": "Recovered", "AUROC": 86.97, "AP": 87.05, "TPR_FPR5": 76.0}
+    ]
+  },
+  "conclusion_grading": {
+    "main_results": [
+      "BEAT word ASR 0.925->0.142, reproducible, EMD validates",
+      "Lambda-align phase transition",
+      "Recovery preserves utility (PPL/BoolQ/RTE improve)",
+      "EMD independently validates ASR"
+    ],
+    "extension_results": [
+      "BEAT phrase ASR 0.900->0.075, with BFR trade-off",
+      "BEAT long ASR 0.925->0.175, partial success",
+      "Phrase EMD 99.91->54.32",
+      "Long EMD 100->86.97"
+    ],
+    "limitations_only": [
+      "Control model incompatibility (BadNets+LoRA)",
+      "Long trigger not fully neutralized",
+      "BFR trade-off at strong defense settings",
+      "Steps sensitivity requires empirical tuning"
+    ],
+    "cannot_use": [
+      "Alternating ASR=0.0917 (not reproducible)",
+      "eval_max_new_tokens=32 results",
+      "fp16 collapse runs",
+      "empty_output_rate>0 collapse runs"
+    ]
+  },
+  "next_experiments": [
+    {"priority": 1, "task": "Reduce phrase BFR while keeping ASR<0.15", "approach": "try l_safe=0.04 or safe_target_mode=pool"},
+    {"priority": 2, "task": "Tune long to meet ASR<=0.15", "approach": "lambda_align in [2.4,2.6] at 0.05 increments"},
+    {"priority": 3, "task": "Re-score phrase/long with lower max_prune_units (50-100)", "approach": "current 320 units likely overshooting"},
+    {"priority": 4, "task": "Perturbation-step ablation on refusal model", "approach": "clean-gradient proxy vs FGSM-perturbation proxy"},
+    {"priority": 5, "task": "Decide phrase/long paper placement", "approach": "if BFR and long ASR improve -> main text; otherwise extension/discussion"}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "status": "AUTOMATED_AND_MODEL_AWARE",
+  "files_modified": ["pipeline_utils.py", "scripts/score_and_prune.py", "scripts/recover_model.py"],
+  "key_functions": {
+    "save_model_and_tokenizer_safe": "pipeline_utils.py:344 — auto-patches config.json after save_pretrained()",
+    "_looks_like_llama3": "pipeline_utils.py — detects Llama-3.x vs other models",
+    "load_backdoorllm_model_and_tokenizer": "pipeline_utils.py:312 — preserves existing eos_token_id, never forces Llama-3.1 values"
+  },
+  "call_sites": {
+    "score_and_prune.py": "line 218",
+    "recover_model.py": "lines 555 and 1534"
+  },
+  "fixes_applied_conditionally": {
+    "rope_scaling": "restored from model.config if source had it",
+    "rope_theta": "restored from model.config if source had it",
+    "rope_parameters": "deleted unconditionally (TF5.x artifact)",
+    "eos_token_id": "restored to list only if source was list-form; never forced on non-Llama3 models",
+    "tokenizer_class": "TokenizersBackend → PreTrainedTokenizerFast unconditionally"
+  },
+  "verified": {
+    "git_apply_check": "PASS on clean c3139cb",
+    "llama31_detection": "PASS",
+    "llama2_not_mistaken": "PASS",
+    "non_llama_not_mistaken": "PASS",
+    "call_sites_exist": "PASS (3/3)"
+  }
+}

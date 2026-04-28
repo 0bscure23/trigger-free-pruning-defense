@@ -32,6 +32,7 @@ from pipeline_utils import (
     parse_layer_weights,
     read_prompts,
     resolve_run_dir,
+    save_model_and_tokenizer_safe,
 )
 from pruning_backend import BaseSafetyPruner
 
@@ -551,8 +552,7 @@ def _save_debug_checkpoint(
     output_dir: Path,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    tokenizer.save_pretrained(output_dir)
-    model.save_pretrained(output_dir)
+    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
 
 
 def _write_recovery_memory_debug(path: Path, payload: dict[str, object]) -> None:
@@ -1531,8 +1531,7 @@ def main() -> None:
 
     output_dir = args.run_dir / "recovered_model"
     output_dir.mkdir(parents=True, exist_ok=True)
-    tokenizer.save_pretrained(output_dir)
-    model.save_pretrained(output_dir)
+    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
 
     print(f"Wrote losses to {args.run_dir / 'recovery_losses.json'}")
     print(f"Wrote recovered model to {output_dir}")
