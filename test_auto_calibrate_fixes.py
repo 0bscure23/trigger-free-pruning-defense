@@ -51,12 +51,16 @@ assert units[0].index == 2
 assert units[0].score == -0.5
 print(f"  PASS: parsed {len(units)} units ({units[0].component} L{units[0].layer}[{units[0].index}], {units[1].component} L{units[1].layer}[{units[1].index}])")
 
-# ── Test 3: Old format ("units" key) returns empty list ──
+# ── Test 3: Old format ("units" key) raises ValueError ──
 print("\n=== Test 3: old 'units' key rejected ===")
 old_plan = {"units": [{"component": "head", "layer": 1, "index": 0}]}
-old_units = _deserialize_pruned_units(old_plan)
-assert len(old_units) == 0, f"FAIL: should return empty for old format, got {len(old_units)}"
-print("  PASS: old 'units' key returns empty (no silent corruption)")
+try:
+    _deserialize_pruned_units(old_plan)
+    assert False, "FAIL: should raise ValueError for old format"
+except ValueError as e:
+    assert "legacy" in str(e).lower() or "units" in str(e).lower(), \
+        f"FAIL: ValueError message should mention 'legacy' or 'units', got: {e}"
+    print(f"  PASS: old 'units' key raises ValueError ({e})")
 
 # ── Test 4: propose_pruning_candidates with sample scores ──
 print("\n=== Test 4: candidate generation logic ===")

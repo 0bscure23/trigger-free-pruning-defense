@@ -443,9 +443,16 @@ def _compose_recovery_loss(
 
 
 def _deserialize_pruned_units(pruning_meta: dict[str, object]) -> list[UnitScore]:
+    # Reject legacy "units" schema — only "to_prune" is supported
+    if "units" in pruning_meta and "to_prune" not in pruning_meta:
+        raise ValueError(
+            "Legacy pruning plan schema detected (\"units\" key). "
+            "This format is no longer supported. "
+            "Re-run score_and_prune.py or auto_calibrate.py to generate a valid plan with \"to_prune\"."
+        )
     raw_units = pruning_meta.get("to_prune", [])
     if not isinstance(raw_units, list):
-        return []
+        raise ValueError(f"Expected \"to_prune\" to be a list, got {type(raw_units).__name__}")
     units: list[UnitScore] = []
     for raw in raw_units:
         if not isinstance(raw, dict):
