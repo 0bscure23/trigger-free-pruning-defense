@@ -64,6 +64,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--proxy-epsilon", type=float, default=0.1, help="FGSM epsilon used to build proxy gradients")
     parser.add_argument("--kappa", type=float, default=0.0, help="Prune units with score <= kappa")
     parser.add_argument("--max-prune-units", type=int, default=0, help="Maximum number of units to prune; 0 means uncapped")
+    parser.add_argument("--score-only", action="store_true", help="Only compute unit scores; skip pruning and model saving")
     parser.add_argument(
         "--max-score-to-prune",
         type=float,
@@ -150,12 +151,13 @@ def main() -> None:
     if args.max_prune_units > 0:
         to_prune = to_prune[: int(args.max_prune_units)]
 
-    apply_structured_prune(
-        pruner,
-        to_prune=to_prune,
-        head_dim=head_dim,
-        num_key_value_heads=num_key_value_heads,
-    )
+    if not args.score_only:
+        apply_structured_prune(
+            pruner,
+            to_prune=to_prune,
+            head_dim=head_dim,
+            num_key_value_heads=num_key_value_heads,
+        )
 
     (args.run_dir / "unit_scores.json").write_text(
         json.dumps(
@@ -213,13 +215,14 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    output_dir = args.run_dir / "pruned_model"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
+    if not args.score_only:
+        output_dir = args.run_dir / "pruned_model"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
+        print(f"Wrote pruned model to {output_dir}")
 
     print(f"Wrote unit scores to {args.run_dir / 'unit_scores.json'}")
     print(f"Wrote pruning plan to {args.run_dir / 'pruning_plan.json'}")
-    print(f"Wrote pruned model to {output_dir}")
 
 
 if __name__ == "__main__":
