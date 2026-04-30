@@ -317,6 +317,9 @@ def _write_candidate_pruning_plan(
 def _make_subprocess_env() -> dict:
     env = os.environ.copy()
     env.setdefault("MKL_SERVICE_FORCE_INTEL", "1")
+    # Force TMPDIR to /ssd2 so model.save_pretrained (which uses tempfile)
+    # doesn't fail with "No space left on device" when root /tmp is full.
+    env["TMPDIR"] = "/ssd2/lizhy_workspace/tmp"
     return env
 
 
