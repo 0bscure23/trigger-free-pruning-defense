@@ -901,9 +901,9 @@ def main() -> None:
                 refine_la = sorted(set(
                     max(0.25, seed_la + d) for d in [-0.25, 0.0, 0.25]
                 ))
-                # Local ls anchors: seed_ls ± 0.02 (must stay >= 0.01)
+                # Local ls anchors: seed_ls ± 0.01 AND ± 0.02 (finer grain for narrow sweet spots)
                 refine_ls = sorted(set(
-                    max(0.01, seed_ls + d) for d in [-0.02, 0.0, 0.02]
+                    max(0.01, seed_ls + d) for d in [-0.02, -0.01, 0.0, 0.01, 0.02]
                 ))
                 # Local step anchors: seed_step ± 5 (must stay >= 5)
                 refine_steps = sorted(set(
