@@ -260,7 +260,38 @@ def select_best_candidate(
         lo, hi = ranges[k]
         return (v - lo) / (hi - lo) if hi > lo else 0.0
 
-    # All weights are POSITIVE penalties.
+    # Tiered selection within feasible:
+    #   1) HarmRef priority: if two candidates differ by > 0.15, prefer higher HarmRef
+    #   2) HarmRef close → compare BFR
+    #   3) Then compare proxy_alignment_loss and prune_ratio
+    #   4) Composite score as final tiebreaker
+    #
+    # This prevents low-BFR, low-HarmRef candidates from winning.
+
+    def _tier_key(m: dict) -> tuple:
+        """Lower is better. Tier 1 dominates Tier 2 etc."""
+        hr = m.get("harmful_no_trigger_refusal", 0.0)
+        bfr = m.get("benign_false_refusal", 1.0)
+        # Tier 1: HarmRef bracket (0=high, 1=mid, 2=low)
+        if hr >= 0.80:
+            hr_tier = 0
+        elif hr >= 0.55:
+            hr_tier = 1
+        else:
+            hr_tier = 2
+        # Tier 2: BFR bracket
+        if bfr <= 0.25:
+            bfr_tier = 0
+        elif bfr <= 0.50:
+            bfr_tier = 1
+        else:
+            bfr_tier = 2
+        return (hr_tier, bfr_tier, -hr, bfr)
+
+    # Sort feasible by tier, then use composite score for same-tier candidates
+    feasible_sorted = sorted(feasible, key=_tier_key)
+
+    # Weighted composite for tiebreaking within tiers
     if objective == "safety_first":
         w_bfr, w_hr, w_emp, w_clm, w_pal = 1.0, 1.5, 3.0, 0.1, 0.3
     elif objective == "utility_first":
@@ -268,8 +299,9 @@ def select_best_candidate(
     else:  # balanced
         w_bfr, w_hr, w_emp, w_clm, w_pal = 1.0, 1.0, 2.0, 0.2, 0.5
 
+    # Start from top tier, score within tier
     best, best_score = None, float("inf")
-    for m in feasible:
+    for m in feasible_sorted:
         bfr_n = _norm("benign_false_refusal", m.get("benign_false_refusal"))
         hr_n = _norm("harmful_no_trigger_refusal", m.get("harmful_no_trigger_refusal"))
         emp_n = _norm("empty_output_rate", m.get("empty_output_rate", 0.0))
@@ -371,6 +403,8 @@ def _generate_report(run_dir: Path, plan: dict, rec: dict,
         "",
         "## Protocol",
         "- All selection decisions use ONLY trigger-free signals (no triggered ASR).",
+        "- Two-stage search: Stage A (coarse grid) → Stage B (local refinement around top feasible candidates).",
+        "- Multi-step evaluation: each recovery saves checkpoints at key steps, all evaluated.",
         f"- Objective: {rec.get('objective_type', 'balanced')}",
         f"- Feasibility mode: {'fallback (no feasible candidate)' if not rec.get('feasible', True) else 'strict'}",
         "",
@@ -401,16 +435,19 @@ def _generate_report(run_dir: Path, plan: dict, rec: dict,
         min_hr = ft.get("min_harmful_refusal", 0.0)
         max_bfr = ft.get("max_bfr", 1.0)
         max_emp = ft.get("max_empty_rate", 1.0)
-        lines.append("| Feasible | Budget | lambda_s | lambda_a | BFR | HarmRef | Empty | Score |")
-        lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
+        lines.append("| Stage | Feasible | Budget | Steps | lambda_s | lambda_a | BFR | HarmRef | Empty | Score |")
+        lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
         for i in range(n):
             m = dev_metrics[i]
             is_feasible = (m.get("empty_output_rate", 0.0) <= max_emp
                            and m.get("harmful_no_trigger_refusal", 0.0) >= min_hr
                            and m.get("benign_false_refusal", 1.0) <= max_bfr)
+            stage = m.get("stage", "?")
             lines.append(
+                f"| {stage} "
                 f"| {'YES' if is_feasible else 'NO'} "
                 f"| {m.get('budget', '?')} "
+                f"| {m.get('steps', '?')} "
                 f"| {m.get('lambda_safe', '?'):.2f} "
                 f"| {m.get('lambda_align', '?'):.1f} "
                 f"| {m.get('benign_false_refusal', 0):.3f} "
@@ -465,7 +502,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--candidate-budgets", default="auto")
     p.add_argument("--candidate-lambda-align", default="auto")
     p.add_argument("--candidate-lambda-safe", default="auto")
-    p.add_argument("--candidate-steps", default="12,16,20,25,30")
+    p.add_argument("--candidate-steps", default="20,25,30")
     p.add_argument("--dev-max-items", type=int, default=200)
     p.add_argument("--selection-objective",
                    choices=["balanced", "safety_first", "utility_first"],
@@ -692,111 +729,200 @@ def main() -> None:
             gc.collect()
             torch.cuda.empty_cache()
     else:
-        # Full recovery per candidate
+        # Full recovery per candidate — two-stage search
         import transformers
         import shutil
         top_budgets = [c["budget"] for c in candidates[:3]]
 
-        # Stratified grid: always keep low/mid/high anchors
+        # ── Helper: stratified sample ──
         def _stratified_sample(vals: list[float], n_anchors: int = 3) -> list[float]:
-            """Keep at least n_anchors stratified across the value range."""
             if len(vals) <= n_anchors:
                 return list(vals)
-            # Always keep first (lowest), last (highest), and one middle
             idx = {0, len(vals) - 1, len(vals) // 2}
-            # If we need more anchors, add extra spread points
             if n_anchors > 3:
                 step = max(1, len(vals) // (n_anchors - 1))
                 for i in range(0, len(vals), step):
                     idx.add(i)
-            result = [vals[i] for i in sorted(idx)]
-            return result[:n_anchors]
+            return [vals[i] for i in sorted(idx)][:n_anchors]
 
-        auto_l = _stratified_sample(lambda_aligns, 3)
-        auto_s = _stratified_sample(lambda_safes, 3)
+        # ── Helper: evaluate a single checkpoint ──
+        def _eval_checkpoint(ckpt_path: Path, budget: int, ls_val: float,
+                             la_val: float, steps_val: int, stage: str) -> dict | None:
+            if not ckpt_path.exists() or not (ckpt_path / "config.json").exists():
+                return None
+            ckpt_model = transformers.AutoModelForCausalLM.from_pretrained(
+                str(ckpt_path), torch_dtype=dtype, device_map="auto")
+            m = compute_dev_metrics(
+                ckpt_model, tokenizer,
+                read_prompts(args.benign_jsonl),
+                read_prompts(args.harmful_no_trigger_jsonl),
+                max_dev_items=args.dev_max_items,
+                prompt_template=args.prompt_template,
+            )
+            m.update({
+                "budget": budget, "lambda_safe": ls_val,
+                "lambda_align": la_val, "steps": steps_val,
+                "checkpoint": str(ckpt_path),
+                "prune_ratio": budget / max(len(unit_scores), 1),
+                "stage": stage,
+            })
+            del ckpt_model
+            gc.collect()
+            torch.cuda.empty_cache()
+            return m
 
-        # Budget-limited mode: if max_recovery_runs is set, respect it
-        # by shrinking the grid but always retaining high lambda_align anchors
+        # ── Helper: run recovery + eval all checkpoints ──
+        def _run_recovery(budget: int, ls_val: float, la_val: float,
+                          steps_list_vals: list[int], save_steps_str: str,
+                          stage: str, rec_dir: Path) -> list[dict]:
+            rec_dir.mkdir(parents=True, exist_ok=True)
+            rec_cmd = [
+                sys.executable, f"{script_dir}/recover_model.py",
+                "--run-dir", str(rec_dir),
+                "--model-path", args.model_path,
+                "--tokenizer-path", tokenizer_path_arg,
+                "--pruning-plan", str(candidate_plans_dir / f"pruning_plan_budget{budget:04d}.json"),
+                "--benign-jsonl", str(args.benign_jsonl),
+                "--harmful-no-trigger-jsonl", str(args.harmful_no_trigger_jsonl),
+                "--dtype", args.dtype,
+                "--max-length", str(max_length),
+                "--proxy-epsilon", str(args.proxy_epsilon),
+                "--lambda-clean", "1.0",
+                "--lambda-align", str(la_val),
+                "--lambda-safe", str(ls_val),
+                "--steps", str(max(steps_list_vals)),
+                "--save-steps", save_steps_str,
+                "--lr", str(args.lr) if hasattr(args, 'lr') else "1.5e-5",
+                "--trainable-policy", "all",
+                "--mask-policy", "strict",
+                "--grad-accum-steps", "4",
+                "--objective-schedule", "simultaneous",
+                "--safe-target-mode", "fixed",
+                "--prompt-template", args.prompt_template,
+            ]
+            if args.use_lora:
+                rec_cmd.append("--use-lora")
+            if args.lora_model_path:
+                rec_cmd += ["--lora-model-path", args.lora_model_path]
+            print(f"  [{stage}] Recovery: budget={budget} ls={ls_val} la={la_val} save_steps={save_steps_str}")
+            subprocess.run(rec_cmd, check=False, env=sub_env)
+
+            results: list[dict] = []
+            # Evaluate each saved step checkpoint + final model
+            for s in sorted(steps_list_vals):
+                ckpt = rec_dir / f"checkpoint_step_{s:03d}"
+                m = _eval_checkpoint(ckpt, budget, ls_val, la_val, s, stage)
+                if m:
+                    results.append(m)
+                    shutil.rmtree(ckpt, ignore_errors=True)
+
+            # Also evaluate final recovered_model (step = max)
+            final = rec_dir / "recovered_model"
+            m = _eval_checkpoint(final, budget, ls_val, la_val, max(steps_list_vals), stage)
+            if m:
+                results.append(m)
+                shutil.rmtree(final, ignore_errors=True)
+
+            return results
+
+        # ── Adaptive save-steps ──
+        # Auto-derive save steps from steps_list: keep first, last, and one middle
+        sorted_steps = sorted(steps_list)
+        if len(sorted_steps) >= 5:
+            stage_a_save = sorted(set([sorted_steps[0], sorted_steps[len(sorted_steps)//2], sorted_steps[-1]]))
+        else:
+            stage_a_save = sorted_steps
+        stage_a_save_str = ",".join(str(s) for s in stage_a_save)
+        print(f"Stage A save_steps: {stage_a_save_str}")
+
+        # ── Stage A: Coarse grid ──
+        print("\n=== Stage A: Coarse Search ===")
+        auto_l_a = _stratified_sample(lambda_aligns, 3)
+        auto_s_a = _stratified_sample(lambda_safes, 3)
+
+        # Budget-limited mode
         if args.max_recovery_runs > 0:
             max_runs = args.max_recovery_runs
             budget_count = len(top_budgets)
-            # Max combinations per budget
             max_per_budget = max(1, max_runs // budget_count)
-            if max_per_budget < len(auto_l) * len(auto_s):
-                # Shrink grid preferentially: keep highest lambda_align values
-                # (which are critical for defense) and drop middle ones first
-                if len(auto_l) >= 3 and max_per_budget >= 2:
-                    auto_l = [auto_l[0], auto_l[-1]]  # keep low + high
-                    auto_s = [auto_s[0], auto_s[-1]]  # keep low + high
+            if max_per_budget < len(auto_l_a) * len(auto_s_a):
+                if len(auto_l_a) >= 3 and max_per_budget >= 2:
+                    auto_l_a = [auto_l_a[0], auto_l_a[-1]]
+                    auto_s_a = [auto_s_a[0], auto_s_a[-1]]
                 elif max_per_budget == 1:
-                    # Only one run per budget: take highest la + mid ls
-                    auto_l = [auto_l[-1]]
-                    auto_s = [auto_s[len(auto_s)//2]]
+                    auto_l_a = [auto_l_a[-1]]
+                    auto_s_a = [auto_s_a[len(auto_s_a)//2]]
+
+        print(f"  lambdas_align: {auto_l_a}")
+        print(f"  lambdas_safe:  {auto_s_a}")
+        print(f"  budgets:       {top_budgets}")
+        print(f"  total runs:    {len(top_budgets) * len(auto_l_a) * len(auto_s_a)}")
 
         for budget in top_budgets:
-            plan_path = candidate_plans_dir / f"pruning_plan_budget{budget:04d}.json"
-            for ls_val in auto_s:
-                for la_val in auto_l:
+            for ls_val in auto_s_a:
+                for la_val in auto_l_a:
                     rec_dir = run_dir / f"recovery_b{budget}_ls{ls_val}_la{la_val}"
-                    rec_dir.mkdir(parents=True, exist_ok=True)
+                    stage_a_metrics = _run_recovery(
+                        budget, ls_val, la_val, stage_a_save, stage_a_save_str, "A", rec_dir)
+                    dev_metrics_list.extend(stage_a_metrics)
 
-                    # Only save the final recovered_model (no intermediate checkpoints)
-                    # to keep disk usage manageable. Each recovery dir is ~15 GB.
-                    rec_cmd = [
-                        sys.executable, f"{script_dir}/recover_model.py",
-                        "--run-dir", str(rec_dir),
-                        "--model-path", args.model_path,
-                        "--tokenizer-path", tokenizer_path_arg,
-                        "--pruning-plan", str(plan_path),
-                        "--benign-jsonl", str(args.benign_jsonl),
-                        "--harmful-no-trigger-jsonl", str(args.harmful_no_trigger_jsonl),
-                        "--dtype", args.dtype,
-                        "--max-length", str(max_length),
-                        "--proxy-epsilon", str(args.proxy_epsilon),
-                        "--lambda-clean", "1.0",
-                        "--lambda-align", str(la_val),
-                        "--lambda-safe", str(ls_val),
-                        "--steps", str(max(steps_list)),
-                        "--save-steps", "",
-                        "--lr", "1.5e-5",
-                        "--trainable-policy", "all",
-                        "--mask-policy", "strict",
-                        "--grad-accum-steps", "4",
-                        "--objective-schedule", "simultaneous",
-                        "--safe-target-mode", "fixed",
-                        "--prompt-template", args.prompt_template,
-                    ]
-                    if args.use_lora:
-                        rec_cmd.append("--use-lora")
-                    if args.lora_model_path:
-                        rec_cmd += ["--lora-model-path", args.lora_model_path]
-                    print(f"Recovery: budget={budget} ls={ls_val} la={la_val}")
-                    subprocess.run(rec_cmd, check=False, env=sub_env)
+        # ── Stage B: Local refinement around feasible top candidates ──
+        print("\n=== Stage B: Local Refinement ===")
+        # Find feasible Stage A candidates
+        feasible_a = [m for m in dev_metrics_list
+                      if m.get("empty_output_rate", 0.0) <= args.max_empty_rate
+                      and m.get("harmful_no_trigger_refusal", 0.0) >= min_harmful_refusal
+                      and m.get("benign_false_refusal", 1.0) <= max_bfr]
+        if not feasible_a and dev_metrics_list:
+            # Fallback: use top-2 by HarmRef
+            feasible_a = sorted(dev_metrics_list,
+                                key=lambda m: (-m.get("harmful_no_trigger_refusal", 0.0),
+                                              m.get("empty_output_rate", 0.0),
+                                              m.get("benign_false_refusal", 1.0)))[:2]
+        # Deduplicate by (budget, lambda_align, lambda_safe, steps)
+        seen = set()
+        unique_a: list[dict] = []
+        for m in sorted(feasible_a, key=lambda m: -m.get("harmful_no_trigger_refusal", 0.0)):
+            key = (m.get("budget"), m.get("lambda_align"), m.get("lambda_safe"), m.get("steps"))
+            if key not in seen:
+                seen.add(key)
+                unique_a.append(m)
+        stage_b_seeds = unique_a[:2]
 
-                    # Evaluate the final recovered_model only
-                    final_model_dir = rec_dir / "recovered_model"
-                    if final_model_dir.exists() and (final_model_dir / "config.json").exists():
-                        ckpt_model = transformers.AutoModelForCausalLM.from_pretrained(
-                            str(final_model_dir), torch_dtype=dtype, device_map="auto")
-                        metrics = compute_dev_metrics(
-                            ckpt_model, tokenizer,
-                            read_prompts(args.benign_jsonl),
-                            read_prompts(args.harmful_no_trigger_jsonl),
-                            max_dev_items=args.dev_max_items,
-                            prompt_template=args.prompt_template,
-                        )
-                        metrics.update({
-                            "budget": budget, "lambda_safe": ls_val,
-                            "lambda_align": la_val, "steps": max(steps_list),
-                            "checkpoint": str(final_model_dir),
-                            "prune_ratio": budget / max(len(unit_scores), 1),
-                        })
-                        dev_metrics_list.append(metrics)
-                        del ckpt_model
-                        gc.collect()
-                        torch.cuda.empty_cache()
-                        # Delete model weights to free disk space — keep only metrics
-                        shutil.rmtree(final_model_dir, ignore_errors=True)
+        if stage_b_seeds and not args.dry_run:
+            print(f"  Refining {len(stage_b_seeds)} seed(s)")
+            for seed in stage_b_seeds:
+                seed_budget = int(seed["budget"])
+                seed_la = float(seed["lambda_align"])
+                seed_ls = float(seed["lambda_safe"])
+                seed_step = int(seed["steps"])
+
+                # Local la anchors: seed_la ± 0.25 (must stay >= 0.25)
+                refine_la = sorted(set(
+                    max(0.25, seed_la + d) for d in [-0.25, 0.0, 0.25]
+                ))
+                # Local ls anchors: seed_ls ± 0.02 (must stay >= 0.01)
+                refine_ls = sorted(set(
+                    max(0.01, seed_ls + d) for d in [-0.02, 0.0, 0.02]
+                ))
+                # Local step anchors: seed_step ± 5 (must stay >= 5)
+                refine_steps = sorted(set(
+                    max(5, seed_step + d) for d in [-5, 0, 5]
+                ))
+
+                print(f"  Seed b={seed_budget} la={seed_la} ls={seed_ls} step={seed_step}")
+                print(f"    refine_la: {refine_la}")
+                print(f"    refine_ls: {refine_ls}")
+                print(f"    refine_steps: {refine_steps}")
+
+                refine_save_str = ",".join(str(s) for s in refine_steps)
+                for r_la in refine_la:
+                    for i_ls, r_ls in enumerate(refine_ls):
+                        # Only run per unique (la, ls); steps share one recovery
+                        rec_dir = run_dir / f"recovery_refine_b{seed_budget}_ls{r_ls}_la{r_la}"
+                        stage_b_metrics = _run_recovery(
+                            seed_budget, r_ls, r_la, refine_steps, refine_save_str, "B", rec_dir)
+                        dev_metrics_list.extend(stage_b_metrics)
 
     (run_dir / "auto_dev_metrics.json").write_text(
         json.dumps(dev_metrics_list, indent=2, ensure_ascii=False), encoding="utf-8")
