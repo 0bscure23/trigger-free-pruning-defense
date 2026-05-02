@@ -153,19 +153,25 @@ def propose_pruning_candidates(
 
 
 def select_stage_a_budgets(candidates: list[dict], max_budgets: int = 5) -> list[int]:
-    """Select stratified budgets covering small / medium / large range.
+    """Select stratified budgets via linspace/round over sorted candidates.
 
-    Avoids the bias of always picking the smallest 3 budgets.
+    Always includes min and max budget.  Avoids the bias of only picking
+    the smallest budgets.
     """
-    budgets_sorted = sorted(c["budget"] for c in candidates)
-    if len(budgets_sorted) <= max_budgets:
-        return budgets_sorted
-    # Stratified: pick from beginning, end, and evenly-spaced interior
+    budgets_sorted = sorted(set(c["budget"] for c in candidates))
     n = len(budgets_sorted)
-    indices = {0, n - 1}
-    step = max(1, n // (max_budgets - 1))
-    for i in range(0, n, step):
-        indices.add(i)
+    if n <= max_budgets:
+        return budgets_sorted
+    # Linspace-like indices: always include 0 and n-1, fill interior evenly
+    if max_budgets == 1:
+        return [budgets_sorted[0]]
+    indices: set[int] = {0, n - 1}
+    if max_budgets > 2:
+        # Evenly spaced interior indices
+        interior = max_budgets - 2  # slots between endpoints
+        for k in range(1, interior + 1):
+            idx = int(round(k * (n - 1) / (interior + 1)))
+            indices.add(min(idx, n - 1))
     result = [budgets_sorted[i] for i in sorted(indices)]
     return result[:max_budgets]
 
@@ -312,7 +318,9 @@ def select_best_candidate(
     """
     live = [m for m in candidates_metrics if not m.get("failed")]
     if not live:
-        live = candidates_metrics  # all failed — pick among them anyway
+        return {"error": "no_live_candidate",
+                "total_candidates": len(candidates_metrics),
+                "failed_candidates": len(candidates_metrics)}
 
     feasible = [m for m in live
                 if m.get("empty_output_rate", 0.0) <= max_empty_rate
@@ -360,11 +368,13 @@ def _parse_int_list(raw: str) -> list[int]:
 def _write_candidate_pruning_plan(
     plan_dir: Path, units: list[dict], budget: int,
     source_plan: dict | None = None,
+    candidate_stats: dict | None = None,
 ) -> Path:
     """Write a per-budget pruning_plan JSON so recover_model uses the right set.
 
     Uses ``"to_prune"`` key (matching recover_model._deserialize_pruned_units)
     and preserves all score fields so deserialization succeeds.
+    Includes ``candidate_stats`` for defense-aware selection diagnostics.
     """
     plan = {
         "timestamp": int(time.time()),
@@ -384,6 +394,8 @@ def _write_candidate_pruning_plan(
             "protect_grad_mean": u.get("protect_grad_mean", u.get("clean_grad_mean", 0.0)) or 0.0,
         } for u in units],
     }
+    if candidate_stats:
+        plan["candidate_stats"] = candidate_stats
     path = plan_dir / f"pruning_plan_budget{budget:04d}.json"
     path.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
     return path
@@ -403,6 +415,15 @@ def _make_subprocess_env() -> dict:
 
 # ── 7. Report generation ───────────────────────────────────────────────
 
+def _safe_fmt(val, fmt: str) -> str:
+    """Format a value, returning '?' for None/missing."""
+    if val is None:
+        return "?"
+    if isinstance(val, float):
+        return f"{val:{fmt}}"
+    return str(val)
+
+
 def _generate_report(run_dir: Path, plan: dict, rec: dict,
                      candidates: list[dict], dev_metrics: list[dict]) -> str:
     lines = [
@@ -410,17 +431,16 @@ def _generate_report(run_dir: Path, plan: dict, rec: dict,
         "",
         "## Protocol",
         "- All selection decisions use ONLY trigger-free signals (no triggered ASR).",
-        "- Two-stage search: Stage A (coarse grid) → Stage B (local refinement around top feasible candidates).",
-        "- Multi-step evaluation: each recovery saves checkpoints at key steps, all evaluated.",
-        f"- Objective: {rec.get('objective_type', 'balanced')}",
-        f"- Feasibility mode: {'fallback (no feasible candidate)' if not rec.get('feasible', True) else 'strict'}",
+        "- Two-stage search: Stage A (coarse grid) → Stage B (local refinement).",
+        "- Multi-step evaluation: each recovery saves checkpoints at key steps.",
+        f"- Selection mode: {rec.get('selection_mode', rec.get('error', '?'))}",
         "",
         "## Raw Baseline",
     ]
     raw = plan.get("raw_baseline", {})
-    lines.append(f"- BFR={raw.get('benign_false_refusal', 'N/A'):.4f} "
-                 f"HarmRef={raw.get('harmful_no_trigger_refusal', 'N/A'):.4f} "
-                 f"empty={raw.get('empty_output_rate', 'N/A'):.4f}")
+    lines.append(f"- BFR={_safe_fmt(raw.get('benign_false_refusal'), '.4f')} "
+                 f"HarmRef={_safe_fmt(raw.get('harmful_no_trigger_refusal'), '.4f')} "
+                 f"empty={_safe_fmt(raw.get('empty_output_rate'), '.4f')}")
 
     ft = plan.get("feasibility_thresholds", {})
     lines += [
@@ -435,55 +455,84 @@ def _generate_report(run_dir: Path, plan: dict, rec: dict,
         json.dumps(rec, indent=2),
         "```",
         "",
-        "## Evaluated Candidates",
     ]
-    n = min(len(candidates), len(dev_metrics))
-    if n > 0:
+
+    # Failed candidates section
+    failed = [m for m in dev_metrics if m.get("failed")]
+    if failed:
+        lines += [
+            "## Failed Candidates",
+            "| Stage | Budget | lambda_s | lambda_a | Steps | failure_type | returncode |",
+            "|---|---|---:|---:|---:|---:|---:|",
+        ]
+        for m in failed:
+            lines.append(
+                f"| {m.get('stage', '?')} "
+                f"| {m.get('budget', '?')} "
+                f"| {_safe_fmt(m.get('lambda_safe'), '.3f')} "
+                f"| {_safe_fmt(m.get('lambda_align'), '.1f')} "
+                f"| {m.get('steps', '?')} "
+                f"| {m.get('failure_type', '?')} "
+                f"| {m.get('failure_returncode', '')} |")
+        lines.append("")
+
+    # Live candidates — dev_metrics first
+    live = [m for m in dev_metrics if not m.get("failed")]
+    if not live:
+        lines += ["## Evaluated Candidates", "", "*No live candidates — all failed.*", ""]
+    else:
         min_hr = ft.get("min_harmful_refusal", 0.0)
         max_bfr = ft.get("max_bfr", 1.0)
         max_emp = ft.get("max_empty_rate", 1.0)
-        lines.append("| Stage | Feasible | Budget | Steps | lambda_s | lambda_a | BFR | HarmRef | Empty | Score |")
-        lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
-        for i in range(n):
-            m = dev_metrics[i]
+        lines += [
+            "## Evaluated Candidates",
+            "| Stage | Feasible | Budget | Steps | lambda_s | lambda_a | BFR | HarmRef | "
+            "Empty | ds | pos_mass | relaxed |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for m in live:
             is_feasible = (m.get("empty_output_rate", 0.0) <= max_emp
                            and m.get("harmful_no_trigger_refusal", 0.0) >= min_hr
                            and m.get("benign_false_refusal", 1.0) <= max_bfr)
-            stage = m.get("stage", "?")
             lines.append(
-                f"| {stage} "
+                f"| {m.get('stage', '?')} "
                 f"| {'YES' if is_feasible else 'NO'} "
                 f"| {m.get('budget', '?')} "
                 f"| {m.get('steps', '?')} "
-                f"| {m.get('lambda_safe', '?'):.2f} "
-                f"| {m.get('lambda_align', '?'):.1f} "
+                f"| {_safe_fmt(m.get('lambda_safe'), '.3f')} "
+                f"| {_safe_fmt(m.get('lambda_align'), '.1f')} "
                 f"| {m.get('benign_false_refusal', 0):.3f} "
                 f"| {m.get('harmful_no_trigger_refusal', 0):.3f} "
                 f"| {m.get('empty_output_rate', 0):.3f} "
-                f"| {m.get('objective_value', 0):.4f} |")
-    lines += ["", "## Eliminated / Warnings"]
-    for i in range(n):
-        m = dev_metrics[i]
-        min_hr = ft.get("min_harmful_refusal", 0.0)
-        is_feasible = (m.get("empty_output_rate", 0.0) <= ft.get("max_empty_rate", 1.0)
-                       and m.get("harmful_no_trigger_refusal", 0.0) >= min_hr
-                       and m.get("benign_false_refusal", 1.0) <= ft.get("max_bfr", 1.0))
-        if not is_feasible:
-            reasons = []
-            hr_val = m.get("harmful_no_trigger_refusal", 0.0)
-            if hr_val < min_hr:
-                reasons.append(f"HarmRef={hr_val:.3f} < min={min_hr:.2f}")
-            bfr_val = m.get("benign_false_refusal", 0.0)
-            if bfr_val > ft.get("max_bfr", 1.0):
-                reasons.append(f"BFR={bfr_val:.3f} > max={ft.get('max_bfr', 1.0):.2f}")
-            emp_val = m.get("empty_output_rate", 0.0)
-            if emp_val > ft.get("max_empty_rate", 1.0):
-                reasons.append(f"empty={emp_val:.3f} > max={ft.get('max_empty_rate', 1.0)}")
-            lines.append(f"- Budget={m.get('budget')}: INFEASIBLE ({'; '.join(reasons)})")
-    if not rec.get("feasible", True):
-        lines.append("- WARNING: No feasible candidate found; fallback selection used (highest HarmRef).")
+                f"| {m.get('defense_strength', 0):.3f} "
+                f"| {m.get('positive_score_mass_norm', 0):.3f} "
+                f"| {str(m.get('relaxed_budget', False))} |")
+
+        lines += ["", "## Eliminated / Warnings"]
+        for m in live:
+            is_feasible = (m.get("empty_output_rate", 0.0) <= max_emp
+                           and m.get("harmful_no_trigger_refusal", 0.0) >= min_hr
+                           and m.get("benign_false_refusal", 1.0) <= max_bfr)
+            if not is_feasible:
+                reasons = []
+                hr_val = m.get("harmful_no_trigger_refusal", 0.0)
+                if hr_val < min_hr:
+                    reasons.append(f"HarmRef={hr_val:.3f} < min={min_hr:.2f}")
+                bfr_val = m.get("benign_false_refusal", 0.0)
+                if bfr_val > max_bfr:
+                    reasons.append(f"BFR={bfr_val:.3f} > max={max_bfr:.2f}")
+                emp_val = m.get("empty_output_rate", 0.0)
+                if emp_val > max_emp:
+                    reasons.append(f"empty={emp_val:.3f} > max={max_emp}")
+                lines.append(f"- Budget={m.get('budget')}: INFEASIBLE ({'; '.join(reasons)})")
+
+    mode = rec.get('selection_mode', '')
+    if mode == "fallback":
+        lines.append("- WARNING: No feasible candidate; fallback used (constraint-violation + defense-aware).")
     if plan.get("skip_recovery"):
         lines.append("- Recovery was skipped; no final checkpoint selected.")
+    if rec.get("error"):
+        lines.append(f"- ERROR: {rec['error']}")
     return "\n".join(lines)
 
 
@@ -639,8 +688,15 @@ def main() -> None:
     candidate_plans_dir = run_dir / "candidate_plans"
     candidate_plans_dir.mkdir(parents=True, exist_ok=True)
     for cand in candidates:
-        _write_candidate_pruning_plan(candidate_plans_dir, cand.pop("_units", []),
-                                       cand["budget"], source_plan)
+        _units = cand.pop("_units", [])
+        stats = {k: cand[k] for k in ("defense_strength", "positive_score_mass_norm",
+                                        "score_threshold", "relaxed_budget",
+                                        "removed_negative_mass", "total_negative_mass_layer_filtered",
+                                        "negative_unit_count", "positive_unit_count")
+                 if k in cand}
+        _write_candidate_pruning_plan(candidate_plans_dir, _units,
+                                       cand["budget"], source_plan,
+                                       candidate_stats=stats if stats else None)
 
     # ── 4. Lambda & steps suggestions ──
     lambda_aligns = _parse_float_list(args.candidate_lambda_align,
@@ -733,6 +789,16 @@ def main() -> None:
                 "prune_ratio": pplan.get("pruned_total", 0) / max(len(unit_scores), 1),
                 "checkpoint": str(args.model_path) + f"+prune_b{budget}",
             })
+            # Propagate defense fields from candidate
+            for cand in candidates:
+                if cand["budget"] == budget:
+                    for k in ("defense_strength", "positive_score_mass_norm",
+                              "score_threshold", "relaxed_budget",
+                              "removed_negative_mass", "total_negative_mass_layer_filtered",
+                              "negative_unit_count", "positive_unit_count"):
+                        if k in cand:
+                            metrics.setdefault(k, cand[k])
+                    break
             dev_metrics_list.append(metrics)
             del ckpt_model
             gc.collect()
@@ -827,26 +893,32 @@ def main() -> None:
             print(f"  [{stage}] Recovery: budget={budget} ls={ls_val} la={la_val} save_steps={save_steps_str}")
             proc = subprocess.run(rec_cmd, check=False, env=sub_env)
 
+            def _defense_from_candidate(bgt: int) -> dict:
+                for c in candidates:
+                    if c["budget"] == bgt:
+                        return {k: c[k] for k in (
+                            "defense_strength", "positive_score_mass_norm",
+                            "score_threshold", "relaxed_budget",
+                            "removed_negative_mass", "total_negative_mass_layer_filtered",
+                            "negative_unit_count", "positive_unit_count",
+                        ) if k in c}
+                return {}
+
             results: list[dict] = []
             if proc.returncode != 0:
                 # Recovery itself failed — record failed entry per step
-                for s in sorted(steps_list_vals):
-                    results.append({
-                        "budget": budget, "lambda_safe": ls_val,
-                        "lambda_align": la_val, "steps": s,
-                        "stage": stage, "checkpoint": str(rec_dir),
-                        "prune_ratio": budget / max(len(unit_scores), 1),
-                        "failed": True, "failure_type": "recovery_returncode",
-                        "failure_returncode": proc.returncode,
-                    })
-                results.append({
+                base_fail = {
                     "budget": budget, "lambda_safe": ls_val,
-                    "lambda_align": la_val, "steps": max(steps_list_vals),
-                    "stage": stage, "checkpoint": str(rec_dir / "recovered_model"),
+                    "lambda_align": la_val, "stage": stage,
                     "prune_ratio": budget / max(len(unit_scores), 1),
                     "failed": True, "failure_type": "recovery_returncode",
                     "failure_returncode": proc.returncode,
-                })
+                }
+                base_fail.update(_defense_from_candidate(budget))
+                for s in sorted(steps_list_vals):
+                    results.append({**base_fail, "steps": s, "checkpoint": str(rec_dir)})
+                results.append({**base_fail, "steps": max(steps_list_vals),
+                                "checkpoint": str(rec_dir / "recovered_model")})
                 return results
 
             # Evaluate each saved step checkpoint + final model
@@ -857,14 +929,15 @@ def main() -> None:
                     results.append(m)
                     shutil.rmtree(ckpt, ignore_errors=True)
                 else:
-                    # Checkpoint missing — record failure
-                    results.append({
+                    fail_rec = {
                         "budget": budget, "lambda_safe": ls_val,
                         "lambda_align": la_val, "steps": s,
                         "stage": stage, "checkpoint": str(ckpt),
                         "prune_ratio": budget / max(len(unit_scores), 1),
                         "failed": True, "failure_type": "missing_checkpoint",
-                    })
+                    }
+                    fail_rec.update(_defense_from_candidate(budget))
+                    results.append(fail_rec)
 
             # Also evaluate final recovered_model (step = max)
             final = rec_dir / "recovered_model"
@@ -873,13 +946,15 @@ def main() -> None:
                 results.append(m)
                 shutil.rmtree(final, ignore_errors=True)
             else:
-                results.append({
+                fail_rec = {
                     "budget": budget, "lambda_safe": ls_val,
                     "lambda_align": la_val, "steps": max(steps_list_vals),
                     "stage": stage, "checkpoint": str(final),
                     "prune_ratio": budget / max(len(unit_scores), 1),
                     "failed": True, "failure_type": "missing_checkpoint",
-                })
+                }
+                fail_rec.update(_defense_from_candidate(budget))
+                results.append(fail_rec)
 
             return results
 
@@ -926,20 +1001,38 @@ def main() -> None:
 
         # ── Stage B: Local refinement around defense-aware top candidates ──
         print("\n=== Stage B: Local Refinement ===")
-        # Use same defense-aware key as selector for seed selection
+        # Feasible first, then fallback
         live_a = [m for m in dev_metrics_list if not m.get("failed")]
         if not live_a:
             live_a = dev_metrics_list
-        # Sort by defense-aware key to find strongest seeds
-        sorted_a = sorted(live_a, key=_defense_aware_key)
-        # Deduplicate by (budget, lambda_align, lambda_safe, steps)
+        feasible_a = [m for m in live_a
+                      if m.get("empty_output_rate", 0.0) <= args.max_empty_rate
+                      and m.get("harmful_no_trigger_refusal", 0.0) >= min_harmful_refusal
+                      and m.get("benign_false_refusal", 1.0) <= max_bfr]
+        if feasible_a:
+            pool = feasible_a
+        else:
+            pool = live_a  # fallback to all live
+        # Sort by defense-aware key
+        sorted_a = sorted(pool, key=_defense_aware_key)
+        # Deduplicate by (budget, lambda_align, lambda_safe) — NOT steps
         seen = set()
         unique_a: list[dict] = []
+        seen_la: set[float] = set()
         for m in sorted_a:
-            key = (m.get("budget"), m.get("lambda_align"), m.get("lambda_safe"), m.get("steps"))
-            if key not in seen:
-                seen.add(key)
-                unique_a.append(m)
+            key = (m.get("budget"), m.get("lambda_align"), m.get("lambda_safe"))
+            if key in seen:
+                continue
+            la_val = m.get("lambda_align", 0.0)
+            # Lambda_align diversity: allow at most one seed per la value
+            # unless we can't fill the quota, then relax
+            if len(unique_a) < 2 and la_val in seen_la and len(unique_a) >= 1:
+                pass  # relax when we need more seeds
+            elif la_val in seen_la:
+                continue
+            seen.add(key)
+            seen_la.add(la_val)
+            unique_a.append(m)
         stage_b_seeds = unique_a[:2]
 
         if stage_b_seeds and not args.dry_run:

@@ -143,4 +143,64 @@ assert best_fb["feasible"] == False
 assert best_fb["selection_mode"] == "fallback"
 print(f"  PASS: fallback selects budget={best_fb['budget']} when no feasible (mode={best_fb['selection_mode']})")
 
-print("\n=== ALL 6 TESTS PASSED ===")
+# ── Test 7: select_stage_a_budgets linspace — must include min+max ──
+print("\n=== Test 7: select_stage_a_budgets linspace ===")
+from scripts.auto_calibrate import select_stage_a_budgets
+
+dummy_cands = [{"budget": b} for b in [8, 16, 32, 64, 128, 256]]
+result = select_stage_a_budgets(dummy_cands, max_budgets=5)
+assert 8 in result, f"Min budget 8 missing from {result}"
+assert 256 in result, f"Max budget 256 missing from {result}"
+assert len(result) == 5, f"Expected 5 budgets, got {len(result)}: {result}"
+print(f"  PASS: budgets={result} (includes min+max, len={len(result)})")
+
+# ── Test 8: skip-recovery defense field propagation ──
+print("\n=== Test 8: skip-recovery defense propagation ===")
+from scripts.auto_calibrate import propose_pruning_candidates
+# Small synthetic scores
+synth = [{"component": "head", "layer": 3, "index": i, "score": -0.5 + i*0.05} for i in range(50)]
+cands = propose_pruning_candidates(synth, candidate_budgets=[8, 16])
+for c in cands:
+    assert "defense_strength" in c, f"defense_strength missing in candidate budget={c['budget']}"
+    assert "positive_score_mass_norm" in c
+    assert "relaxed_budget" in c
+    assert "removed_negative_mass" in c
+    assert "total_negative_mass_layer_filtered" in c
+print(f"  PASS: defense fields present in all {len(cands)} candidates")
+
+# ── Test 9: all-failed selector returns error ──
+print("\n=== Test 9: all-failed selector ===")
+all_failed = [
+    {"budget": 8, "failed": True, "failure_type": "recovery_returncode"},
+    {"budget": 16, "failed": True, "failure_type": "missing_checkpoint"},
+]
+best_err = select_best_candidate(all_failed)
+assert "error" in best_err, f"Expected error key, got {best_err}"
+assert best_err["error"] == "no_live_candidate"
+print(f"  PASS: all-failed returns error='{best_err['error']}'")
+
+# ── Test 10: report doesn't crash on missing lambda/steps ──
+print("\n=== Test 10: report resilient to missing fields ===")
+from scripts.auto_calibrate import _generate_report
+skip_rec_dev = [
+    {"budget": 8, "benign_false_refusal": 0.0, "harmful_no_trigger_refusal": 0.0,
+     "empty_output_rate": 0.0, "defense_strength": 0.1, "positive_score_mass_norm": 0.0,
+     "stage": "A", "relaxed_budget": False},
+]
+skip_rec = {"selection_mode": "defense_aware", "feasible": True}
+skip_plan = {"raw_baseline": {}, "feasibility_thresholds": {}, "skip_recovery": True}
+report = _generate_report(Path("."), skip_plan, skip_rec, [], skip_rec_dev)
+assert "Evaluated Candidates" in report
+assert "?" in report  # missing lambda_safe/lambda_align get '?'
+print(f"  PASS: report ({len(report)} chars) handles skip-recovery without crash")
+
+# ── Test 11: static checks on run script ──
+print("\n=== Test 11: static checks ===")
+run_script = Path("run_auto_calib_all.sh").read_text()
+assert '--candidate-steps "20,25,30"' in run_script, "run_auto_calib_all.sh must use candidate-steps 20,25,30"
+assert 'max_length' in run_script, "run_auto_calib_all.sh must read max_length from plan"
+assert '--max-length "$best_max_length"' in run_script
+assert '--eval-max-length "$best_max_length"' in run_script
+print("  PASS: run_auto_calib_all.sh uses correct candidate-steps and max_length protocol")
+
+print("\n=== ALL 11 TESTS PASSED ===")

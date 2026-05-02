@@ -53,7 +53,7 @@ run_auto_calib() {
         --candidate-budgets auto \
         --candidate-lambda-align auto \
         --candidate-lambda-safe auto \
-        --candidate-steps "30" \
+        --candidate-steps "20,25,30" \
         --score-samples 8 \
         --dev-max-items 200 \
         --selection-objective balanced \
@@ -69,6 +69,7 @@ run_auto_calib() {
     best_ls=$(python3 -c "import json; d=json.load(open('$run_dir/recommended_config.json')); print(d.get('lambda_safe', 0.08))")
     best_la=$(python3 -c "import json; d=json.load(open('$run_dir/recommended_config.json')); print(d.get('lambda_align', 2.0))")
     best_steps=$(python3 -c "import json; d=json.load(open('$run_dir/recommended_config.json')); print(d.get('steps', 30))")
+    best_max_length=$(python3 -c "import json; p=json.load(open('$run_dir/auto_calibration_plan.json')); print(p.get('max_length', 256))")
 
     if [ "$best_budget" -le 0 ] 2>/dev/null; then
         echo "ERROR: invalid best_budget=$best_budget — cannot re-run recovery"
@@ -80,7 +81,7 @@ run_auto_calib() {
     rm -rf "$best_rec_dir"
 
     echo ""
-    echo "Re-running best config: budget=$best_budget ls=$best_ls la=$best_la steps=$best_steps"
+    echo "Re-running best config: budget=$best_budget ls=$best_ls la=$best_la steps=$best_steps max_len=$best_max_length"
     conda run -n "$CONDA_ENV" python scripts/recover_model.py \
         --run-dir "$best_rec_dir" \
         --model-path "$model_path" \
@@ -89,7 +90,7 @@ run_auto_calib() {
         --benign-jsonl "$BENIGN" \
         --harmful-no-trigger-jsonl "$HARMFUL_NO_TRIG" \
         --dtype bf16 \
-        --max-length 256 \
+        --max-length "$best_max_length" \
         --proxy-epsilon 0.1 \
         --lambda-clean 1.0 \
         --lambda-align "$best_la" \
@@ -119,6 +120,7 @@ run_auto_calib() {
         --benign-jsonl "$BENIGN" \
         --dtype bf16 \
         --eval-max-new-tokens 64 \
+        --eval-max-length "$best_max_length" \
         --prompt-template chat \
         --label "${model_name}_auto_calib" \
         --output-json "$run_dir/external_asr_eval.json"
