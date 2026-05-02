@@ -96,21 +96,51 @@ for c in min_layer_2_cands:
 print(f"  PASS: min_prune_layer=5 filter works")
 
 # ── Test 6: select_best_candidate with sample metrics ──
-print("\n=== Test 6: objective selection ===")
-from scripts.auto_calibrate import select_best_candidate
+print("\n=== Test 6: defense-aware selection ===")
+from scripts.auto_calibrate import select_best_candidate, _defense_aware_key, _fallback_key
 
 metrics = [
-    {"budget": 16, "benign_false_refusal": 0.2, "harmful_no_trigger_refusal": 0.9,
-     "empty_output_rate": 0.0, "prune_ratio": 0.05},
-    {"budget": 32, "benign_false_refusal": 0.3, "harmful_no_trigger_refusal": 0.85,
-     "empty_output_rate": 0.01, "prune_ratio": 0.10},
-    {"budget": 64, "benign_false_refusal": 0.5, "harmful_no_trigger_refusal": 0.7,
-     "empty_output_rate": 0.05, "prune_ratio": 0.20},
+    {"budget": 16, "benign_false_refusal": 0.20, "harmful_no_trigger_refusal": 0.90,
+     "empty_output_rate": 0.0, "defense_strength": 0.45,
+     "positive_score_mass_norm": 0.01, "score_threshold": 0.0, "relaxed_budget": False},
+    {"budget": 32, "benign_false_refusal": 0.30, "harmful_no_trigger_refusal": 0.85,
+     "empty_output_rate": 0.01, "defense_strength": 0.30,
+     "positive_score_mass_norm": 0.02, "score_threshold": 0.05, "relaxed_budget": False},
+    {"budget": 64, "benign_false_refusal": 0.10, "harmful_no_trigger_refusal": 0.15,
+     "empty_output_rate": 0.0, "defense_strength": 0.60,
+     "positive_score_mass_norm": 0.08, "score_threshold": 0.10, "relaxed_budget": True},
+    {"budget": 8,  "benign_false_refusal": 0.01, "harmful_no_trigger_refusal": 0.05,
+     "empty_output_rate": 0.0, "defense_strength": 0.05,
+     "positive_score_mass_norm": 0.00, "score_threshold": 0.0, "relaxed_budget": False,
+     "failed": True, "failure_type": "recovery_returncode"},
 ]
-best = select_best_candidate(metrics)
+
+# Defense-aware key: higher defense_strength → lower sort key (better)
+key_16 = _defense_aware_key(metrics[0])  # ds=0.45
+key_32 = _defense_aware_key(metrics[1])  # ds=0.30
+key_64 = _defense_aware_key(metrics[2])  # ds=0.60
+assert key_64 < key_16 < key_32, f"Expected ds=0.60 < ds=0.45 < ds=0.30, got {key_64} < {key_16} < {key_32}"
+print(f"  PASS: defense_aware_key orders by defense_strength")
+
+# Feasibility + defense-aware selection: budget=16 has high HR, budget=32 has high BFR
+best = select_best_candidate(metrics, min_harmful_refusal=0.80, max_bfr=0.50)
 assert best is not None
-print(f"  Best: budget={best['budget']}, score={best['objective_value']:.4f}")
-assert best["budget"] == 16, f"Expected budget 16 (best metrics), got {best['budget']}"
-print("  PASS: correctly selected best budget (lowest BFR, highest refusal)")
+assert best["budget"] == 16, f"Expected budget=16 (feasible + high ds), got {best['budget']}"
+assert best["feasible"] == True
+assert best["selection_mode"] == "defense_aware"
+print(f"  PASS: defense-aware selects budget={best['budget']} (feasible, high ds)")
+
+# failed=True candidates are excluded
+for m in metrics:
+    if m.get("failed"):
+        print(f"  PASS: failed candidate budget={m['budget']} correctly excluded")
+        break
+
+# Fallback: no feasible candidates → constraint-violation + defense
+best_fb = select_best_candidate(metrics, min_harmful_refusal=0.95, max_bfr=0.05)
+assert best_fb is not None
+assert best_fb["feasible"] == False
+assert best_fb["selection_mode"] == "fallback"
+print(f"  PASS: fallback selects budget={best_fb['budget']} when no feasible (mode={best_fb['selection_mode']})")
 
 print("\n=== ALL 6 TESTS PASSED ===")

@@ -85,11 +85,13 @@ def propose_pruning_candidates(
     if candidate_budgets:
         budgets = sorted(set(candidate_budgets))
     else:
-        neg_count = sum(1 for u in scores if u["score"] <= 0.0)
+        # Layer-filter first, then count negatives — avoids early-layer
+        # negative mass pushing budgets too high.
+        layer_filtered_all = [u for u in scores if u.get("layer", 0) >= min_prune_layer]
+        neg_count = sum(1 for u in layer_filtered_all if u["score"] <= 0.0)
         if neg_count < 8:
             budgets = [8, 16, 32]
         elif neg_count <= 64:
-            # Weak proxy signal: explore wider range relative to neg_count
             base = sorted(set(max(8, int(neg_count * f)) for f in [0.25, 0.5, 0.75, 1.0, 2.0, 4.0]))
             budgets = [b for b in base if 8 <= b <= 512]
         else:
@@ -102,21 +104,31 @@ def propose_pruning_candidates(
     # Layer-filtered pool (no score cap) for budget relaxation
     layer_filtered = [u for u in all_sorted if u.get("layer", 0) >= min_prune_layer]
 
+    # Compute defense mass for layer-filtered pool (once, re-used per budget)
+    total_negative_mass_lf = sum(max(0.0, -u["score"]) for u in layer_filtered)
+
     candidates: list[dict] = []
     for budget in budgets:
         eligible = [u for u in layer_filtered
                     if u["score"] <= max_score_to_prune]
-        # Relax score threshold when budget exceeds the strictly-filtered pool
+        relaxed_budget = False
         if len(eligible) < budget:
             eligible = layer_filtered[:budget]
+            relaxed_budget = True
         pruned = eligible[:budget]
-        # Component names in UnitScore are "head" / "channel"
         heads = sum(1 for u in pruned if u.get("component") == "head")
         chans = sum(1 for u in pruned if u.get("component") == "channel")
         layers: dict[int, int] = {}
         for u in pruned:
             l = u.get("layer", -1)
             layers[l] = layers.get(l, 0) + 1
+
+        # Defense fields
+        removed_negative_mass = sum(max(0.0, -u["score"]) for u in pruned)
+        defense_strength = removed_negative_mass / max(total_negative_mass_lf, 1e-8)
+        positive_mass = sum(max(0.0, u["score"]) for u in pruned)
+        positive_mass_norm = positive_mass / max(budget, 1)
+
         candidates.append({
             "budget": budget,
             "actual_pruned_total": len(pruned),
@@ -125,10 +137,37 @@ def propose_pruning_candidates(
             "score_threshold": pruned[-1]["score"] if pruned else 0.0,
             "min_score": pruned[0]["score"] if pruned else 0.0,
             "layer_histogram": {str(k): v for k, v in sorted(layers.items())},
+            # Defense-aware fields
+            "removed_negative_mass": removed_negative_mass,
+            "total_negative_mass_layer_filtered": total_negative_mass_lf,
+            "defense_strength": defense_strength,
+            "positive_score_mass": positive_mass,
+            "positive_score_mass_norm": positive_mass_norm,
+            "negative_unit_count": sum(1 for u in pruned if u["score"] <= 0.0),
+            "positive_unit_count": sum(1 for u in pruned if u["score"] > 0.0),
+            "relaxed_budget": relaxed_budget,
             # raw eligible unit list for later plan generation
             "_units": pruned,
         })
     return candidates
+
+
+def select_stage_a_budgets(candidates: list[dict], max_budgets: int = 5) -> list[int]:
+    """Select stratified budgets covering small / medium / large range.
+
+    Avoids the bias of always picking the smallest 3 budgets.
+    """
+    budgets_sorted = sorted(c["budget"] for c in candidates)
+    if len(budgets_sorted) <= max_budgets:
+        return budgets_sorted
+    # Stratified: pick from beginning, end, and evenly-spaced interior
+    n = len(budgets_sorted)
+    indices = {0, n - 1}
+    step = max(1, n // (max_budgets - 1))
+    for i in range(0, n, step):
+        indices.add(i)
+    result = [budgets_sorted[i] for i in sorted(indices)]
+    return result[:max_budgets]
 
 
 # ── 3. Trigger-free dev metrics ────────────────────────────────────────
@@ -139,6 +178,7 @@ def compute_dev_metrics(
     benign_prompts: list,
     harmful_no_trigger_prompts: list,
     *,
+    max_length: int = 256,
     max_new_tokens: int = 64,
     max_dev_items: int = 200,
     prompt_template: str = "chat",
@@ -156,7 +196,7 @@ def compute_dev_metrics(
     def _generate_and_score(prompts, limit):
         refusals, empties, total = 0, 0, 0
         for p in prompts[:limit]:
-            encoded = _tokenize_one(tokenizer, p, max_length=512,
+            encoded = _tokenize_one(tokenizer, p, max_length=max_length,
                                     prompt_template=prompt_template)
             input_ids = encoded["input_ids"].to(device)
             attn_mask = encoded.get("attention_mask")
@@ -203,6 +243,53 @@ def compute_dev_metrics(
 
 # ── 4. Objective function ──────────────────────────────────────────────
 
+def _defense_aware_key(m: dict) -> tuple:
+    """Sort key: defense_strength dominates, then quality."""
+    ds = m.get("defense_strength", 0.0)
+    defense_bucket = int(ds / 0.03)
+    return (
+        -defense_bucket,
+        m.get("positive_score_mass_norm", 0.0),
+        max(0.0, m.get("score_threshold", 0.0)),
+        int(m.get("relaxed_budget", False)),
+        m.get("benign_false_refusal", 1.0),
+        m.get("empty_output_rate", 0.0),
+        -m.get("harmful_no_trigger_refusal", 0.0),
+        -ds,
+    )
+
+
+def _constraint_violation(m: dict, *, min_hr: float, max_bfr: float,
+                           max_emp: float) -> float:
+    """Count constraint violations for fallback."""
+    v = 0.0
+    hr = m.get("harmful_no_trigger_refusal", 0.0)
+    if hr < min_hr:
+        v += (min_hr - hr) * 2.0
+    bfr = m.get("benign_false_refusal", 1.0)
+    if bfr > max_bfr:
+        v += (bfr - max_bfr)
+    emp = m.get("empty_output_rate", 0.0)
+    if emp > max_emp:
+        v += (emp - max_emp) * 3.0
+    return v
+
+
+def _fallback_key(m: dict, *, min_hr: float, max_bfr: float,
+                   max_emp: float) -> tuple:
+    """Fallback sort: constraint violation first, then defense-aware."""
+    ds = m.get("defense_strength", 0.0)
+    defense_bucket = int(ds / 0.03)
+    return (
+        _constraint_violation(m, min_hr=min_hr, max_bfr=max_bfr, max_emp=max_emp),
+        -defense_bucket,
+        m.get("positive_score_mass_norm", 0.0),
+        max(0.0, m.get("score_threshold", 0.0)),
+        m.get("benign_false_refusal", 1.0),
+        -m.get("harmful_no_trigger_refusal", 0.0),
+    )
+
+
 def select_best_candidate(
     candidates_metrics: list[dict],
     *,
@@ -210,121 +297,41 @@ def select_best_candidate(
     min_harmful_refusal: float = 0.0,
     max_bfr: float = 1.0,
     max_empty_rate: float = 0.05,
+    defense_required: bool = True,
 ) -> dict:
-    """Select best candidate via trigger-free composite score.
+    """Select best candidate via defense-aware sort.
 
-    ALL components are penalties: higher value = worse.
-
-    Feasibility filtering: candidates must satisfy
+    Excludes ``failed=True`` candidates.  Feasibility uses hard constraints:
       empty_output_rate <= max_empty_rate
       harmful_no_trigger_refusal >= min_harmful_refusal
       benign_false_refusal <= max_bfr
-    If no candidate is feasible, fallback selects highest HarmRef,
-    then lowest empty_output_rate, then lowest BFR.
-    """
-    if not candidates_metrics:
-        raise ValueError("No candidates to select from")
 
-    feasible = [m for m in candidates_metrics
+    Within feasible: defense-aware sort (defense_bucket first).
+    Fallback: constraint-violation + defense-aware, prioritises higher
+    HarmRef and defense_strength.
+    """
+    live = [m for m in candidates_metrics if not m.get("failed")]
+    if not live:
+        live = candidates_metrics  # all failed — pick among them anyway
+
+    feasible = [m for m in live
                 if m.get("empty_output_rate", 0.0) <= max_empty_rate
                 and m.get("harmful_no_trigger_refusal", 0.0) >= min_harmful_refusal
                 and m.get("benign_false_refusal", 1.0) <= max_bfr]
 
-    fallback = False
-    if not feasible:
-        fallback = True
-        # Fallback: highest HarmRef, then lowest empty_rate, then lowest BFR
-        feasible = sorted(candidates_metrics,
-                          key=lambda m: (-m.get("harmful_no_trigger_refusal", 0.0),
-                                         m.get("empty_output_rate", 0.0),
-                                         m.get("benign_false_refusal", 1.0)))
-        feasible = [feasible[0]]  # only the single best fallback
+    if feasible:
+        feasible_sorted = sorted(feasible, key=_defense_aware_key)
+        best = feasible_sorted[0]
+        return {**best, "objective_type": objective, "feasible": True,
+                "selection_mode": "defense_aware"}
+    else:
+        fallback_sorted = sorted(
+            live, key=lambda m: _fallback_key(m, min_hr=min_harmful_refusal,
+                                              max_bfr=max_bfr, max_emp=max_empty_rate))
+        best = fallback_sorted[0]
+        return {**best, "objective_type": objective, "feasible": False,
+                "selection_mode": "fallback"}
 
-    keys_float = [
-        "benign_false_refusal",
-        "harmful_no_trigger_refusal",
-        "empty_output_rate",
-        "clean_lm_loss",
-        "proxy_alignment_loss",
-    ]
-    ranges: dict[str, tuple[float, float]] = {}
-    for k in keys_float:
-        vals = [m.get(k) for m in candidates_metrics
-                if isinstance(m.get(k), (int, float))]
-        lo, hi = (min(vals), max(vals)) if len(vals) >= 2 else (0.0, 1.0)
-        ranges[k] = (lo, hi if hi > lo else lo + 1e-8)
-
-    def _norm(k, v):
-        if not isinstance(v, (int, float)):
-            return 0.5
-        lo, hi = ranges[k]
-        return (v - lo) / (hi - lo) if hi > lo else 0.0
-
-    # Tiered selection within feasible:
-    #   1) HarmRef priority: if two candidates differ by > 0.15, prefer higher HarmRef
-    #   2) HarmRef close → compare BFR
-    #   3) Then compare proxy_alignment_loss and prune_ratio
-    #   4) Composite score as final tiebreaker
-    #
-    # This prevents low-BFR, low-HarmRef candidates from winning.
-
-    def _tier_key(m: dict) -> tuple:
-        """Lower is better. Tier 1 dominates Tier 2 etc."""
-        hr = m.get("harmful_no_trigger_refusal", 0.0)
-        bfr = m.get("benign_false_refusal", 1.0)
-        # Tier 1: HarmRef bracket (0=high, 1=mid, 2=low)
-        if hr >= 0.80:
-            hr_tier = 0
-        elif hr >= 0.55:
-            hr_tier = 1
-        else:
-            hr_tier = 2
-        # Tier 2: BFR bracket
-        if bfr <= 0.25:
-            bfr_tier = 0
-        elif bfr <= 0.50:
-            bfr_tier = 1
-        else:
-            bfr_tier = 2
-        return (hr_tier, bfr_tier, -hr, bfr)
-
-    # Sort feasible by tier, then use composite score for same-tier candidates
-    feasible_sorted = sorted(feasible, key=_tier_key)
-
-    # Weighted composite for tiebreaking within tiers
-    if objective == "safety_first":
-        w_bfr, w_hr, w_emp, w_clm, w_pal = 1.0, 1.5, 3.0, 0.1, 0.3
-    elif objective == "utility_first":
-        w_bfr, w_hr, w_emp, w_clm, w_pal = 1.5, 0.5, 2.0, 0.3, 0.1
-    else:  # balanced
-        w_bfr, w_hr, w_emp, w_clm, w_pal = 1.0, 1.0, 2.0, 0.2, 0.5
-
-    # Start from top tier, score within tier
-    best, best_score = None, float("inf")
-    for m in feasible_sorted:
-        bfr_n = _norm("benign_false_refusal", m.get("benign_false_refusal"))
-        hr_n = _norm("harmful_no_trigger_refusal", m.get("harmful_no_trigger_refusal"))
-        emp_n = _norm("empty_output_rate", m.get("empty_output_rate", 0.0))
-        clm_n = _norm("clean_lm_loss", m.get("clean_lm_loss"))
-        pal_n = _norm("proxy_alignment_loss", m.get("proxy_alignment_loss"))
-        pr_pen = min(m.get("prune_ratio", 0.0), 0.5) * 0.1
-
-        score = (w_bfr * bfr_n
-                 + w_hr * (1.0 - hr_n)
-                 + w_emp * emp_n
-                 + w_clm * clm_n
-                 + w_pal * pal_n
-                 + pr_pen)
-        if score < best_score:
-            best_score = score
-            best = {**m, "objective_value": score, "objective_type": objective,
-                    "feasible": not fallback}
-    if best is None:
-        raise ValueError("No candidates could be scored")
-    return best
-
-
-# ── 5. Lambda auto-suggestion ──────────────────────────────────────────
 
 def _auto_lambda_align(hr: float | None = None) -> list[float]:
     if hr is not None and hr < 0.3:
@@ -559,6 +566,7 @@ def main() -> None:
         raw_model, tokenizer,
         read_prompts(args.benign_jsonl),
         read_prompts(args.harmful_no_trigger_jsonl),
+        max_length=max_length,
         max_dev_items=args.dev_max_items,
         prompt_template=args.prompt_template,
     )
@@ -716,6 +724,7 @@ def main() -> None:
                 ckpt_model, tokenizer,
                 read_prompts(args.benign_jsonl),
                 read_prompts(args.harmful_no_trigger_jsonl),
+                max_length=max_length,
                 max_dev_items=args.dev_max_items,
                 prompt_template=args.prompt_template,
             )
@@ -732,7 +741,7 @@ def main() -> None:
         # Full recovery per candidate — two-stage search
         import transformers
         import shutil
-        top_budgets = [c["budget"] for c in candidates[:3]]
+        top_budgets = select_stage_a_budgets(candidates, max_budgets=5)
 
         # ── Helper: stratified sample ──
         def _stratified_sample(vals: list[float], n_anchors: int = 3) -> list[float]:
@@ -756,6 +765,7 @@ def main() -> None:
                 ckpt_model, tokenizer,
                 read_prompts(args.benign_jsonl),
                 read_prompts(args.harmful_no_trigger_jsonl),
+                max_length=max_length,
                 max_dev_items=args.dev_max_items,
                 prompt_template=args.prompt_template,
             )
@@ -766,6 +776,16 @@ def main() -> None:
                 "prune_ratio": budget / max(len(unit_scores), 1),
                 "stage": stage,
             })
+            # Propagate defense fields from candidate
+            for cand in candidates:
+                if cand["budget"] == budget:
+                    for k in ("defense_strength", "positive_score_mass_norm",
+                              "score_threshold", "relaxed_budget",
+                              "removed_negative_mass", "total_negative_mass_layer_filtered",
+                              "negative_unit_count", "positive_unit_count"):
+                        if k in cand:
+                            m.setdefault(k, cand[k])
+                    break
             del ckpt_model
             gc.collect()
             torch.cuda.empty_cache()
@@ -805,9 +825,30 @@ def main() -> None:
             if args.lora_model_path:
                 rec_cmd += ["--lora-model-path", args.lora_model_path]
             print(f"  [{stage}] Recovery: budget={budget} ls={ls_val} la={la_val} save_steps={save_steps_str}")
-            subprocess.run(rec_cmd, check=False, env=sub_env)
+            proc = subprocess.run(rec_cmd, check=False, env=sub_env)
 
             results: list[dict] = []
+            if proc.returncode != 0:
+                # Recovery itself failed — record failed entry per step
+                for s in sorted(steps_list_vals):
+                    results.append({
+                        "budget": budget, "lambda_safe": ls_val,
+                        "lambda_align": la_val, "steps": s,
+                        "stage": stage, "checkpoint": str(rec_dir),
+                        "prune_ratio": budget / max(len(unit_scores), 1),
+                        "failed": True, "failure_type": "recovery_returncode",
+                        "failure_returncode": proc.returncode,
+                    })
+                results.append({
+                    "budget": budget, "lambda_safe": ls_val,
+                    "lambda_align": la_val, "steps": max(steps_list_vals),
+                    "stage": stage, "checkpoint": str(rec_dir / "recovered_model"),
+                    "prune_ratio": budget / max(len(unit_scores), 1),
+                    "failed": True, "failure_type": "recovery_returncode",
+                    "failure_returncode": proc.returncode,
+                })
+                return results
+
             # Evaluate each saved step checkpoint + final model
             for s in sorted(steps_list_vals):
                 ckpt = rec_dir / f"checkpoint_step_{s:03d}"
@@ -815,6 +856,15 @@ def main() -> None:
                 if m:
                     results.append(m)
                     shutil.rmtree(ckpt, ignore_errors=True)
+                else:
+                    # Checkpoint missing — record failure
+                    results.append({
+                        "budget": budget, "lambda_safe": ls_val,
+                        "lambda_align": la_val, "steps": s,
+                        "stage": stage, "checkpoint": str(ckpt),
+                        "prune_ratio": budget / max(len(unit_scores), 1),
+                        "failed": True, "failure_type": "missing_checkpoint",
+                    })
 
             # Also evaluate final recovered_model (step = max)
             final = rec_dir / "recovered_model"
@@ -822,6 +872,14 @@ def main() -> None:
             if m:
                 results.append(m)
                 shutil.rmtree(final, ignore_errors=True)
+            else:
+                results.append({
+                    "budget": budget, "lambda_safe": ls_val,
+                    "lambda_align": la_val, "steps": max(steps_list_vals),
+                    "stage": stage, "checkpoint": str(final),
+                    "prune_ratio": budget / max(len(unit_scores), 1),
+                    "failed": True, "failure_type": "missing_checkpoint",
+                })
 
             return results
 
@@ -866,23 +924,18 @@ def main() -> None:
                         budget, ls_val, la_val, stage_a_save, stage_a_save_str, "A", rec_dir)
                     dev_metrics_list.extend(stage_a_metrics)
 
-        # ── Stage B: Local refinement around feasible top candidates ──
+        # ── Stage B: Local refinement around defense-aware top candidates ──
         print("\n=== Stage B: Local Refinement ===")
-        # Find feasible Stage A candidates
-        feasible_a = [m for m in dev_metrics_list
-                      if m.get("empty_output_rate", 0.0) <= args.max_empty_rate
-                      and m.get("harmful_no_trigger_refusal", 0.0) >= min_harmful_refusal
-                      and m.get("benign_false_refusal", 1.0) <= max_bfr]
-        if not feasible_a and dev_metrics_list:
-            # Fallback: use top-2 by HarmRef
-            feasible_a = sorted(dev_metrics_list,
-                                key=lambda m: (-m.get("harmful_no_trigger_refusal", 0.0),
-                                              m.get("empty_output_rate", 0.0),
-                                              m.get("benign_false_refusal", 1.0)))[:2]
+        # Use same defense-aware key as selector for seed selection
+        live_a = [m for m in dev_metrics_list if not m.get("failed")]
+        if not live_a:
+            live_a = dev_metrics_list
+        # Sort by defense-aware key to find strongest seeds
+        sorted_a = sorted(live_a, key=_defense_aware_key)
         # Deduplicate by (budget, lambda_align, lambda_safe, steps)
         seen = set()
         unique_a: list[dict] = []
-        for m in sorted(feasible_a, key=lambda m: -m.get("harmful_no_trigger_refusal", 0.0)):
+        for m in sorted_a:
             key = (m.get("budget"), m.get("lambda_align"), m.get("lambda_safe"), m.get("steps"))
             if key not in seen:
                 seen.add(key)
