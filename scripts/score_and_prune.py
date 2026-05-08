@@ -107,6 +107,7 @@ def main() -> None:
         use_lora=bool(args.use_lora),
         lora_model_path=str(args.lora_model_path) if args.lora_model_path else None,
         torch_dtype=dtype,
+        merge_lora=False,  # keep LoRA adapters for gradient flow in scoring
     )
     pruner = BaseSafetyPruner(model)
 
