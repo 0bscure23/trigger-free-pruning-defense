@@ -204,21 +204,24 @@ def build_model_inputs(
     if prompt_template == "chat":
         if hasattr(tokenizer, "apply_chat_template") and getattr(tokenizer, "chat_template", None):
             messages = [{"role": "user", "content": user_content}]
-            prompt_text = tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=add_generation_prompt,
-            )
-            encoded = tokenizer(
-                prompt_text,
-                return_tensors="pt",
-                truncation=True,
-                max_length=max_length,
-            )
-            return encoded, prompt_text
+            try:
+                prompt_text = tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=add_generation_prompt,
+                )
+                encoded = tokenizer(
+                    prompt_text,
+                    return_tensors="pt",
+                    truncation=True,
+                    max_length=max_length,
+                )
+                return encoded, prompt_text
+            except Exception:
+                pass  # fall through to manual [INST] handling below
 
         name = (getattr(tokenizer, "name_or_path", "") or "").lower()
-        if "mistral" in name or "mixtral" in name:
+        if "mistral" in name or "mixtral" in name or "llama" in name:
             prompt_text = f"<s>[INST] {user_content} [/INST]"
             encoded = tokenizer(
                 prompt_text,
