@@ -49,10 +49,22 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional harmful-no-trigger split whose gradients are used as a protective scoring term",
     )
+    parser.add_argument(
+        "--harm-proxy-jsonl",
+        type=Path,
+        default=None,
+        help="Optional harmful-no-trigger split used to build an additional jailbreak-context perturbation proxy",
+    )
     parser.add_argument("--dtype", choices=["bf16", "fp16"], default="bf16")
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--alpha", type=float, default=1.0)
     parser.add_argument("--beta", type=float, default=1.0)
+    parser.add_argument(
+        "--beta-harm-proxy",
+        type=float,
+        default=0.0,
+        help="Weight of the harmful-context proxy penalty; 0 keeps the original clean-context proxy score",
+    )
     parser.add_argument(
         "--alpha-safe",
         type=float,
@@ -79,6 +91,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _score_formula(alpha_safe: float, beta_harm_proxy: float) -> str:
+    protect = "clean_grad_mean + alpha_safe * safe_grad_mean" if alpha_safe > 0 else "clean_grad_mean"
+    terms = [f"alpha * ({protect})", "- beta * abs(proxy_grad_mean * cosine)"]
+    if beta_harm_proxy > 0:
+        terms.append("- beta_harm_proxy * abs(harm_proxy_grad_mean * harm_proxy_cosine)")
+    return " ".join(terms)
+
+
 def main() -> None:
     args = parse_args()
     args.run_dir = resolve_run_dir(args.run_dir)
@@ -88,6 +108,8 @@ def main() -> None:
         raise FileNotFoundError(f"Missing clean JSONL: {args.clean_jsonl}")
     if args.protect_safe_jsonl is not None and not args.protect_safe_jsonl.exists():
         raise FileNotFoundError(f"Missing protect-safe JSONL: {args.protect_safe_jsonl}")
+    if args.harm_proxy_jsonl is not None and not args.harm_proxy_jsonl.exists():
+        raise FileNotFoundError(f"Missing harmful proxy JSONL: {args.harm_proxy_jsonl}")
     if args.proxy_epsilon <= 0:
         raise ValueError("--proxy-epsilon must be > 0")
     if args.score_samples <= 0:
@@ -96,8 +118,16 @@ def main() -> None:
         raise ValueError("--min-prune-layer must be >= 0")
     if float(args.alpha_safe) < 0:
         raise ValueError("--alpha-safe must be >= 0")
+    if float(args.beta) < 0:
+        raise ValueError("--beta must be >= 0")
+    if float(args.beta_harm_proxy) < 0:
+        raise ValueError("--beta-harm-proxy must be >= 0")
+    if float(args.beta) == 0.0 and float(args.beta_harm_proxy) == 0.0:
+        raise ValueError("At least one of --beta or --beta-harm-proxy must be > 0")
     if float(args.alpha_safe) > 0 and args.protect_safe_jsonl is None:
         raise ValueError("--alpha-safe > 0 requires --protect-safe-jsonl")
+    if float(args.beta_harm_proxy) > 0 and args.harm_proxy_jsonl is None:
+        raise ValueError("--beta-harm-proxy > 0 requires --harm-proxy-jsonl")
 
     dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float16
     effective_model_path = _resolve_scoring_model_path(str(args.model_path), args.run_dir)
@@ -122,12 +152,14 @@ def main() -> None:
 
     clean_prompts = read_prompts(args.clean_jsonl)
     protect_safe_prompts = read_prompts(args.protect_safe_jsonl) if args.protect_safe_jsonl is not None else None
+    harm_proxy_prompts = read_prompts(args.harm_proxy_jsonl) if args.harm_proxy_jsonl is not None else None
     scores = collect_unit_scores(
         model=model,
         pruner=pruner,
         tokenizer=tokenizer,
         clean_prompts=clean_prompts,
         protect_safe_prompts=protect_safe_prompts,
+        harm_proxy_prompts=harm_proxy_prompts,
         max_length=args.max_length,
         prompt_template=str(args.prompt_template),
         head_dim=head_dim,
@@ -138,6 +170,7 @@ def main() -> None:
         score_samples=args.score_samples,
         alpha=args.alpha,
         beta=args.beta,
+        beta_harm_proxy=args.beta_harm_proxy,
         alpha_safe=args.alpha_safe,
         eps=args.eps,
         proxy_epsilon=args.proxy_epsilon,
@@ -164,15 +197,22 @@ def main() -> None:
                 "score_config": {
                     "alpha": float(args.alpha),
                     "beta": float(args.beta),
+                    "beta_harm_proxy": float(args.beta_harm_proxy),
                     "alpha_safe": float(args.alpha_safe),
                     "protect_safe_jsonl": None if args.protect_safe_jsonl is None else str(args.protect_safe_jsonl),
+                    "harm_proxy_jsonl": None if args.harm_proxy_jsonl is None else str(args.harm_proxy_jsonl),
                     "proxy_epsilon": float(args.proxy_epsilon),
-                    "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
-                    "score_formula": (
-                        "alpha * (clean_grad_mean + alpha_safe * safe_grad_mean) - beta * abs(proxy_grad_mean * cosine)"
-                        if float(args.alpha_safe) > 0
-                        else "alpha * clean_grad_mean - beta * abs(proxy_grad_mean * cosine)"
+                    "proxy_type": (
+                        "clean_and_harmful_context_perturbed_proxy_grad"
+                        if float(args.beta_harm_proxy) > 0
+                        else "perturbed_proxy_grad"
                     ),
+                    "proxy_explanation": (
+                        "gradient of perturbed sample loss; the optional harmful-context term builds the same "
+                        "FGSM perturbation on harmful-no-trigger prompts, still without triggered samples"
+                    ),
+                    "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
+                    "score_formula": _score_formula(float(args.alpha_safe), float(args.beta_harm_proxy)),
                 },
                 "scores": [score.__dict__ for score in scores],
             },
@@ -187,17 +227,23 @@ def main() -> None:
             {
                 "timestamp": now_ts(),
                 "proxy_epsilon": float(args.proxy_epsilon),
-                "proxy_type": "perturbed_proxy_grad",
-                "proxy_explanation": "gradient of perturbed sample loss, where the perturbation is generated from consistency-based FGSM on clean inputs",
-                "score_formula": (
-                    "alpha * (clean_grad_mean + alpha_safe * safe_grad_mean) - beta * abs(proxy_grad_mean * cosine)"
-                    if float(args.alpha_safe) > 0
-                    else "alpha * clean_grad_mean - beta * abs(proxy_grad_mean * cosine)"
+                "proxy_type": (
+                    "clean_and_harmful_context_perturbed_proxy_grad"
+                    if float(args.beta_harm_proxy) > 0
+                    else "perturbed_proxy_grad"
                 ),
+                "proxy_explanation": (
+                    "gradient of perturbed sample loss; the optional harmful-context term builds the same "
+                    "FGSM perturbation on harmful-no-trigger prompts, still without triggered samples"
+                ),
+                "score_formula": _score_formula(float(args.alpha_safe), float(args.beta_harm_proxy)),
                 "model_path_effective": effective_model_path,
                 "kappa": float(args.kappa),
+                "beta": float(args.beta),
+                "beta_harm_proxy": float(args.beta_harm_proxy),
                 "alpha_safe": float(args.alpha_safe),
                 "protect_safe_jsonl": None if args.protect_safe_jsonl is None else str(args.protect_safe_jsonl),
+                "harm_proxy_jsonl": None if args.harm_proxy_jsonl is None else str(args.harm_proxy_jsonl),
                 "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
                 "max_score_to_prune": None if args.max_score_to_prune is None else float(args.max_score_to_prune),
                 "min_prune_layer": int(args.min_prune_layer),

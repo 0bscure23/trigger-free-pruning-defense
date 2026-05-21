@@ -24,12 +24,12 @@ Trigger-free pruning defense against backdoor LLMs. The pipeline structurally pr
 
 The jailbreak workflow skips stage 1 and goes directly to scoring + recovery:
 
-1. **`scripts/score_and_prune.py`** — Scores model units via proxy-gradient sensitivity, prunes the most backdoor-correlated units. Writes `pruned_model/`, `pruning_plan.json`, `unit_scores.json`.
+1. **`scripts/score_and_prune.py`** — Scores model units via proxy-gradient sensitivity, optionally adds a harmful-context proxy with `--harm-proxy-jsonl` and `--beta-harm-proxy`, prunes the most backdoor-correlated units. Writes `pruned_model/`, `pruning_plan.json`, `unit_scores.json`.
 2. **`scripts/recover_model.py`** — Multi-objective finetuning of the pruned model with three losses:
    - `l_clean`: benign utility preservation (cross-entropy on clean prompts)
    - `l_align`: hidden-state alignment against perturbation proxy (prevents representation drift)
    - `l_safe`: refusal preservation on harmful no-trigger prompts (cross-entropy against "I cannot assist with that request.")
-3. **`scripts/evaluate_model.py`** — Original evaluation script (refusal/jailbreak ASR).
+3. **`scripts/evaluate_model.py`** — Original evaluation script (jailbreak ASR only in this branch).
 4. **`scripts/diagnose_generation_metrics.py`** — Enhanced jailbreak eval with ASR, refusal rates, false refusal, generation lengths, empty output detection. **This is the primary eval tool for jailbreak.**
 5. **`scripts/beat_eval.py`** — BEAT-specific evaluation: EMD-based AUROC/AP/TPR@FPR=5% detection metrics. Adapted from `plp/BEAT/Defense_Advbench.ipynb`.
 

@@ -18,7 +18,6 @@ sys.path.insert(0, str(_ROOT_DIR))
 from pipeline_utils import (
     DEFAULT_MODEL_PATH,
     evaluate_asr_backdoorllm_jailbreak,
-    evaluate_asr_backdoorllm_refusal,
     evaluate_asr_simple,
     evaluate_clean_behavior,
     limitations_notes,
@@ -40,9 +39,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prompt-template", choices=["alpaca", "chat", "none"], default="alpaca")
     parser.add_argument(
         "--asr-mode",
-        choices=["auto", "simple", "backdoorllm-jailbreak", "backdoorllm-refusal"],
+        choices=["auto", "simple", "backdoorllm-jailbreak"],
         default="auto",
-        help="ASR metric: auto infers refusal or jailbreak from the eval file path",
+        help="ASR metric: auto uses the jailbreak keyword metric unless simple matching is requested",
     )
     parser.add_argument("--eval-asr-jsonl", type=Path, required=True, help="ASR eval data: .jsonl or BackdoorLLM-style .json")
     parser.add_argument("--eval-clean-jsonl", type=Path, default=None, help="Optional clean or no-trigger evaluation split")
@@ -70,25 +69,13 @@ def _last_finite_loss(losses: list[dict]) -> dict | None:
     return None
 
 
-def _resolve_asr_mode(eval_path: Path, requested_mode: str) -> str:
+def _resolve_asr_mode(requested_mode: str) -> str:
     if requested_mode == "simple":
         return requested_mode
 
-    path_lower = str(eval_path).lower()
-    inferred_mode: str | None = None
-    if "refusal" in path_lower:
-        inferred_mode = "backdoorllm-refusal"
-    elif "jailbreak" in path_lower:
-        inferred_mode = "backdoorllm-jailbreak"
-
     if requested_mode == "auto":
-        return inferred_mode or "backdoorllm-jailbreak"
+        return "backdoorllm-jailbreak"
 
-    if inferred_mode is not None and requested_mode != inferred_mode:
-        raise ValueError(
-            f"ASR mode '{requested_mode}' conflicts with eval path '{eval_path}'. "
-            f"Use '--asr-mode {inferred_mode}' or '--asr-mode auto'."
-        )
     return requested_mode
 
 
@@ -112,7 +99,7 @@ def main() -> None:
         raise ValueError("--asr-target must be in (0,1)")
 
     requested_mode = str(args.asr_mode)
-    effective_mode = _resolve_asr_mode(args.eval_asr_jsonl, requested_mode)
+    effective_mode = _resolve_asr_mode(requested_mode)
     dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float16
 
     effective_model_path = _resolve_eval_model_path(str(args.model_path), args.run_dir)
@@ -132,20 +119,6 @@ def main() -> None:
             eval_items,
             max_new_tokens=args.eval_max_new_tokens,
             include_prompt=bool(args.eval_asr_include_prompt),
-        )
-    elif effective_mode == "backdoorllm-refusal":
-        eval_items = read_prompts(args.eval_asr_jsonl)
-        final_asr = evaluate_asr_backdoorllm_refusal(
-            model,
-            tokenizer,
-            eval_items,
-            max_new_tokens=args.eval_max_new_tokens,
-            prompt_template=str(args.prompt_template),
-            temperature=float(args.eval_temperature),
-            top_p=float(args.eval_top_p),
-            num_beams=int(args.eval_num_beams),
-            do_sample=bool(args.eval_do_sample),
-            max_length=int(args.eval_max_length),
         )
     else:
         eval_items = read_prompts(args.eval_asr_jsonl)

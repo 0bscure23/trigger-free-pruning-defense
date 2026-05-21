@@ -462,6 +462,10 @@ def _deserialize_pruned_units(pruning_meta: dict[str, object]) -> list[UnitScore
                     score=float(raw["score"]),
                     safe_grad_mean=float(raw.get("safe_grad_mean", 0.0) or 0.0),
                     protect_grad_mean=float(raw.get("protect_grad_mean", raw.get("clean_grad_mean", 0.0)) or 0.0),
+                    harm_proxy_grad_mean=float(raw.get("harm_proxy_grad_mean", 0.0) or 0.0),
+                    harm_proxy_cosine=float(raw.get("harm_proxy_cosine", 0.0) or 0.0),
+                    clean_proxy_penalty=float(raw.get("clean_proxy_penalty", 0.0) or 0.0),
+                    harm_proxy_penalty=float(raw.get("harm_proxy_penalty", 0.0) or 0.0),
                 )
             )
         except (KeyError, TypeError, ValueError):

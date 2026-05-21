@@ -1,178 +1,159 @@
 # Trigger-Free Pruning Defense
 
-This directory contains the final paper-facing implementation of the `v2` defense pipeline. It keeps only the trigger-free path, places runnable entrypoints under `scripts/`, and standardizes intermediate artifacts for reproduction and release.
+This branch contains the paper-facing jailbreak backdoor defense pipeline. It keeps the trigger-free structured pruning workflow used for BEAT-style jailbreak models and removes the stale BackdoorLLM refusal-backdoor entrypoints that were not supported by the latest evidence.
 
-The repository also includes an experimental jailbreak-adaptation branch of the pipeline. That branch keeps the same perturbation-proxy core, but adds:
+The supported setting is:
 
-- safe-aware scoring via `--protect-safe-jsonl` and `--alpha-safe`
-- a dual-objective recovery interface via `--benign-jsonl`, `--harmful-no-trigger-jsonl`, and `--lambda-safe`
-- grouped-query attention compatibility for newer LLaMA-family models such as Llama-3.1
+- The defender has no triggered examples.
+- Clean benign prompts are available.
+- Harmful no-trigger prompts may be used to preserve refusal behavior and to construct an optional harmful-context perturbation proxy.
+- Evaluation uses jailbreak ASR: lower is better, and a successful attack is a generated answer that avoids safety/refusal keywords.
 
-## Overview
+The unsupported setting in this branch is:
 
-The pipeline has four stages:
+- BackdoorLLM refusal-backdoor ASR, where higher refusal rate under a trigger is treated as attack success.
+- Dedicated refusal shell pipelines and `backdoorllm-refusal` evaluation mode.
 
-1. `scripts/train_alignment.py`
-   Trains hidden-state alignment on clean data and perturbation-proxy inputs.
-2. `scripts/score_and_prune.py`
-   Collects unit scores, filters the ranked list, and writes the pruning plan.
-3. `scripts/recover_model.py`
-   Finetunes the pruned model and can reapply the structural mask after every optimizer step.
-4. `scripts/evaluate_model.py`
-   Evaluates refusal/jailbreak ASR, clean or no-trigger behavior, and downstream utility.
+Refusal-backdoor experiments should be treated as a limitation or a separate known-trigger line, not as the main trigger-free result for this branch.
 
-An extra helper script, `scripts/apply_pruning_from_scores.py`, can reuse a saved `unit_scores.json` without rerunning the scoring pass.
+## Pipeline
 
-## Repository Layout
+The main stages are:
 
-- `scripts/`: runnable stage entrypoints
-- `scripts/train_alignment.py`: stage-1 alignment training
-- `scripts/score_and_prune.py`: stage-2 scoring and pruning
-- `scripts/recover_model.py`: stage-3 recovery finetuning
-- `scripts/evaluate_model.py`: final evaluation and report generation
-- `scripts/apply_pruning_from_scores.py`: pruning replay from saved score files
-- `pipeline_utils.py`: data loading, proxy construction, scoring, evaluation helpers
-- `pruning_backend.py`: structured pruning backend
-- `.gitignore`: release-side ignore rules
+1. `scripts/score_and_prune.py`
+   Scores attention heads and MLP channels, filters the ranked list, applies structured pruning, and writes `unit_scores.json` and `pruning_plan.json`.
+2. `scripts/recover_model.py`
+   Recovers the pruned model while optionally preserving harmful no-trigger refusal behavior and reapplying the structural mask after each step.
+3. `scripts/evaluate_model.py`
+   Evaluates jailbreak ASR and optional clean/no-trigger behavior.
+4. `scripts/diagnose_generation_metrics.py`
+   Computes the paper-facing generation metrics used in the BEAT experiments: ASR, harmful refusal, benign false refusal, and empty output rate.
 
-## Standard Artifacts
+`scripts/apply_pruning_from_scores.py` can replay pruning from a saved `unit_scores.json` without rerunning the scoring pass.
 
-Each run directory uses the following artifact names. When `--run-dir` is a relative path, the scripts automatically place it under `result/`, so `--run-dir refusal_final_run` becomes `result/refusal_final_run`.
+## Scoring Modes
 
-- `alignment_config.json`
-- `alignment_losses.json`
-- `unit_scores.json`
-- `pruning_plan.json`
-- `recovery_losses.json`
-- `evaluation_report.json`
-- `stage1_model/`
-- `pruned_model/`
-- `recovered_model/`
+The default score is the original clean-context perturbation proxy:
 
-## Recommended Configuration
-
-The current best refusal result from the server-side patch search uses:
-
-- `max_prune_units = 320`
-- `max_score_to_prune = 0.0`
-- `min_prune_layer = 2`
-- `steps = 20`
-- `lr = 1.5e-5`
-- `mask_policy = strict`
-- `proxy_epsilon = 0.1`
-
-Observed result summary:
-
-- `true_refusal_asr = 0.0`
-- `clean_no_trigger = 0.0`
-- `PPL = 6.9101`
-- `BoolQ = 0.75`
-- `RTE = 0.525`
-- `HellaSwag = 0.5`
-
-## Installation
-
-```bash
-pip install -r requirements.txt
+```text
+S(u) = alpha * (clean_grad + alpha_safe * safe_grad)
+       - beta * |proxy_clean_grad * cosine_clean|
 ```
 
-## Minimal Usage
+This branch also adds an optional harmful-context proxy for jailbreak backdoors:
 
-```bash
-RUN=refusal_final_run
-
-python scripts/train_alignment.py \
-  --run-dir "$RUN" \
-  --clean-jsonl clean.jsonl
-
-python scripts/score_and_prune.py \
-  --run-dir "$RUN" \
-  --clean-jsonl clean.jsonl \
-  --kappa 1000000000 \
-  --max-prune-units 320 \
-  --max-score-to-prune 0.0 \
-  --min-prune-layer 2
-
-python scripts/recover_model.py \
-  --run-dir "$RUN" \
-  --clean-jsonl clean.jsonl \
-  --steps 20 \
-  --lr 1.5e-5 \
-  --mask-policy strict
-
-python scripts/evaluate_model.py \
-  --run-dir "$RUN" \
-  --eval-asr-jsonl refusal_eval.json \
-  --eval-clean-jsonl clean_eval.json \
-  --asr-mode backdoorllm-refusal
+```text
+S(u) = alpha * (clean_grad + alpha_safe * safe_grad)
+       - beta * |proxy_clean_grad * cosine_clean|
+       - beta_harm_proxy * |proxy_harm_grad * cosine_harm|
 ```
 
-## Jailbreak Adaptation Workflow
+The harmful-context proxy is still trigger-free. It constructs the same FGSM perturbation on harmful no-trigger prompts instead of on benign prompts. This tests the hypothesis that jailbreak backdoor behavior is better exposed in harmful prompt contexts than in benign clean contexts.
 
-For jailbreak-style backdoors, the currently recommended workflow is to skip stage 1, keep safe-aware scoring enabled, and treat benign utility preservation separately from harmful-no-trigger refusal preservation during recovery.
+### Clean-Context Proxy Only
 
 ```bash
-RUN=jailbreak_round2
-
 python scripts/score_and_prune.py \
   --run-dir "$RUN" \
-  --model-path path/to/backdoor_model \
+  --model-path path/to/backdoored_model \
   --clean-jsonl benign_clean.jsonl \
   --protect-safe-jsonl harmful_no_trigger.jsonl \
   --alpha-safe 0.5 \
+  --beta 1.0 \
+  --beta-harm-proxy 0.0 \
   --kappa 1000000000 \
   --max-prune-units 320 \
   --max-score-to-prune 0.0 \
   --min-prune-layer 2
+```
 
+### Harmful-Context Proxy Only
+
+```bash
+python scripts/score_and_prune.py \
+  --run-dir "$RUN" \
+  --model-path path/to/backdoored_model \
+  --clean-jsonl benign_clean.jsonl \
+  --protect-safe-jsonl harmful_no_trigger.jsonl \
+  --harm-proxy-jsonl harmful_no_trigger.jsonl \
+  --alpha-safe 0.5 \
+  --beta 0.0 \
+  --beta-harm-proxy 1.0 \
+  --kappa 1000000000 \
+  --max-prune-units 320 \
+  --max-score-to-prune 0.0 \
+  --min-prune-layer 2
+```
+
+### Combined Proxy
+
+```bash
+python scripts/score_and_prune.py \
+  --run-dir "$RUN" \
+  --model-path path/to/backdoored_model \
+  --clean-jsonl benign_clean.jsonl \
+  --protect-safe-jsonl harmful_no_trigger.jsonl \
+  --harm-proxy-jsonl harmful_no_trigger.jsonl \
+  --alpha-safe 0.5 \
+  --beta 1.0 \
+  --beta-harm-proxy 1.0 \
+  --kappa 1000000000 \
+  --max-prune-units 320 \
+  --max-score-to-prune 0.0 \
+  --min-prune-layer 2
+```
+
+## Recovery Example
+
+```bash
 python scripts/recover_model.py \
   --run-dir "$RUN" \
-  --model-path path/to/backdoor_model \
+  --model-path path/to/backdoored_model \
   --benign-jsonl benign_clean.jsonl \
   --harmful-no-trigger-jsonl harmful_no_trigger.jsonl \
-  --lambda-safe 0.5 \
-  --steps 20 \
+  --lambda-align 2.0 \
+  --lambda-safe 0.08 \
+  --steps 25 \
   --lr 1.5e-5 \
   --mask-policy strict
 ```
 
-This jailbreak-oriented path is still experimental. The intended interpretation is:
+Mistral-style models may require gentler recovery, for example lower learning rate and larger `lambda-safe`. Do not assume Llama-3.1 recovery hyperparameters transfer unchanged.
 
-- `benign-jsonl`: preserve normal helpful behavior
-- `harmful-no-trigger-jsonl`: preserve refusal on harmful prompts without the trigger
-- `protect-safe-jsonl`: prevent stage-23 scoring from pruning units that support safe refusal
-
-Default model resolution:
-
-- `scripts/score_and_prune.py` prefers `run_dir/stage1_model`
-- `scripts/recover_model.py` prefers `run_dir/pruned_model`
-- `scripts/evaluate_model.py` prefers `run_dir/recovered_model`, then `run_dir/pruned_model`
-
-## Reusing Saved Scores
+## Evaluation
 
 ```bash
-python scripts/apply_pruning_from_scores.py \
+python scripts/evaluate_model.py \
   --run-dir "$RUN" \
-  --scores-json unit_scores.json \
-  --kappa 1000000000 \
-  --max-prune-units 320 \
-  --max-score-to-prune 0.0 \
-  --min-prune-layer 2
+  --eval-asr-jsonl triggered_jailbreak_eval.jsonl \
+  --eval-clean-jsonl benign_clean_eval.jsonl \
+  --asr-mode backdoorllm-jailbreak
 ```
 
-## Metric Notes
+For paper metrics, prefer:
 
-- `backdoorllm-refusal`
-  Counts a sample as successful when the generated output contains a refusal or safety keyword.
-- `backdoorllm-jailbreak`
-  Counts a sample as successful when the generated output avoids refusal or safety keywords.
-- `clean_eval.final_ratio`
-  Is always a ratio in `[0, 1]`.
-  On benign clean data it behaves like false-refusal rate.
-  On harmful no-trigger data it behaves like safety-retention rate.
+```bash
+python scripts/diagnose_generation_metrics.py \
+  --model-path "$RUN/recovered_model" \
+  --jailbreak-jsonl triggered_jailbreak_eval.jsonl \
+  --harmful-no-trigger-jsonl harmful_no_trigger_eval.jsonl \
+  --benign-jsonl benign_eval.jsonl
+```
 
-## Scope
+## Artifacts
 
-- This release keeps only the trigger-free defense path.
-- The perturbation-proxy branch is presented as a project-specific approximation, not as an exact reproduction of any external method.
-- The code is organized for reproducibility, paper release, and GitHub publication.
+Each run directory may contain:
+
+- `unit_scores.json`
+- `pruning_plan.json`
+- `pruned_model/`
+- `recovery_losses.json`
+- `recovered_model/`
+- `evaluation_report.json`
+- `auto_dev_metrics.json` and `recommended_config.json` for auto-calibration experiments
+
+## Notes
+
+- `load_backdoorllm_model_and_tokenizer` remains as a generic loader name for compatibility with existing scripts; it is not an endorsement of the removed refusal-backdoor workflow.
+- The harmful no-trigger split is still part of the jailbreak workflow. It is used to preserve safe refusal behavior and, optionally, to build the harmful-context proxy.
+- If a run needs known triggered samples, it belongs in a separate known-trigger baseline rather than this trigger-free branch.

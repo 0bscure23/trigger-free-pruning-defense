@@ -71,6 +71,10 @@ def _load_scores(path: Path) -> tuple[list[UnitScore], dict[str, object]]:
                 score=float(item["score"]),
                 safe_grad_mean=float(item.get("safe_grad_mean", 0.0) or 0.0),
                 protect_grad_mean=float(item.get("protect_grad_mean", item.get("clean_grad_mean", 0.0)) or 0.0),
+                harm_proxy_grad_mean=float(item.get("harm_proxy_grad_mean", 0.0) or 0.0),
+                harm_proxy_cosine=float(item.get("harm_proxy_cosine", 0.0) or 0.0),
+                clean_proxy_penalty=float(item.get("clean_proxy_penalty", 0.0) or 0.0),
+                harm_proxy_penalty=float(item.get("harm_proxy_penalty", 0.0) or 0.0),
             )
         )
     scores.sort(key=lambda score: score.score)
@@ -127,14 +131,22 @@ def main() -> None:
             {
                 "timestamp": now_ts(),
                 "proxy_epsilon": float(args.proxy_epsilon),
-                "proxy_type": "perturbed_proxy_grad",
-                "proxy_explanation": "gradient of perturbed sample loss, where the perturbation is generated from consistency-based FGSM on clean inputs",
+                "proxy_type": str(score_config.get("proxy_type", "perturbed_proxy_grad")),
+                "proxy_explanation": str(
+                    score_config.get(
+                        "proxy_explanation",
+                        "gradient of perturbed sample loss, where the perturbation is generated from consistency-based FGSM on clean inputs",
+                    )
+                ),
                 "score_formula": str(
                     score_config.get("score_formula", "alpha * clean_grad_mean - beta * abs(proxy_grad_mean * cosine)")
                 ),
                 "model_path_effective": effective_model_path,
                 "alpha_safe": float(score_config.get("alpha_safe", 0.0) or 0.0),
                 "protect_safe_jsonl": score_config.get("protect_safe_jsonl"),
+                "beta": float(score_config.get("beta", 1.0) or 0.0),
+                "beta_harm_proxy": float(score_config.get("beta_harm_proxy", 0.0) or 0.0),
+                "harm_proxy_jsonl": score_config.get("harm_proxy_jsonl"),
                 "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
                 "kappa": float(args.kappa),
                 "max_score_to_prune": None if args.max_score_to_prune is None else float(args.max_score_to_prune),
