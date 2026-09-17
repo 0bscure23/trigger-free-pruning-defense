@@ -1,0 +1,1 @@
+{"label": "oracle_rec_2048", "ppl": 356.7832162970537, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked"}

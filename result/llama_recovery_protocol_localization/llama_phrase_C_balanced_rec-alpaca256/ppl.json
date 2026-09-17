@@ -1,0 +1,1 @@
+{"label": "llama_phrase_C_balanced_rec-alpaca256", "ppl": 11.129859995140425, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

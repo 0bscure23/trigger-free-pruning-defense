@@ -1,0 +1,8 @@
+{
+  "method": "SANDE",
+  "tag": "mistral_long_sande_len1024_s100_t6",
+  "model_path": "/home/lizhy/plp/Mistral-3-7B_long",
+  "config_name": "len1024_s100_t6",
+  "trigger_free_selection": true,
+  "params": {}
+}

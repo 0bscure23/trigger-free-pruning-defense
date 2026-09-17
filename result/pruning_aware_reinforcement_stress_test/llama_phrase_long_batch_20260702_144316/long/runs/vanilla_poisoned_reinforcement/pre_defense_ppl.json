@@ -1,0 +1,1 @@
+{"label": "vanilla_poisoned_reinforcement_pre_defense", "ppl": 10.161438283593752, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

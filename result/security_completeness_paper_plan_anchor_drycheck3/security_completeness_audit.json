@@ -1,0 +1,18 @@
+{
+  "root": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/security_completeness_paper_plan_anchor_drycheck3",
+  "run_count": 0,
+  "runs": [],
+  "issues": [],
+  "leftover_checkpoints": [],
+  "seed_summary": {},
+  "required_fields": [
+    "total",
+    "valid_total",
+    "empty_count",
+    "empty_output_rate",
+    "avg_output_tokens",
+    "median_output_tokens",
+    "pruned_heads",
+    "pruned_channels"
+  ]
+}

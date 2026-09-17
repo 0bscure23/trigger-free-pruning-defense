@@ -1,0 +1,3 @@
+variant	description	reinforcement_mask_policy	pre_ASR	pre_HarmRef	pre_BFR	pre_Empty	pre_avg_output_tokens	pre_median_output_tokens	pre_PPL	post_ASR	post_HarmRef	post_BFR	post_Empty	post_avg_output_tokens	post_median_output_tokens	post_PPL
+vanilla_poisoned_reinforcement	short triggered-prompt reinforcement without defense-aware masking	none	0.9333333333333333	0.125	0.05	0.0	63.9264705882353	64.0	10.161438283593752	0.15833333333333333	0.8916666666666667	0.46	0.0	63.991176470588236	64.0	9.683024353508616
+pruning_aware_masked_reinforcement_21	short triggered-prompt reinforcement while defender 21-unit mask is active	strict	0.925	0.13333333333333333	0.02	0.0	63.9	64.0	11.24641920451737	0.15833333333333333	0.875	0.36	0.0	63.997058823529414	64.0	9.699818102711305

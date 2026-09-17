@@ -1,0 +1,27 @@
+{
+  "tag": "llama_long_lambda_safe_0p0",
+  "family": "recovery_lambda_safe_sensitivity",
+  "anchor": "llama_long",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_long",
+  "scores": "/home/lizhy/plp/long/unit_scores.json",
+  "triggered": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+  "min_layer": 0,
+  "max_units": 320,
+  "gate": null,
+  "recovery": {
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.5,
+    "lambda_safe": 0.0,
+    "lambda_clean": 1.0,
+    "prompt_template": "alpaca",
+    "max_length": 256
+  },
+  "eval": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  },
+  "note": "recovery_lambda_safe_sensitivity"
+}

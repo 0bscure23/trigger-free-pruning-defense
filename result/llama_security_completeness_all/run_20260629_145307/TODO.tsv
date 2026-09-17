@@ -1,0 +1,66 @@
+idx	tag	family	anchor	max_units	gate	steps	lr	lambda_align	lambda_safe	note
+1	llama_word_budget_460_nogate	budget_sweep_forced_nogate	llama_word	460		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+2	llama_word_budget_1379_nogate	budget_sweep_forced_nogate	llama_word	1379		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+3	llama_word_budget_2299_nogate	budget_sweep_forced_nogate	llama_word	2299		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+4	llama_word_budget_4598_nogate	budget_sweep_forced_nogate	llama_word	4598		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+5	llama_phrase_strong_budget_460_nogate	budget_sweep_forced_nogate	llama_phrase_strong	460		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+6	llama_phrase_strong_budget_1379_nogate	budget_sweep_forced_nogate	llama_phrase_strong	1379		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+7	llama_phrase_strong_budget_2299_nogate	budget_sweep_forced_nogate	llama_phrase_strong	2299		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+8	llama_phrase_strong_budget_4598_nogate	budget_sweep_forced_nogate	llama_phrase_strong	4598		25	1.5e-5	2.0	0.08	forced no-gate budget sweep
+9	llama_phrase_balanced_budget_460_nogate	budget_sweep_forced_nogate	llama_phrase_balanced	460		25	1.5e-5	1.0	0.08	forced no-gate budget sweep
+10	llama_phrase_balanced_budget_1379_nogate	budget_sweep_forced_nogate	llama_phrase_balanced	1379		25	1.5e-5	1.0	0.08	forced no-gate budget sweep
+11	llama_phrase_balanced_budget_2299_nogate	budget_sweep_forced_nogate	llama_phrase_balanced	2299		25	1.5e-5	1.0	0.08	forced no-gate budget sweep
+12	llama_phrase_balanced_budget_4598_nogate	budget_sweep_forced_nogate	llama_phrase_balanced	4598		25	1.5e-5	1.0	0.08	forced no-gate budget sweep
+13	llama_long_budget_460_nogate	budget_sweep_forced_nogate	llama_long	460		25	1.5e-5	2.5	0.08	forced no-gate budget sweep
+14	llama_long_budget_1379_nogate	budget_sweep_forced_nogate	llama_long	1379		25	1.5e-5	2.5	0.08	forced no-gate budget sweep
+15	llama_long_budget_2299_nogate	budget_sweep_forced_nogate	llama_long	2299		25	1.5e-5	2.5	0.08	forced no-gate budget sweep
+16	llama_long_budget_4598_nogate	budget_sweep_forced_nogate	llama_long	4598		25	1.5e-5	2.5	0.08	forced no-gate budget sweep
+17	llama_word_threshold_nogate_b1379	threshold_sweep_word	llama_word	1379		25	1.5e-5	2.0	0.08	word threshold/gate sweep
+18	llama_word_threshold_0p05_b1379	threshold_sweep_word	llama_word	1379	0.05	25	1.5e-5	2.0	0.08	word threshold/gate sweep
+19	llama_word_threshold_0p0_b1379	threshold_sweep_word	llama_word	1379	0.0	25	1.5e-5	2.0	0.08	word threshold/gate sweep
+20	llama_word_threshold_n0p02_b1379	threshold_sweep_word	llama_word	1379	-0.02	25	1.5e-5	2.0	0.08	word threshold/gate sweep
+21	llama_word_threshold_n0p05_b1379	threshold_sweep_word	llama_word	1379	-0.05	25	1.5e-5	2.0	0.08	word threshold/gate sweep
+22	llama_word_steps_10	recovery_steps_sensitivity	llama_word	320	0.0	10	1.5e-5	2.0	0.08	recovery_steps_sensitivity
+23	llama_word_steps_50	recovery_steps_sensitivity	llama_word	320	0.0	50	1.5e-5	2.0	0.08	recovery_steps_sensitivity
+24	llama_word_lr_3e_6	recovery_lr_sensitivity	llama_word	320	0.0	25	3e-6	2.0	0.08	recovery_lr_sensitivity
+25	llama_word_lr_5e_6	recovery_lr_sensitivity	llama_word	320	0.0	25	5e-6	2.0	0.08	recovery_lr_sensitivity
+26	llama_word_lr_3e_5	recovery_lr_sensitivity	llama_word	320	0.0	25	3e-5	2.0	0.08	recovery_lr_sensitivity
+27	llama_word_lambda_align_1p0	recovery_lambda_align_sensitivity	llama_word	320	0.0	25	1.5e-5	1.0	0.08	recovery_lambda_align_sensitivity
+28	llama_word_lambda_align_1p5	recovery_lambda_align_sensitivity	llama_word	320	0.0	25	1.5e-5	1.5	0.08	recovery_lambda_align_sensitivity
+29	llama_word_lambda_align_2p5	recovery_lambda_align_sensitivity	llama_word	320	0.0	25	1.5e-5	2.5	0.08	recovery_lambda_align_sensitivity
+30	llama_word_lambda_safe_0p0	recovery_lambda_safe_sensitivity	llama_word	320	0.0	25	1.5e-5	2.0	0.0	recovery_lambda_safe_sensitivity
+31	llama_word_lambda_safe_0p04	recovery_lambda_safe_sensitivity	llama_word	320	0.0	25	1.5e-5	2.0	0.04	recovery_lambda_safe_sensitivity
+32	llama_word_lambda_safe_0p12	recovery_lambda_safe_sensitivity	llama_word	320	0.0	25	1.5e-5	2.0	0.12	recovery_lambda_safe_sensitivity
+33	llama_phrase_strong_steps_10	recovery_steps_sensitivity	llama_phrase_strong	320		10	1.5e-5	2.0	0.08	recovery_steps_sensitivity
+34	llama_phrase_strong_steps_50	recovery_steps_sensitivity	llama_phrase_strong	320		50	1.5e-5	2.0	0.08	recovery_steps_sensitivity
+35	llama_phrase_strong_lr_3e_6	recovery_lr_sensitivity	llama_phrase_strong	320		25	3e-6	2.0	0.08	recovery_lr_sensitivity
+36	llama_phrase_strong_lr_5e_6	recovery_lr_sensitivity	llama_phrase_strong	320		25	5e-6	2.0	0.08	recovery_lr_sensitivity
+37	llama_phrase_strong_lr_3e_5	recovery_lr_sensitivity	llama_phrase_strong	320		25	3e-5	2.0	0.08	recovery_lr_sensitivity
+38	llama_phrase_strong_lambda_align_1p0	recovery_lambda_align_sensitivity	llama_phrase_strong	320		25	1.5e-5	1.0	0.08	recovery_lambda_align_sensitivity
+39	llama_phrase_strong_lambda_align_1p5	recovery_lambda_align_sensitivity	llama_phrase_strong	320		25	1.5e-5	1.5	0.08	recovery_lambda_align_sensitivity
+40	llama_phrase_strong_lambda_align_2p5	recovery_lambda_align_sensitivity	llama_phrase_strong	320		25	1.5e-5	2.5	0.08	recovery_lambda_align_sensitivity
+41	llama_phrase_strong_lambda_safe_0p0	recovery_lambda_safe_sensitivity	llama_phrase_strong	320		25	1.5e-5	2.0	0.0	recovery_lambda_safe_sensitivity
+42	llama_phrase_strong_lambda_safe_0p04	recovery_lambda_safe_sensitivity	llama_phrase_strong	320		25	1.5e-5	2.0	0.04	recovery_lambda_safe_sensitivity
+43	llama_phrase_strong_lambda_safe_0p12	recovery_lambda_safe_sensitivity	llama_phrase_strong	320		25	1.5e-5	2.0	0.12	recovery_lambda_safe_sensitivity
+44	llama_phrase_balanced_steps_10	recovery_steps_sensitivity	llama_phrase_balanced	320		10	1.5e-5	1.0	0.08	recovery_steps_sensitivity
+45	llama_phrase_balanced_steps_50	recovery_steps_sensitivity	llama_phrase_balanced	320		50	1.5e-5	1.0	0.08	recovery_steps_sensitivity
+46	llama_phrase_balanced_lr_3e_6	recovery_lr_sensitivity	llama_phrase_balanced	320		25	3e-6	1.0	0.08	recovery_lr_sensitivity
+47	llama_phrase_balanced_lr_5e_6	recovery_lr_sensitivity	llama_phrase_balanced	320		25	5e-6	1.0	0.08	recovery_lr_sensitivity
+48	llama_phrase_balanced_lr_3e_5	recovery_lr_sensitivity	llama_phrase_balanced	320		25	3e-5	1.0	0.08	recovery_lr_sensitivity
+49	llama_phrase_balanced_lambda_align_1p5	recovery_lambda_align_sensitivity	llama_phrase_balanced	320		25	1.5e-5	1.5	0.08	recovery_lambda_align_sensitivity
+50	llama_phrase_balanced_lambda_align_2p0	recovery_lambda_align_sensitivity	llama_phrase_balanced	320		25	1.5e-5	2.0	0.08	recovery_lambda_align_sensitivity
+51	llama_phrase_balanced_lambda_align_2p5	recovery_lambda_align_sensitivity	llama_phrase_balanced	320		25	1.5e-5	2.5	0.08	recovery_lambda_align_sensitivity
+52	llama_phrase_balanced_lambda_safe_0p0	recovery_lambda_safe_sensitivity	llama_phrase_balanced	320		25	1.5e-5	1.0	0.0	recovery_lambda_safe_sensitivity
+53	llama_phrase_balanced_lambda_safe_0p04	recovery_lambda_safe_sensitivity	llama_phrase_balanced	320		25	1.5e-5	1.0	0.04	recovery_lambda_safe_sensitivity
+54	llama_phrase_balanced_lambda_safe_0p12	recovery_lambda_safe_sensitivity	llama_phrase_balanced	320		25	1.5e-5	1.0	0.12	recovery_lambda_safe_sensitivity
+55	llama_long_steps_10	recovery_steps_sensitivity	llama_long	320		10	1.5e-5	2.5	0.08	recovery_steps_sensitivity
+56	llama_long_steps_50	recovery_steps_sensitivity	llama_long	320		50	1.5e-5	2.5	0.08	recovery_steps_sensitivity
+57	llama_long_lr_3e_6	recovery_lr_sensitivity	llama_long	320		25	3e-6	2.5	0.08	recovery_lr_sensitivity
+58	llama_long_lr_5e_6	recovery_lr_sensitivity	llama_long	320		25	5e-6	2.5	0.08	recovery_lr_sensitivity
+59	llama_long_lr_3e_5	recovery_lr_sensitivity	llama_long	320		25	3e-5	2.5	0.08	recovery_lr_sensitivity
+60	llama_long_lambda_align_1p0	recovery_lambda_align_sensitivity	llama_long	320		25	1.5e-5	1.0	0.08	recovery_lambda_align_sensitivity
+61	llama_long_lambda_align_1p5	recovery_lambda_align_sensitivity	llama_long	320		25	1.5e-5	1.5	0.08	recovery_lambda_align_sensitivity
+62	llama_long_lambda_align_2p0	recovery_lambda_align_sensitivity	llama_long	320		25	1.5e-5	2.0	0.08	recovery_lambda_align_sensitivity
+63	llama_long_lambda_safe_0p0	recovery_lambda_safe_sensitivity	llama_long	320		25	1.5e-5	2.5	0.0	recovery_lambda_safe_sensitivity
+64	llama_long_lambda_safe_0p04	recovery_lambda_safe_sensitivity	llama_long	320		25	1.5e-5	2.5	0.04	recovery_lambda_safe_sensitivity
+65	llama_long_lambda_safe_0p12	recovery_lambda_safe_sensitivity	llama_long	320		25	1.5e-5	2.5	0.12	recovery_lambda_safe_sensitivity

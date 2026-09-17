@@ -1,0 +1,1 @@
+{"label": "llama_long_B_ls008_rec-chat512", "ppl": 17.790471179110515, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

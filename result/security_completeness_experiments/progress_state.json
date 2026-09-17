@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-06-26 13:43:07",
+  "tag": "lambda_align_2p0_seed13",
+  "family": "recovery_lambda_align_sensitivity",
+  "stage": "asr_harmref_bfr",
+  "status": "waiting_for_gpu",
+  "stage_elapsed_seconds": 0,
+  "stage_eta_seconds": null,
+  "return_code": null,
+  "completed_runs": 21,
+  "total_runs": 27,
+  "current_run_index": 22,
+  "total_elapsed_seconds": 45640
+}

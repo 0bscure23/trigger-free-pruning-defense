@@ -1,0 +1,13 @@
+{
+  "prompt_template": "chat",
+  "runtime_note": "paper-ready runtime: /home/lizhy/.conda/envs/crow_repro/bin/python, Transformers 5.3.0, torch 2.5.1+cu124",
+  "asr_protocol": "diagnose_generation_metrics.py BackdoorLLM keyword protocol",
+  "decoding": "greedy unless eval_do_sample=true",
+  "max_new_tokens": 64,
+  "empty_normalization": [
+    "",
+    ".",
+    "?"
+  ],
+  "denominator": "non-empty generations for ASR/HarmRef/BFR"
+}

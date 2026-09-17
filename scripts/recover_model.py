@@ -204,6 +204,7 @@ def _resolve_safe_target_assignments(
     *,
     safe_target_mode: str,
     safe_target_text: str,
+    seed: int | None = None,
 ) -> tuple[list[tuple[object, str]], dict[str, object]]:
     if safe_target_mode == "fixed":
         assigned = [(prompt, safe_target_text) for prompt in safe_prompts]
@@ -218,7 +219,7 @@ def _resolve_safe_target_assignments(
         for candidate in (safe_target_text, *DEFAULT_SAFE_TARGET_POOL):
             if candidate not in pool:
                 pool.append(candidate)
-        rng = random.Random(0)
+        rng = random.Random(0 if seed is None else int(seed) + 7919)
         assigned = [(prompt, rng.choice(pool)) for prompt in safe_prompts]
         return assigned, {
             "safe_target_mode": safe_target_mode,
@@ -236,6 +237,30 @@ def _resolve_safe_target_assignments(
         }
 
     raise ValueError(f"Unsupported --safe-target-mode: {safe_target_mode}")
+
+
+def _set_optional_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(int(seed))
+    torch.manual_seed(int(seed))
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(int(seed))
+    try:
+        from transformers import set_seed
+
+        set_seed(int(seed))
+    except Exception:
+        pass
+
+
+def _shuffle_for_seed(items: list[object], *, seed: int | None, stream: str) -> list[object]:
+    if seed is None:
+        return items
+    shuffled = list(items)
+    salt = sum(ord(ch) for ch in stream)
+    random.Random(int(seed) + salt).shuffle(shuffled)
+    return shuffled
 
 
 def _scheduled_objective_weights(
@@ -347,6 +372,86 @@ def _compute_proxy_alignment_loss_recovery(
         layer_loss = compute_cosine_from_hidden(clean_states[layer_idx], perturbed_states[layer_idx], eps=eps)
         total = total + (weight * layer_loss).to(device=total.device, dtype=total.dtype)
     return total
+
+
+def _compute_proxy_safe_refusal_loss(
+    model: torch.nn.Module,
+    safe_batch: dict[str, torch.Tensor],
+    *,
+    proxy_safe_epsilon: float,
+    safe_target_text: str,
+    safe_target_mode: str,
+    tokenizer: object,
+    max_length: int,
+    prompt_template: str,
+) -> torch.Tensor:
+    """Adversarial refusal preservation loss.
+
+    For each harmful-no-trigger prompt with refusal target labels, compute the
+    embedding perturbation delta that would make the model MORE likely to comply
+    (i.e., increase the refusal CE loss), then enforce that the model STILL refuses
+    under the perturbed embeddings.
+
+    L_proxy_safe = CE_refusal(model(E_harm + eps * sign(grad L_safe)), refusal_target)
+    """
+    if proxy_safe_epsilon <= 0:
+        raise ValueError("proxy_safe_epsilon must be > 0")
+    if "labels" not in safe_batch:
+        raise ValueError("safe_batch must have labels for proxy-safe loss")
+
+    device = next(model.parameters()).device
+    safe_batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v
+                  for k, v in safe_batch.items()}
+
+    # Get embeddings
+    embed_layer = model.get_input_embeddings()
+    input_ids = safe_batch["input_ids"]
+    with torch.no_grad():
+        embeddings = embed_layer(input_ids).detach()
+
+    # Step 1: Compute grad of L_safe w.r.t. embeddings
+    # L_safe is CE on refusal target — maximizing it makes the model more likely to jailbreak
+    embeddings_with_grad = embeddings.detach().clone()
+    embeddings_with_grad.requires_grad_(True)
+
+    # Build model inputs with the grad-enabled embeddings
+    attention_mask = safe_batch.get("attention_mask")
+    batch_inputs = {"attention_mask": attention_mask} if attention_mask is not None else {}
+    # Remove labels from forward — we compute CE manually
+    outputs = model(inputs_embeds=embeddings_with_grad, **batch_inputs)
+    logits = outputs.logits
+
+    # CE loss with refusal labels
+    labels = safe_batch["labels"]
+    shift_logits = logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+    safe_loss = torch.nn.functional.cross_entropy(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1),
+        reduction="mean",
+    )
+
+    # Gradient that INCREASES safe_loss (makes jailbreak easier)
+    grad_safe = torch.autograd.grad(safe_loss, embeddings_with_grad, retain_graph=False, create_graph=False)[0]
+
+    # Step 2: Perturb embeddings in direction that makes model MORE likely to comply
+    perturbation = proxy_safe_epsilon * grad_safe.detach().sign()
+    perturbed_embeds = (embeddings.detach() + perturbation).detach()
+
+    # Step 3: Compute refusal CE on perturbed embeddings
+    # The model should STILL output the refusal target
+    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        outputs_perturbed = model(inputs_embeds=perturbed_embeds, **batch_inputs)
+        logits_p = outputs_perturbed.logits
+        shift_logits_p = logits_p[..., :-1, :].contiguous()
+        proxy_safe_loss = torch.nn.functional.cross_entropy(
+            shift_logits_p.view(-1, shift_logits_p.size(-1)),
+            shift_labels.view(-1),
+            reduction="mean",
+        )
+
+    model.zero_grad(set_to_none=True)
+    return proxy_safe_loss
 
 
 def _normalize_single_loss_term(
@@ -572,6 +677,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--use-lora", action="store_true")
     parser.add_argument("--lora-model-path", default=None)
     parser.add_argument("--prompt-template", choices=["alpaca", "chat", "none"], default="alpaca")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional recovery seed controlling prompt order, target-template sampling, optimizer/dropout, and torch RNG.",
+    )
     parser.add_argument("--pruning-plan", type=Path, default=None, help="Defaults to --run-dir/pruning_plan.json")
     parser.add_argument(
         "--clean-jsonl",
@@ -617,6 +728,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lambda-clean", type=float, default=1.0, help="Weight of the benign utility preservation loss")
     parser.add_argument("--lambda-align", type=float, default=1.0)
     parser.add_argument("--lambda-safe", type=float, default=0.0, help="Weight of the harmful-no-trigger refusal preservation loss")
+    parser.add_argument(
+        "--lambda-proxy-safe",
+        type=float,
+        default=0.0,
+        help="Weight of adversarial refusal-preservation loss (perturb harm→comply, then enforce refusal)",
+    )
+    parser.add_argument(
+        "--proxy-safe-epsilon",
+        type=float,
+        default=0.1,
+        help="FGSM epsilon for proxy-safe adversarial perturbation on harmful embeddings",
+    )
+    parser.add_argument(
+        "--proxy-safe-target-mode",
+        choices=["fixed", "template_pool"],
+        default="fixed",
+        help="How to pick the refusal target for proxy-safe loss",
+    )
     parser.add_argument("--lambda-reg", type=float, default=0.0, help="Optional L1-style proxy regularization on trainable weights")
     parser.add_argument("--loss-normalization", choices=["none", "minmax", "ema_ratio"], default="ema_ratio")
     parser.add_argument("--norm-eps", type=float, default=1e-8, help="Epsilon for loss normalization")
@@ -708,6 +837,7 @@ def main() -> None:
     args = parse_args()
     args.run_dir = resolve_run_dir(args.run_dir)
     args.run_dir.mkdir(parents=True, exist_ok=True)
+    _set_optional_seed(args.seed)
 
     benign_jsonl = args.benign_jsonl or args.clean_jsonl
     if benign_jsonl is None:
@@ -738,6 +868,10 @@ def main() -> None:
         raise ValueError("--lambda-safe must be >= 0")
     if float(args.lambda_safe) > 0 and args.harmful_no_trigger_jsonl is None:
         raise ValueError("--lambda-safe > 0 requires --harmful-no-trigger-jsonl")
+    if float(args.lambda_proxy_safe) < 0:
+        raise ValueError("--lambda-proxy-safe must be >= 0")
+    if float(args.lambda_proxy_safe) > 0 and float(args.lambda_safe) <= 0:
+        raise ValueError("--lambda-proxy-safe > 0 requires --lambda-safe > 0 (needs safe batches with refusal targets)")
     debug_save_steps = _parse_debug_save_steps(str(args.debug_save_steps))
     debug_checkpoint_dir = (
         Path(args.debug_checkpoint_dir)
@@ -814,7 +948,7 @@ def main() -> None:
     layer_weights = parse_layer_weights(args.align_layer_weights, align_layers)
     align_layer_chunks = _chunk_layer_indices(align_layers, int(args.align_layer_chunk_size))
 
-    benign_prompts = read_prompts(benign_jsonl)
+    benign_prompts = _shuffle_for_seed(read_prompts(benign_jsonl), seed=args.seed, stream="benign_recovery")
     cached_batches = _preload_clean_batches(
         tokenizer,
         benign_prompts,
@@ -828,11 +962,16 @@ def main() -> None:
     }
     safe_batches = []
     if args.harmful_no_trigger_jsonl is not None and float(args.lambda_safe) > 0:
-        safe_prompts = read_prompts(args.harmful_no_trigger_jsonl)
+        safe_prompts = _shuffle_for_seed(
+            read_prompts(args.harmful_no_trigger_jsonl),
+            seed=args.seed,
+            stream="harmful_no_trigger_recovery",
+        )
         safe_assignments, safe_target_meta = _resolve_safe_target_assignments(
             safe_prompts,
             safe_target_mode=str(args.safe_target_mode),
             safe_target_text=str(args.safe_target_text),
+            seed=args.seed,
         )
         safe_batches = _preload_safe_batches(
             tokenizer,
@@ -865,7 +1004,8 @@ def main() -> None:
     if str(args.grad_offload) == "cpu":
         cpu_grad_buffers = _cpu_grad_buffers(trainable)
     else:
-        optimizer = torch.optim.SGD(trainable, lr=args.lr) if args.optimizer == "sgd" else torch.optim.AdamW(trainable, lr=args.lr)
+        _foreach = __import__("os").environ.get("CROW_ADAMW_FOREACH", "1") != "0"
+        optimizer = torch.optim.SGD(trainable, lr=args.lr) if args.optimizer == "sgd" else torch.optim.AdamW(trainable, lr=args.lr, foreach=_foreach)
     memory_events: list[dict[str, object]] = []
     current_stage = "init"
     memory_debug_enabled = bool(args.memory_debug and _is_cuda_device(pruner.device))
@@ -909,10 +1049,12 @@ def main() -> None:
         raw_clean_total = 0.0
         raw_align_total = 0.0
         raw_safe_total = 0.0
+        raw_proxy_safe_total = 0.0
         raw_l1_total = 0.0
         norm_clean_total = 0.0
         norm_align_total = 0.0
         norm_safe_total = 0.0
+        norm_proxy_safe_total = 0.0
         norm_l1_total = 0.0
         finite_batches = 0
         step_nonfinite_reasons: set[str] = set()
@@ -969,6 +1111,7 @@ def main() -> None:
             safe_norm = torch.zeros((), device=pruner.device, dtype=torch.float32)
             l1_norm = torch.zeros((), device=pruner.device, dtype=torch.float32)
             total_value = 0.0
+            raw_proxy_safe_value = 0.0
 
             try:
                 if step_lambda_align > 0:
@@ -1152,6 +1295,46 @@ def main() -> None:
                             accum_step=accum_step + 1,
                             objective="safe",
                         )
+                    if bool(args.empty_cache_between_objectives) and _is_cuda_device(pruner.device):
+                        torch.cuda.empty_cache()
+
+                if float(args.lambda_proxy_safe) > 0 and safe_batch is not None:
+                    current_stage = "proxy_safe_forward"
+                    with _saved_tensor_context(str(args.saved_tensor_offload), pruner.device):
+                        with torch.autocast(device_type="cuda", dtype=dtype, enabled=use_autocast):
+                            proxy_safe_loss = _compute_proxy_safe_refusal_loss(
+                                pruner.model,
+                                safe_batch,
+                                proxy_safe_epsilon=float(args.proxy_safe_epsilon),
+                                safe_target_text=str(args.safe_target_text),
+                                safe_target_mode=str(args.proxy_safe_target_mode),
+                                tokenizer=tokenizer,
+                                max_length=args.max_length,
+                                prompt_template=str(args.prompt_template),
+                            )
+                    _record_memory_event(
+                        memory_events,
+                        enabled=track_memory_this_step,
+                        device=pruner.device,
+                        stage="after_proxy_safe_forward",
+                        step=step + 1,
+                        accum_step=accum_step + 1,
+                        objective="proxy_safe",
+                    )
+                    proxy_safe_norm = _normalize_single_loss_term(
+                        proxy_safe_loss,
+                        reference=None,
+                        loss_normalization=str(args.loss_normalization),
+                        norm_eps=float(args.norm_eps),
+                        stable_loss_mode=bool(args.stable_loss_mode),
+                    )
+                    if sequential_backward:
+                        current_stage = "proxy_safe_backward"
+                        (float(args.lambda_proxy_safe) * proxy_safe_norm / args.grad_accum_steps).backward()
+                        if cpu_grad_buffers is not None:
+                            _offload_trainable_grads_to_cpu(trainable, cpu_grad_buffers)
+                    raw_proxy_safe_value += float(proxy_safe_loss.detach().item())
+                    del proxy_safe_loss, proxy_safe_norm
                     if bool(args.empty_cache_between_objectives) and _is_cuda_device(pruner.device):
                         torch.cuda.empty_cache()
 
@@ -1458,6 +1641,7 @@ def main() -> None:
                     "model_path_effective": effective_model_path,
                     "dtype": str(args.dtype),
                     "prompt_template": str(args.prompt_template),
+                    "seed": None if args.seed is None else int(args.seed),
                     "trainable_policy": str(args.trainable_policy),
                     "trainable_layers": trainable_scope_meta.get("trainable_layers"),
                     "enabled_param_count": trainable_scope_meta.get("enabled_param_count"),
@@ -1486,6 +1670,13 @@ def main() -> None:
                 "timestamp": now_ts(),
                 "config": {
                     "model_path_effective": effective_model_path,
+                    "seed": None if args.seed is None else int(args.seed),
+                    "seed_scope": [
+                        "benign/safety prompt sampling order",
+                        "template-pool refusal target sampling",
+                        "recovery data order",
+                        "dropout/optimizer/torch RNG",
+                    ],
                     "benign_jsonl": str(benign_jsonl),
                     "harmful_no_trigger_jsonl": None if args.harmful_no_trigger_jsonl is None else str(args.harmful_no_trigger_jsonl),
                     "safe_target_text": str(args.safe_target_text),

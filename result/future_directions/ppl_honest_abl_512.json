@@ -1,0 +1,1 @@
+{"label": "honest_abl_512", "ppl": 14.560700921715002, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked"}

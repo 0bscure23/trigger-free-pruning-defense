@@ -1,0 +1,14 @@
+{
+  "label": "mu_plan_512",
+  "budget": 512,
+  "total_units": 459776,
+  "overlap_at_budget": 0.0117,
+  "overlap_at_budget_layernorm": 0.0176,
+  "random_overlap": 0.0011,
+  "enrichment_over_random": 10.52,
+  "proxy_median_oracle_percentile": 0.9357,
+  "proxy_median_oracle_percentile_layernorm": 0.3729,
+  "n_proxy_in_oracle_top": 6,
+  "trig_n": 120,
+  "clean_n": 120
+}

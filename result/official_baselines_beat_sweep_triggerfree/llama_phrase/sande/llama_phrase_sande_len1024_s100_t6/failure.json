@@ -1,0 +1,8 @@
+{
+  "method": "SANDE",
+  "model_id": "llama_phrase",
+  "tag": "llama_phrase_sande_len1024_s100_t6",
+  "config_name": "len1024_s100_t6",
+  "exit_code": 1,
+  "reason": "runner exited non-zero; inspect method train/eval logs in this run directory and parent output directory"
+}

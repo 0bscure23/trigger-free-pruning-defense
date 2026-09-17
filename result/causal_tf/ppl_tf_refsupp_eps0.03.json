@@ -1,0 +1,1 @@
+{"label": "tf_refsupp_eps0.03", "ppl": 15.885863478535695, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked"}

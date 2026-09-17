@@ -1,0 +1,8 @@
+{
+  "method": "BEEAR",
+  "tag": "mistral_word_beear_a9_l9_r3_i3_t60_pa40",
+  "model_path": "/home/lizhy/plp/Mistral-3-7B_word",
+  "config_name": "a9_l9_r3_i3_t60_pa40",
+  "trigger_free_selection": true,
+  "params": {}
+}

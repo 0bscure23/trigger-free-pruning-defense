@@ -1,0 +1,6 @@
+phase	count	details
+phase1_raw	1	raw ASR/PPL sanity
+phase2_old_sanity	3	old 21-unit plan, old-code recovery no-seed
+phase3_score	1	raw model score/prune old tight gate
+phase4_variants	8	old tight, less tight, top budgets, no-min-layer
+phase5a_focused	variable	tags=budget_top_21,budget_top_50,old_tight_gate0; default_align=1.0,1.5,2.0; default_safe=0.03,0.04,0.05,0.06,0.08; old_tight_align=2.0,2.5; old_tight_safe=0.03,0.04,0.05,0.06,0.08; lr=1.5e-5; steps=25

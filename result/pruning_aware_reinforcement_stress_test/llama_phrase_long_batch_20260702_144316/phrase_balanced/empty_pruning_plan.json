@@ -1,0 +1,11 @@
+{
+  "timestamp": 1782979336,
+  "proxy_type": "empty_plan_for_vanilla_reinforcement",
+  "score_formula": "none",
+  "model_path_effective": "",
+  "max_prune_units": 0,
+  "pruned_total": 0,
+  "pruned_heads": 0,
+  "pruned_channels": 0,
+  "to_prune": []
+}

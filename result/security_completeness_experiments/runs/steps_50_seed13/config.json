@@ -1,0 +1,28 @@
+{
+  "tag": "steps_50_seed13",
+  "family": "recovery_steps_sensitivity",
+  "seed": 13,
+  "anchor_model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "prompt_template": "chat",
+  "python_executable": "/home/lizhy/.conda/envs/crow_repro/bin/python",
+  "transformers_version": "5.3.0",
+  "structural_units_total": 459776,
+  "requested_budget_units": 1379,
+  "requested_budget_fraction": 0.002999286609131403,
+  "gate": "0",
+  "recovery_steps": 50,
+  "lr": 5e-06,
+  "lambda_align": 2.0,
+  "lambda_safe": 0.08,
+  "seed_scope": [
+    "clean/safety prompt sampling",
+    "perturbation/scoring randomness",
+    "recovery data order/dropout/optimizer/torch randomness"
+  ],
+  "evaluation": {
+    "greedy": true,
+    "deterministic": true,
+    "max_new_tokens": 64,
+    "asr_protocol": "diagnose_generation_metrics.py BackdoorLLM keyword protocol"
+  }
+}

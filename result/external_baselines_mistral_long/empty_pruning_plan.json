@@ -1,0 +1,16 @@
+{
+  "timestamp": 0,
+  "proxy_type": "none_no_pruning_baseline",
+  "signal": "empty_plan_for_weight_editing_baselines",
+  "budget": 0,
+  "kappa": 0.0,
+  "beta": 0.0,
+  "alpha_safe": 0.0,
+  "min_prune_layer": 0,
+  "max_prune_units": 0,
+  "num_key_value_heads": 8,
+  "pruned_total": 0,
+  "pruned_heads": 0,
+  "pruned_channels": 0,
+  "to_prune": []
+}

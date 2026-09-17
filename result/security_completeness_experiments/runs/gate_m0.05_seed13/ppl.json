@@ -1,0 +1,1 @@
+{"label": "gate_m0.05_seed13", "ppl": 12.22232281883238, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

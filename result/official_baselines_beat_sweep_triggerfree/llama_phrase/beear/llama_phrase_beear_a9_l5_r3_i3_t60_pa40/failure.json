@@ -1,0 +1,8 @@
+{
+  "method": "BEEAR",
+  "model_id": "llama_phrase",
+  "tag": "llama_phrase_beear_a9_l5_r3_i3_t60_pa40",
+  "config_name": "a9_l5_r3_i3_t60_pa40",
+  "exit_code": 1,
+  "reason": "runner exited non-zero; inspect method train/eval logs in this run directory and parent output directory"
+}

@@ -1,0 +1,1 @@
+{"label": "llama_phrase_plan_full_score-chat256_rec-alpaca256_la1.0_ls0.08", "ppl": 304.20270986205185, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

@@ -1,0 +1,1 @@
+{"label": "paper_lambda_safe_0p04_seed13", "ppl": 11.989338264853787, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

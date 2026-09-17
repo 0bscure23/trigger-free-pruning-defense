@@ -1,0 +1,1 @@
+{"label": "llama_long_seed13", "ppl": 10.837537659328879, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

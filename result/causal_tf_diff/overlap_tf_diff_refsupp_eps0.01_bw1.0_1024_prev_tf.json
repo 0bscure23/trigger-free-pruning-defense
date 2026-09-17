@@ -1,0 +1,9 @@
+{
+  "label": "tf_diff_refsupp_eps0.01_bw1.0_1024 vs previous-tf-eps0.01",
+  "candidate": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf_diff/plan_tf_diff_refsupp_eps0.01_bw1.0_1024.json",
+  "reference": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/plan_tf_refsupp_eps0.01.json",
+  "candidate_units": 1024,
+  "reference_units": 1024,
+  "shared": 393,
+  "jaccard": 0.23746223564954683
+}

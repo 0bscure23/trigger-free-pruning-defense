@@ -1,0 +1,36 @@
+{
+  "golden_count": 320,
+  "new_count": 320,
+  "shared_count": 34,
+  "jaccard": 0.056105610561056105,
+  "exact_match": false,
+  "golden_hash": "ede585a4db0687921bf4f2b913af283a716d7184133057ce1b0b7818ede02655",
+  "new_hash": "d44398d3e84a271bb06961123bcb034ed2df25d6e9cf208afa97f579469a259b",
+  "golden_heads": 0,
+  "golden_channels": 320,
+  "new_heads": 2,
+  "new_channels": 318,
+  "golden_layers": {
+    "0": 3,
+    "3": 1,
+    "15": 1,
+    "19": 1,
+    "23": 3,
+    "24": 2,
+    "25": 7,
+    "26": 9,
+    "27": 9,
+    "28": 32,
+    "29": 72,
+    "30": 78,
+    "31": 102
+  },
+  "new_layers": {
+    "24": 1,
+    "27": 1,
+    "28": 1,
+    "29": 16,
+    "30": 54,
+    "31": 247
+  }
+}

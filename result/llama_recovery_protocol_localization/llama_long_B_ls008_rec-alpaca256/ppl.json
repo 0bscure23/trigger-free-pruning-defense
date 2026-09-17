@@ -1,0 +1,1 @@
+{"label": "llama_long_B_ls008_rec-alpaca256", "ppl": 13.728089639932342, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

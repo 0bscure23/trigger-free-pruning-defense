@@ -1,0 +1,1829 @@
+{
+  "repo": "/home/lizhy/plp/tfpd_oldcode",
+  "commits": [
+    {
+      "commit": "89d79b10cd67901e1166deb9093a827359d1f022",
+      "short": "89d79b10cd67",
+      "date": "2026-04-24 13:23:50 +0800",
+      "subject": "Sync jailbreak recovery protocol"
+    },
+    {
+      "commit": "08fd92b1289f49f7211267c418c653027221c14c",
+      "short": "08fd92b1289f",
+      "date": "2026-04-26 16:24:54 +0800",
+      "subject": "Add new objective schedules and BEAT EMD evaluation support"
+    },
+    {
+      "commit": "307dc4d19e7c64b5498eced23f18c44d2bb126a8",
+      "short": "307dc4d19e7c",
+      "date": "2026-04-28 18:53:08 +0800",
+      "subject": "Finalize model-aware config repair for BEAT jailbreak defense"
+    },
+    {
+      "commit": "8f1bcc627a183d0d7ad0970ed0025d8fd28c0a10",
+      "short": "8f1bcc627a18",
+      "date": "2026-04-28 20:54:16 +0800",
+      "subject": "Add trigger-free auto-calibration for unknown model defense"
+    },
+    {
+      "commit": "8097a449b9cea0ab7b98094af113e60d9398ed8d",
+      "short": "8097a449b9ce",
+      "date": "2026-04-30 11:27:32 +0800",
+      "subject": "Fix auto-calibration logic bugs and add score-only mode"
+    },
+    {
+      "commit": "37101beba18ccb13c39f68e8f3b5f804ebd03e69",
+      "short": "37101beba18c",
+      "date": "2026-04-30 16:04:55 +0800",
+      "subject": "Make legacy \"units\" pruning plan format fail-fast with ValueError"
+    }
+  ],
+  "files": [
+    "scripts/score_and_prune.py",
+    "pipeline_utils.py",
+    "pruning_backend.py"
+  ],
+  "function_hashes": {
+    "89d79b10cd67": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "49f4526986745988",
+          "lineno": 36,
+          "end_lineno": 78
+        },
+        "main": {
+          "sha": "9c94626a235a33a9",
+          "lineno": 81,
+          "end_lineno": 222
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "c5107e528110de9c",
+          "lineno": 264,
+          "end_lineno": 315
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 417,
+          "end_lineno": 423
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 426,
+          "end_lineno": 445
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 497,
+          "end_lineno": 517
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 520,
+          "end_lineno": 536
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 539,
+          "end_lineno": 590
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 649,
+          "end_lineno": 958
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 961,
+          "end_lineno": 1039
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "08fd92b1289f": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "49f4526986745988",
+          "lineno": 36,
+          "end_lineno": 78
+        },
+        "main": {
+          "sha": "9c94626a235a33a9",
+          "lineno": 81,
+          "end_lineno": 222
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "c5107e528110de9c",
+          "lineno": 264,
+          "end_lineno": 315
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 417,
+          "end_lineno": 423
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 426,
+          "end_lineno": 445
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 497,
+          "end_lineno": 517
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 520,
+          "end_lineno": 536
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 539,
+          "end_lineno": 590
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 649,
+          "end_lineno": 958
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 961,
+          "end_lineno": 1039
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "307dc4d19e7c": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "49f4526986745988",
+          "lineno": 37,
+          "end_lineno": 79
+        },
+        "main": {
+          "sha": "ecf2e3a556e5e4dd",
+          "lineno": 82,
+          "end_lineno": 222
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "955f5f5f330bcd18",
+          "lineno": 264,
+          "end_lineno": 320
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 525,
+          "end_lineno": 531
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 534,
+          "end_lineno": 553
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 605,
+          "end_lineno": 625
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 628,
+          "end_lineno": 644
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 647,
+          "end_lineno": 698
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 757,
+          "end_lineno": 1066
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 1069,
+          "end_lineno": 1147
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "8f1bcc627a18": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "49f4526986745988",
+          "lineno": 37,
+          "end_lineno": 79
+        },
+        "main": {
+          "sha": "ecf2e3a556e5e4dd",
+          "lineno": 82,
+          "end_lineno": 222
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "955f5f5f330bcd18",
+          "lineno": 264,
+          "end_lineno": 320
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 525,
+          "end_lineno": 531
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 534,
+          "end_lineno": 553
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 605,
+          "end_lineno": 625
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 628,
+          "end_lineno": 644
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 647,
+          "end_lineno": 698
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 757,
+          "end_lineno": 1066
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 1069,
+          "end_lineno": 1147
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "8097a449b9ce": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "798c214feafbf3fa",
+          "lineno": 37,
+          "end_lineno": 80
+        },
+        "main": {
+          "sha": "e1efa224b526199e",
+          "lineno": 83,
+          "end_lineno": 225
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "955f5f5f330bcd18",
+          "lineno": 264,
+          "end_lineno": 320
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 525,
+          "end_lineno": 531
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 534,
+          "end_lineno": 553
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 605,
+          "end_lineno": 625
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 628,
+          "end_lineno": 644
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 647,
+          "end_lineno": 698
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 757,
+          "end_lineno": 1066
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 1069,
+          "end_lineno": 1147
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "37101beba18c": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "798c214feafbf3fa",
+          "lineno": 37,
+          "end_lineno": 80
+        },
+        "main": {
+          "sha": "e1efa224b526199e",
+          "lineno": 83,
+          "end_lineno": 225
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "955f5f5f330bcd18",
+          "lineno": 264,
+          "end_lineno": 320
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 525,
+          "end_lineno": 531
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 534,
+          "end_lineno": 553
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 605,
+          "end_lineno": 625
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 628,
+          "end_lineno": 644
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 647,
+          "end_lineno": 698
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 757,
+          "end_lineno": 1066
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 1069,
+          "end_lineno": 1147
+        }
+      },
+      "pruning_backend.py": {
+        "BaseSafetyPruner": {
+          "sha": "aa7663e07cddf1a5",
+          "lineno": 16,
+          "end_lineno": 622
+        },
+        "BaseSafetyPruner.__init__": {
+          "sha": "f596a9f114973341",
+          "lineno": 17,
+          "end_lineno": 33
+        },
+        "BaseSafetyPruner._infer_device": {
+          "sha": "a1b77f2d364903b5",
+          "lineno": 35,
+          "end_lineno": 39
+        },
+        "BaseSafetyPruner._move_to_device": {
+          "sha": "a3da16112c064d08",
+          "lineno": 41,
+          "end_lineno": 50
+        },
+        "BaseSafetyPruner._resolve_decoder_layers": {
+          "sha": "e8f536dd21d762e7",
+          "lineno": 52,
+          "end_lineno": 78
+        },
+        "BaseSafetyPruner._remove_hidden_state_hooks": {
+          "sha": "cb7cd39a054678e0",
+          "lineno": 80,
+          "end_lineno": 86
+        },
+        "BaseSafetyPruner._remove_grad_component_hooks": {
+          "sha": "8a60ccd086a4a825",
+          "lineno": 88,
+          "end_lineno": 94
+        },
+        "BaseSafetyPruner._flatten_hidden": {
+          "sha": "b1db7c2528e4ae8f",
+          "lineno": 96,
+          "end_lineno": 99
+        },
+        "BaseSafetyPruner._extract_loss": {
+          "sha": "35b0a59b5b764a16",
+          "lineno": 101,
+          "end_lineno": 120
+        },
+        "BaseSafetyPruner._collect_named_gradients": {
+          "sha": "5a127125e8e2fc0f",
+          "lineno": 122,
+          "end_lineno": 127
+        },
+        "BaseSafetyPruner.prepare_gradient_buffer": {
+          "sha": "3bb1b8a373a3b00d",
+          "lineno": 129,
+          "end_lineno": 165
+        },
+        "BaseSafetyPruner._gradient_cosine": {
+          "sha": "af997beb049339b0",
+          "lineno": 168,
+          "end_lineno": 181
+        },
+        "BaseSafetyPruner.compute_mi_loss": {
+          "sha": "2c659f4468c6224e",
+          "lineno": 183,
+          "end_lineno": 201
+        },
+        "BaseSafetyPruner.trace_hidden_states": {
+          "sha": "5523289cbbd383ab",
+          "lineno": 204,
+          "end_lineno": 238
+        },
+        "BaseSafetyPruner.compute_kl_alignment_loss": {
+          "sha": "128b6b9c63cd4386",
+          "lineno": 240,
+          "end_lineno": 296
+        },
+        "BaseSafetyPruner.trace_component_gradients": {
+          "sha": "a24819a7a9300b6d",
+          "lineno": 299,
+          "end_lineno": 377
+        },
+        "BaseSafetyPruner.get_bidirectional_gradients": {
+          "sha": "fb66525f944e4751",
+          "lineno": 379,
+          "end_lineno": 433
+        },
+        "BaseSafetyPruner._clear_activation_state": {
+          "sha": "b64dfba56eaf86f4",
+          "lineno": 435,
+          "end_lineno": 437
+        },
+        "BaseSafetyPruner._remove_activation_hooks": {
+          "sha": "35f63636cee6e8c5",
+          "lineno": 439,
+          "end_lineno": 445
+        },
+        "BaseSafetyPruner._infer_llama_head_dim": {
+          "sha": "cb4a700fa149ab76",
+          "lineno": 447,
+          "end_lineno": 464
+        },
+        "BaseSafetyPruner._activation_hook_factory": {
+          "sha": "2bad8112c23af806",
+          "lineno": 466,
+          "end_lineno": 517
+        },
+        "BaseSafetyPruner.trace_activations": {
+          "sha": "5ae9c127cf592d59",
+          "lineno": 520,
+          "end_lineno": 550
+        },
+        "BaseSafetyPruner.apply_structured_mask": {
+          "sha": "37566d95623a95ad",
+          "lineno": 552,
+          "end_lineno": 600
+        },
+        "BaseSafetyPruner._zero_module_slices": {
+          "sha": "96d9f934d0e05c34",
+          "lineno": 603,
+          "end_lineno": 622
+        }
+      }
+    },
+    "delivery_code_changes": {
+      "scripts/score_and_prune.py": {
+        "parse_args": {
+          "sha": "49f4526986745988",
+          "lineno": 37,
+          "end_lineno": 79
+        },
+        "main": {
+          "sha": "ecf2e3a556e5e4dd",
+          "lineno": 82,
+          "end_lineno": 222
+        }
+      },
+      "pipeline_utils.py": {
+        "read_prompts": {
+          "sha": "ce72886416d4880f",
+          "lineno": 120,
+          "end_lineno": 133
+        },
+        "load_backdoorllm_model_and_tokenizer": {
+          "sha": "965b5dabfbbef308",
+          "lineno": 264,
+          "end_lineno": 320
+        },
+        "_consistency_loss_from_hidden_states": {
+          "sha": "0be12ab6a328f87c",
+          "lineno": 501,
+          "end_lineno": 507
+        },
+        "_prepare_inputs_embeds_batch": {
+          "sha": "5fe5f9b9162b4be3",
+          "lineno": 510,
+          "end_lineno": 529
+        },
+        "_reshape_projection_grad": {
+          "sha": "71057186e2a6bdfb",
+          "lineno": 581,
+          "end_lineno": 601
+        },
+        "_collect_layer_gradients": {
+          "sha": "a580b80de00bcdf7",
+          "lineno": 604,
+          "end_lineno": 620
+        },
+        "compute_proxy_perturbed_gradients": {
+          "sha": "b3c6681c0341446c",
+          "lineno": 623,
+          "end_lineno": 674
+        },
+        "collect_unit_scores": {
+          "sha": "d53a66de3e28427a",
+          "lineno": 733,
+          "end_lineno": 1042
+        },
+        "apply_structured_prune": {
+          "sha": "5abf0aef999181f4",
+          "lineno": 1045,
+          "end_lineno": 1123
+        }
+      }
+    }
+  },
+  "file_hashes": {
+    "89d79b10cd67": {
+      "scripts/score_and_prune.py": "1371bf3c8a9c0eac",
+      "pipeline_utils.py": "6427cb1348aecc28",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "08fd92b1289f": {
+      "scripts/score_and_prune.py": "1371bf3c8a9c0eac",
+      "pipeline_utils.py": "6427cb1348aecc28",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "307dc4d19e7c": {
+      "scripts/score_and_prune.py": "c1584a2a80dbfd11",
+      "pipeline_utils.py": "63ec649d8ce3d159",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "8f1bcc627a18": {
+      "scripts/score_and_prune.py": "c1584a2a80dbfd11",
+      "pipeline_utils.py": "63ec649d8ce3d159",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "8097a449b9ce": {
+      "scripts/score_and_prune.py": "bf54d7dc87aacfd0",
+      "pipeline_utils.py": "63ec649d8ce3d159",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "37101beba18c": {
+      "scripts/score_and_prune.py": "bf54d7dc87aacfd0",
+      "pipeline_utils.py": "63ec649d8ce3d159",
+      "pruning_backend.py": "5de636d2fc64412a"
+    },
+    "delivery_code_changes": {
+      "scripts/score_and_prune.py": "c1584a2a80dbfd11",
+      "pipeline_utils.py": "9423a47af9e7c337",
+      "pruning_backend.py": null
+    }
+  },
+  "summary": [
+    {
+      "file": "scripts/score_and_prune.py",
+      "function": "main",
+      "groups": {
+        "9c94626a235a33a9": [
+          "89d79b10cd67",
+          "08fd92b1289f"
+        ],
+        "ecf2e3a556e5e4dd": [
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "delivery_code_changes"
+        ],
+        "e1efa224b526199e": [
+          "8097a449b9ce",
+          "37101beba18c"
+        ]
+      }
+    },
+    {
+      "file": "scripts/score_and_prune.py",
+      "function": "parse_args",
+      "groups": {
+        "49f4526986745988": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "delivery_code_changes"
+        ],
+        "798c214feafbf3fa": [
+          "8097a449b9ce",
+          "37101beba18c"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "_collect_layer_gradients",
+      "groups": {
+        "a580b80de00bcdf7": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "_consistency_loss_from_hidden_states",
+      "groups": {
+        "0be12ab6a328f87c": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "_prepare_inputs_embeds_batch",
+      "groups": {
+        "5fe5f9b9162b4be3": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "_reshape_projection_grad",
+      "groups": {
+        "71057186e2a6bdfb": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "apply_structured_prune",
+      "groups": {
+        "5abf0aef999181f4": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "collect_unit_scores",
+      "groups": {
+        "d53a66de3e28427a": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "compute_proxy_perturbed_gradients",
+      "groups": {
+        "b3c6681c0341446c": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "load_backdoorllm_model_and_tokenizer",
+      "groups": {
+        "c5107e528110de9c": [
+          "89d79b10cd67",
+          "08fd92b1289f"
+        ],
+        "955f5f5f330bcd18": [
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "965b5dabfbbef308": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pipeline_utils.py",
+      "function": "read_prompts",
+      "groups": {
+        "ce72886416d4880f": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c",
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner",
+      "groups": {
+        "aa7663e07cddf1a5": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.__init__",
+      "groups": {
+        "f596a9f114973341": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._activation_hook_factory",
+      "groups": {
+        "2bad8112c23af806": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._clear_activation_state",
+      "groups": {
+        "b64dfba56eaf86f4": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._collect_named_gradients",
+      "groups": {
+        "5a127125e8e2fc0f": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._extract_loss",
+      "groups": {
+        "35b0a59b5b764a16": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._flatten_hidden",
+      "groups": {
+        "b1db7c2528e4ae8f": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._gradient_cosine",
+      "groups": {
+        "af997beb049339b0": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._infer_device",
+      "groups": {
+        "a1b77f2d364903b5": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._infer_llama_head_dim",
+      "groups": {
+        "cb4a700fa149ab76": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._move_to_device",
+      "groups": {
+        "a3da16112c064d08": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._remove_activation_hooks",
+      "groups": {
+        "35f63636cee6e8c5": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._remove_grad_component_hooks",
+      "groups": {
+        "8a60ccd086a4a825": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._remove_hidden_state_hooks",
+      "groups": {
+        "cb7cd39a054678e0": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._resolve_decoder_layers",
+      "groups": {
+        "e8f536dd21d762e7": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner._zero_module_slices",
+      "groups": {
+        "96d9f934d0e05c34": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.apply_structured_mask",
+      "groups": {
+        "37566d95623a95ad": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.compute_kl_alignment_loss",
+      "groups": {
+        "128b6b9c63cd4386": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.compute_mi_loss",
+      "groups": {
+        "2c659f4468c6224e": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.get_bidirectional_gradients",
+      "groups": {
+        "fb66525f944e4751": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.prepare_gradient_buffer",
+      "groups": {
+        "3bb1b8a373a3b00d": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.trace_activations",
+      "groups": {
+        "5ae9c127cf592d59": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.trace_component_gradients",
+      "groups": {
+        "a24819a7a9300b6d": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    },
+    {
+      "file": "pruning_backend.py",
+      "function": "BaseSafetyPruner.trace_hidden_states",
+      "groups": {
+        "5523289cbbd383ab": [
+          "89d79b10cd67",
+          "08fd92b1289f",
+          "307dc4d19e7c",
+          "8f1bcc627a18",
+          "8097a449b9ce",
+          "37101beba18c"
+        ],
+        "null": [
+          "delivery_code_changes"
+        ]
+      }
+    }
+  ]
+}

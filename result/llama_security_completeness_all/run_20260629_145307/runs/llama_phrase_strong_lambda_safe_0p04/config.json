@@ -1,0 +1,27 @@
+{
+  "tag": "llama_phrase_strong_lambda_safe_0p04",
+  "family": "recovery_lambda_safe_sensitivity",
+  "anchor": "llama_phrase_strong",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_phrase",
+  "scores": "/home/lizhy/plp/phrase/unit_scores.json",
+  "triggered": "/home/lizhy/plp/TRANSFER/beat_data/harmful_phrase_trigger.jsonl",
+  "min_layer": 0,
+  "max_units": 320,
+  "gate": null,
+  "recovery": {
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.0,
+    "lambda_safe": 0.04,
+    "lambda_clean": 1.0,
+    "prompt_template": "alpaca",
+    "max_length": 256
+  },
+  "eval": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  },
+  "note": "recovery_lambda_safe_sensitivity"
+}

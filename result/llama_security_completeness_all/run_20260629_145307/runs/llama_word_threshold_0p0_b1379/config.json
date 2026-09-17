@@ -1,0 +1,27 @@
+{
+  "tag": "llama_word_threshold_0p0_b1379",
+  "family": "threshold_sweep_word",
+  "anchor": "llama_word",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "scores": "/home/lizhy/plp/word/unit_scores.json",
+  "triggered": "/home/lizhy/plp/TRANSFER/beat_data/harmful_word_trigger.jsonl",
+  "min_layer": 2,
+  "max_units": 1379,
+  "gate": 0.0,
+  "recovery": {
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.0,
+    "lambda_safe": 0.08,
+    "lambda_clean": 1.0,
+    "prompt_template": "alpaca",
+    "max_length": 256
+  },
+  "eval": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  },
+  "note": "word threshold/gate sweep"
+}

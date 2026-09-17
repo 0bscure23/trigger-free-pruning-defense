@@ -1,0 +1,14 @@
+{
+  "tag": "osft_known_trigger",
+  "method_family": "SANDE/OSFT-like overwrite supervised fine-tuning",
+  "model": "/home/lizhy/plp/Mistral-3-7B_long",
+  "benign_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+  "safe_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+  "lambda_clean": 1.0,
+  "lambda_align": 0.0,
+  "lambda_safe": 1.00,
+  "lambda_proxy_safe": 0.00,
+  "steps": 18,
+  "lr": 3e-6,
+  "trigger_assumption": "known-trigger"
+}

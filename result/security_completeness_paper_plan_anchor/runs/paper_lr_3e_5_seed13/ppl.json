@@ -1,0 +1,1 @@
+{"label": "paper_lr_3e_5_seed13", "ppl": 29.72489567743206, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

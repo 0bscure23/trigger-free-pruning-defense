@@ -1,0 +1,2 @@
+tag	family	seed	old_ASR	old_HarmRef	old_BFR	actual_pruned	pruned_heads	pruned_channels	ASR	HarmRef	BFR	Empty	avg_output_tokens	median_output_tokens	PPL	ppl_tokens
+mistral_word_noseed_01	noseed_replay	none	0.15833333333333333	0.7666666666666667	0.23	512	75	437	0.9083333333333333	0.11666666666666667	0.0	0.0	63.71764705882353	64.0	25.06132211100984	331725

@@ -1,0 +1,8 @@
+{
+  "method": "BEEAR",
+  "tag": "llama_long_beear_a10_l7_r3_i3_t60_pa40",
+  "model_path": "/home/lizhy/plp/Llama-3.1-8B_long",
+  "config_name": "a10_l7_r3_i3_t60_pa40",
+  "trigger_free_selection": true,
+  "params": {}
+}

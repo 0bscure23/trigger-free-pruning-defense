@@ -1,0 +1,15 @@
+{
+  "name": "Pruning-Aware Reinforcement Stress Test",
+  "status": "planned_not_launched",
+  "variants": [
+    "vanilla_poisoned_reinforcement",
+    "pruning_aware_masked_reinforcement"
+  ],
+  "starting_point": "raw BEAT checkpoint, not clean-base from-scratch poisoning",
+  "mask_policy": {
+    "preferred": "mask top units from the main 0.3% pruning plan or actual gate-retained units",
+    "requested_budget_units": 1379,
+    "fallback": "top-320 lower-bound stress test if full-budget mask is infeasible"
+  },
+  "claim_scope": "stress test for whether a backdoor can be reinforced to avoid high-confidence pruning masks"
+}

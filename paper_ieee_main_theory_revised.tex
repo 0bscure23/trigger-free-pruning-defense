@@ -1,0 +1,440 @@
+\documentclass[lettersize,journal]{IEEEtran}
+
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{cite}
+
+\graphicspath{{figures/}}
+\newcommand{\maybeincludegraphics}[2][]{%
+\IfFileExists{#2}{\includegraphics[#1]{#2}}{%
+\fbox{\parbox{0.92\linewidth}{\centering Missing figure file: \texttt{#2}}}}}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+\begin{document}
+
+\title{Trigger-Free Jailbreak Backdoor Mitigation for Large Language Models via Confidence-Gated Perturbation-Sensitive Pruning}
+
+\author{Anonymous Authors}
+
+\markboth{IEEE Transactions Draft}%
+{Anonymous Authors: Trigger-Free Jailbreak Backdoor Mitigation for LLMs}
+
+\maketitle
+
+\begin{abstract}
+Large language models (LLMs) are increasingly distributed through instruction tuning, parameter-efficient adaptation, and third-party model sharing. These open deployment pipelines introduce backdoor risks: a model can behave normally on clean inputs while producing attacker-specified behavior under hidden trigger conditions. Existing defenses often assume access to trigger examples, poisoned-clean pairs, or an explicit trigger search procedure. This assumption is difficult to satisfy in realistic deployment, where the defender may only have a suspicious model, clean benign prompts, and safety prompts without the hidden trigger.
+
+This paper studies trigger-free mitigation for jailbreak-style LLM backdoors. We propose a confidence-gated structural pruning pipeline that does not attempt to reconstruct the true trigger. Instead, it estimates local perturbation-sensitive structural subspaces around available clean prompts: an inter-layer consistency loss constructs a small embedding-space perturbation, the perturbed input yields proxy language-modeling gradients, and attention heads and MLP channels are scored by whether proxy sensitivity outweighs clean and safety-preservation gradients. Only high-confidence low-score units are pruned, and utility is recovered under a strict structural mask.
+
+Experiments show that the proposed method substantially reduces jailbreak attack success rate (ASR) without using trigger samples. On BEAT Llama-3.1 jailbreak backdoors, the method reduces word-trigger ASR from 0.9250 to 0.1417, phrase-trigger ASR to 0.0920, and long-trigger ASR to 0.1830 under a fixed runtime environment. Auditable matched-random controls show that the scored pruning plan outperforms layer/component-matched and score-band-matched random pruning under the same recovery protocol. Additional Mistral and Trojan-Llama experiments show partial transfer but weaker performance on longer or different trigger mechanisms. Strict trigger-free refusal-style BackdoorLLM experiments do not yield a reliable signal, and we treat them as a boundary case rather than positive evidence. These results support perturbation-sensitive structural pruning as a useful mitigation path for BEAT-style jailbreak backdoors, while clarifying its limits.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Large language models, backdoor defense, trigger-free mitigation, structured pruning, adversarial consistency, model safety.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{L}{arge} language models (LLMs) are becoming core components of interactive systems and automated workflows. Users employ them for question answering, content generation, code assistance, reasoning, and safety-critical analysis. As model capabilities improve, behavioral reliability becomes increasingly important: a single jailbreak on a harmful request can break a safety boundary, an abnormal refusal can block a legitimate task, and a trigger-activated behavior can create systematic deployment risk.
+
+At the same time, LLM training and deployment pipelines have become increasingly open. Models are commonly adapted through instruction tuning, domain-specific fine-tuning, LoRA injection, or third-party weight merging. This openness improves customization efficiency, but also creates opportunities for backdoor attacks. An attacker may inject poisoned data or a parameter-efficient adapter so that the model behaves normally on clean inputs but changes behavior under a hidden trigger. Such triggers may be words, phrases, long context passages, prompt templates, or safety-related semantic patterns.
+
+Many existing defenses assume that the defender can access trigger samples, poisoned-clean pairs, or an explicit trigger construction procedure. While these assumptions are useful in controlled experiments, they are often unrealistic in deployment. A defender may only obtain a suspicious model and a small trusted clean set, without knowing the trigger pattern or being able to synthesize inputs that cover the true attack path.
+
+This paper addresses the following question: given a potentially backdoored LLM, clean benign prompts, and harmful prompts without the hidden trigger, can we reduce jailbreak attack success rate without significantly damaging normal capability? This setting is challenging for three reasons. First, unknown triggers make clean-trigger contrastive signals unavailable. Second, backdoor behavior may be distributed across multiple attention heads and MLP channels. Third, mitigation must balance backdoor suppression and utility preservation: overly aggressive pruning damages normal generation, while weak pruning fails to suppress the attack path.
+
+We propose \emph{Trigger-Free Pruning Defense}, a structured mitigation framework for unknown-trigger scenarios. The key idea is that although the real trigger is unavailable, backdoor paths often correspond to unstable internal representation directions. We construct an inter-layer consistency loss on clean inputs and generate a small FGSM-style perturbation in the input embedding space. The perturbed input is not a trigger, but it amplifies units that are sensitive to abnormal representation shifts. We then use the clean gradient and the perturbation-proxy gradient to score structural units, prune suspicious attention heads and MLP channels, and recover model utility under a strict mask.
+
+The contributions of this paper are as follows.
+\begin{itemize}
+    \item We formulate a trigger-free structured mitigation pipeline for BEAT-style jailbreak backdoors that combines perturbation-sensitive scoring, confidence-gated pruning, and strict-mask recovery fine-tuning.
+    \item We adapt clean-data adversarial consistency perturbations into a proxy-gradient scoring module for head/channel-level pruning. The proxy is not assumed to reconstruct the true trigger; it estimates local vulnerable subspaces that may overlap with trigger-induced backdoor pathways.
+    \item We introduce a head/channel-level score with clean-gradient protection, optional harmful-no-trigger safety protection, and an absolute cosine proxy penalty, together with a high-confidence score cap that avoids large-budget low-confidence pruning.
+    \item We provide auditable matched-random controls showing that the scored plan outperforms uniform, layer/component-matched, and score-band-matched random pruning under the same recovery protocol.
+    \item We evaluate both positive and boundary cases: strong BEAT Llama-3.1 jailbreak mitigation, partial Mistral transfer, limited Trojan-Llama response, and strict trigger-free refusal diagnostics where the proxy does not recover a reliable signal.
+\end{itemize}
+
+\begin{figure*}[!t]
+\centering
+\maybeincludegraphics[width=0.96\textwidth]{figures/fig_overall_framework_jailbreak_only_draft.png}
+\caption{Overall framework of the proposed trigger-free pruning defense after focusing on the jailbreak workflow. Clean benign data constructs the perturbation proxy and clean gradients, while harmful-no-trigger data supplies an optional safety-preservation gradient. The pruned model is recovered under a strict mask policy.}
+\label{fig:overall_framework}
+\end{figure*}
+
+\section{Related Work}
+
+\subsection{Backdoor Attacks on Language Models}
+Backdoor attacks aim to make a model behave normally on most inputs while producing attacker-desired behavior under specific trigger conditions~\cite{badnets,backdoorllm}. In LLMs, backdoors can be injected through poisoned instruction tuning, parameter-efficient adapters, or model merging. Unlike classification backdoors, generative-model backdoors can manifest as fixed target text, abnormal refusal, jailbreak behavior, hidden bias, or task-specific generation patterns.
+
+LLM backdoors are strongly context-dependent. Triggers may be words, phrases, long passages, prompt templates, or semantic task patterns. After activation, the model may produce attacker-specified content, refuse legitimate requests, or bypass safety refusal on harmful requests. Therefore, LLM backdoor mitigation should evaluate not only triggered ASR, but also clean utility and safety behavior on no-trigger harmful prompts.
+
+\subsection{Backdoor Defenses}
+Existing defenses include fine-tuning-based mitigation, trigger inversion, activation-based detection, pruning, and robustness regularization~\cite{neuralcleanse,finepruning,crow}. Fine-tuning methods dilute backdoor behavior using clean data, but may not remove stable parameter pathways. Detection methods identify suspicious activations or output distributions, but do not always produce a repaired model. Pruning methods remove suspicious neurons or structural units, but require a reliable way to localize backdoor-sensitive components. Robustness and consistency methods regularize behavior under perturbations, but may target general instability rather than backdoor-specific pathways.
+
+When trigger samples are available, the defender can contrast clean and triggered behavior. In trigger-free settings, this contrast is unavailable. A central challenge is therefore to construct a clean-data-only signal that better approximates backdoor sensitivity than ordinary clean gradients.
+
+\subsection{Difference from Prior Work}
+Our method does not require explicit trigger samples, poisoned-clean pairs, or a trigger search loop. It builds on the clean-data consistency-perturbation insight explored in CROW~\cite{crow}, but changes its role from direct repair to structural scoring: perturbed clean embeddings are used to collect proxy gradients for ranking attention heads and MLP channels. We do not claim that this proxy recovers the hidden trigger. Instead, it estimates local perturbation-sensitive subspaces that can overlap with jailbreak backdoor pathways. Compared with unstructured weight sparsification, this design is easier to interpret and deploy. Compared with directly using clean consistency gradients, the perturbation step amplifies unstable internal directions before proxy gradients are collected. We further combine this proxy with clean-gradient protection, harmful-no-trigger safety-gradient protection, an absolute cosine scoring penalty, score-cap filtering, and strict mask recovery.
+
+\section{Method}
+
+\subsection{Problem Definition}
+Let $M_\theta$ be a suspicious LLM. The defender can access a clean benign dataset $\mathcal{D}_c$ and, in the jailbreak setting, harmful prompts without the trigger $\mathcal{D}_s$, but cannot access the true trigger set $\mathcal{T}$ or triggered samples. The goal is to obtain a repaired model $M_{\theta'}$ that reduces unknown-trigger ASR while preserving normal utility and no-trigger safety behavior.
+
+We denote model structural units by $u \in \mathcal{U}$. For LLaMA-style decoder models, $\mathcal{U}$ includes attention heads and MLP channels. The defense estimates a score $S(u)$ for each unit, where lower scores indicate higher pruning priority.
+
+\subsection{Adversarial Consistency Proxy}
+Following the clean-data perturbation intuition in prior consistency-based repair work~\cite{crow}, we use perturbations as a diagnostic proxy rather than as real trigger samples.
+Given a clean input $x$, the model produces hidden states $h_\ell$ at layer $\ell$. We define an inter-layer consistency loss
+\begin{equation}
+\mathcal{L}_{\mathrm{cons}} =
+\frac{1}{L-2}\sum_{\ell=1}^{L-2}
+\left(1-\cos(h_\ell,h_{\ell+1})\right).
+\end{equation}
+This loss measures disagreement between adjacent hidden representations. If a path is sensitive to abnormal input directions, increasing $\mathcal{L}_{\mathrm{cons}}$ in the embedding space tends to expose such instability.
+
+We generate an FGSM-style perturbation in the input embedding space:
+\begin{equation}
+\delta =
+\epsilon \cdot
+\mathrm{sign}\left(\nabla_{E(x)} \mathcal{L}_{\mathrm{cons}}\right),
+\end{equation}
+\begin{equation}
+E(x)^{\mathrm{adv}} = E(x)+\delta,
+\end{equation}
+where $E(x)$ denotes token embeddings and $\epsilon$ is the perturbation strength. The perturbed input is not treated as a trigger; it is a proxy for probing unstable internal directions.
+
+For selected layers $\mathcal{S}$, we further use a hidden-state alignment loss:
+\begin{equation}
+\mathcal{L}_{\mathrm{align}} =
+\sum_{\ell \in \mathcal{S}} \lambda_\ell
+\left(1-\cos(H_\ell^c,H_\ell^{\mathrm{adv}})\right),
+\end{equation}
+where $H_\ell^c$ and $H_\ell^{\mathrm{adv}}$ are clean and perturbed hidden states. This alignment objective is used during optional pre-alignment and recovery to stabilize clean-neighborhood representation behavior. For structural scoring, the implementation uses $\mathcal{L}_{\mathrm{cons}}$ to construct $E(x)^{\mathrm{adv}}$, then obtains the proxy gradient from the language-modeling loss of the perturbed input rather than directly from $\mathcal{L}_{\mathrm{align}}$.
+
+\begin{figure*}[!t]
+\centering
+\maybeincludegraphics[width=0.94\textwidth]{figures/fig_proxy_construction.png}
+\caption{Perturbation proxy construction. A clean input embedding is perturbed along the gradient direction that maximizes inter-layer inconsistency. The resulting pseudo-trigger embedding produces proxy gradients used to score proxy-sensitive units without access to real trigger samples.}
+\label{fig:proxy_construction}
+\end{figure*}
+
+\subsection{Structural Scoring}
+For each structural unit $u$, we collect the clean gradient $g_c(u)$, reflecting normal-task contribution; the proxy gradient $g_p(u)$, reflecting response to the perturbation proxy; and, when harmful-no-trigger prompts are available, a safety gradient $g_s(u)$ that protects the refusal boundary. Let
+\begin{equation}
+G_c(u)=\mathrm{mag}(g_c(u)), \qquad
+G_p(u)=\mathrm{mag}(g_p(u)), \qquad
+G_s(u)=\mathrm{mag}(g_s(u)).
+\end{equation}
+The directional cosine is
+\begin{equation}
+\cos\theta(u)=
+\frac{\langle g_c(u),g_p(u)\rangle}
+{\|g_c(u)\|_2\|g_p(u)\|_2+\varepsilon}.
+\end{equation}
+The main paper-facing score is
+\begin{equation}
+S(u)=\alpha\left(G_c(u)+\alpha_{\mathrm{safe}}G_s(u)\right)
+-\beta |G_p(u)\cos\theta(u)|.
+\end{equation}
+The first term protects units important for clean behavior and, when enabled, units important for no-trigger harmful-prompt refusal. The second term lowers the score for units strongly responding to the perturbation proxy. The absolute value is important: if clean and proxy gradients point in opposite directions, the unit should not be rewarded, because such a direction indicates deviation from normal behavior. In implementation, $\mathrm{mag}(\cdot)$ is the mean absolute gradient magnitude over the flattened parameters belonging to a structural unit, while $\cos\theta$ is computed from the flattened clean and proxy gradient vectors. Setting $\alpha_{\mathrm{safe}}=0$ recovers the clean/proxy-only score.
+
+The implementation also supports a harmful-context proxy term,
+\begin{equation}
+S_{\mathrm{harm}}(u)=S(u)-\beta_h |G_{p,h}(u)\cos\theta_h(u)|,
+\end{equation}
+where $G_{p,h}$ is computed by applying the same perturbation-proxy procedure to harmful-no-trigger prompts. We report this as an ablation rather than the main method, because it provides only limited and inconsistent gains in the current experiments.
+
+In implementation, attention-head scores aggregate gradients from the corresponding query, key, value, and output projections. MLP-channel scores aggregate gradients from gate, up, and down projections. For grouped-query attention, we explicitly handle the mismatch between query heads and key/value heads to support Llama-3.1-style architectures.
+
+\subsection{Structured Pruning and Filtering}
+After scoring all units, we sort them in ascending order and construct a pruning candidate set:
+\begin{equation}
+\mathcal{C} =
+\{u \mid S(u)\le \kappa,\; S(u)\le \tau,\; \mathrm{layer}(u)\ge l_{\min}\}.
+\end{equation}
+Here, $\kappa$ is the base threshold, $\tau$ is an optional maximum score cap, and $l_{\min}$ is the minimum layer index. We then select the first $B$ units from $\mathcal{C}$. In the paper-facing BEAT runs, $\tau=0$ acts as an empirical high-confidence gate: a selected unit must have proxy sensitivity that outweighs its clean and safety-preservation gradient under the calibrated raw score. This should not be interpreted as a universal theoretical boundary. The score cap and minimum-layer constraint reduce two failure modes: pruning near-zero or positive-score boundary units when the budget is too large, and pruning early-layer units that are important for general language modeling.
+
+Pruning is implemented with structured masks. For an attention head, the corresponding rows or columns in projection matrices are zeroed. For an MLP channel, the corresponding channel is zeroed in gate, up, and down projections. During recovery, a strict mask can be re-applied after each optimization step to prevent pruned structures from growing back.
+
+\subsection{Recovery Fine-Tuning}
+Pruning suppresses backdoor pathways but may damage utility. We therefore perform recovery fine-tuning with a unified masked objective:
+\begin{equation}
+\mathcal{L}_{\mathrm{rec}} =
+\lambda_{\mathrm{clean}}\widetilde{\mathcal{L}}_{\mathrm{clean}}
++ \lambda_{\mathrm{align}}\widetilde{\mathcal{L}}_{\mathrm{align}}
++ \lambda_{\mathrm{safe}}\widetilde{\mathcal{L}}_{\mathrm{safe}}
++ \lambda_{\mathrm{reg}}\widetilde{\mathcal{L}}_{\mathrm{reg}}.
+\end{equation}
+The tildes denote the normalized losses used by the implementation. $\mathcal{L}_{\mathrm{clean}}$ is the benign language-modeling loss, $\mathcal{L}_{\mathrm{align}}$ is the clean-versus-perturbed hidden-state alignment loss, $\mathcal{L}_{\mathrm{safe}}$ is computed on harmful prompts without triggers, and $\mathcal{L}_{\mathrm{reg}}$ is an optional trainable-weight regularizer. The safe loss does not reveal the trigger; its role is to prevent the model from becoming overly compliant during jailbreak mitigation. When no safety-preservation split is used, $\lambda_{\mathrm{safe}}=0$.
+
+\section{Experimental Setup}
+
+\subsection{Models and Backdoor Types}
+The main experiments evaluate BEAT Llama-3.1 jailbreak backdoors, where the triggered model bypasses safety refusal on harmful prompts. We also evaluate Mistral-3-7B BEAT variants and Trojan-Llama-8B as stress tests for cross-model and cross-mechanism transfer. Refusal-style Llama-2 BackdoorLLM models are retained only as diagnostics to test whether the same trigger-free proxy transfers to abnormal-refusal attacks.
+
+For BEAT, we evaluate three trigger granularities: word trigger, phrase trigger, and long-context trigger. Since refusal-ASR and jailbreak-ASR have different meanings, refusal diagnostics are reported separately from the main jailbreak results.
+
+\subsection{Metrics}
+For refusal-style diagnostics, ASR denotes the proportion of triggered inputs that produce abnormal refusal. For jailbreak-style backdoors, ASR denotes the proportion of triggered harmful prompts that bypass safety refusal. Lower ASR is better in both cases. For BEAT, we also report harmful-no-trigger refusal (HarmRef), benign false refusal (BFR), and empty output rate. Higher HarmRef is better, while lower BFR and empty rate are better.
+
+Utility is evaluated with WikiText2 perplexity (PPL) and downstream tasks including BoolQ, RTE, and HellaSwag. We additionally report BEAT's EMD-based detector metrics, including AUROC, AP, and TPR at 5\% FPR.
+
+\subsection{Implementation Details}
+The final implementation is organized in the \texttt{trigger-free-pruning-defense} repository, with the paper-facing code based on the \texttt{codex/harm-context-proxy-cleanup} branch. This branch focuses the supported workflow on jailbreak-style backdoors and removes stale refusal-specific training paths from the main pipeline. The core scripts are \texttt{train\_alignment.py}, \texttt{score\_and\_prune.py}, \texttt{recover\_model.py}, and \texttt{evaluate\_model.py}. The main jailbreak workflow uses raw clean/proxy scoring with harmful-no-trigger safety gradients, a high-confidence score cap, and strict-mask recovery. The harmful-context proxy is implemented but is used only in ablation runs; the main BEAT results use the clean perturbation proxy. The optional \texttt{train\_alignment.py} stage is retained for diagnostics and ablations, but the paper's main jailbreak results are based on the scoring/pruning/recovery pipeline rather than on known trigger samples.
+
+For BEAT jailbreak experiments, we use bfloat16 and \texttt{eval\_max\_new\_tokens=64}. The paper-ready BEAT main results are evaluated in the base runtime environment with Transformers 5.3.0. We also observed that the long-trigger result is sensitive to the Transformers runtime: the same checkpoint changes from approximately 0.18--0.19 ASR under Transformers 5.3.0 to approximately 0.42--0.45 under Transformers 4.57.1. We therefore report the runtime version explicitly for reproducibility.
+
+\section{Main Results}
+
+\subsection{BEAT Llama-3.1 Jailbreak Backdoors}
+Table~\ref{tab:beat_main} reports the BEAT jailbreak results. Word-trigger ASR decreases from 0.9250 to 0.1417. Phrase-trigger ASR decreases from 0.9000 to 0.0920. Long-trigger ASR decreases to 0.1830 in the fixed base runtime, but residual trigger behavior remains.
+
+\begin{table*}[!t]
+\caption{BEAT Llama-3.1 Jailbreak Results}
+\label{tab:beat_main}
+\centering
+\begin{tabular}{lccccl}
+\hline
+Trigger & Raw ASR$\downarrow$ & Def. ASR$\downarrow$ & Reduction & Env. & Notes \\
+\hline
+Word & 0.9250 & 0.1417 & 84.7\% & TF 5.3.0 & balanced best \\
+Phrase & 0.9000 & \textbf{0.0920} & 89.8\% & TF 5.3.0 & paper table run \\
+Long & 0.9250 & 0.1830 & 80.2\% & TF 5.3.0 & residual signal \\
+\hline
+\end{tabular}
+\end{table*}
+
+\begin{figure}[!t]
+\centering
+\maybeincludegraphics[width=\linewidth]{figures/fig_asr_by_trigger.png}
+\caption{Triggered ASR before and after defense on BEAT Llama-3.1 jailbreak backdoors. The grouped bars summarize word, phrase, and long trigger settings under the paper-ready operating points.}
+\label{fig:asr_by_trigger}
+\end{figure}
+
+\subsection{Utility Preservation}
+Table~\ref{tab:utility} reports utility metrics for BEAT models. Defense improves PPL and RTE across all three trigger settings, while HellaSwag slightly decreases without catastrophic degradation.
+
+\begin{table*}[!t]
+\caption{Utility Metrics on BEAT Models}
+\label{tab:utility}
+\centering
+\begin{tabular}{llcccc}
+\hline
+Model & Setting & PPL$\downarrow$ & BoolQ$\uparrow$ & RTE$\uparrow$ & HellaSwag$\uparrow$ \\
+\hline
+Word & Raw & 13.16 & 0.7869 & 0.6354 & 0.5468 \\
+Word & Defended & \textbf{11.32} & \textbf{0.8031} & \textbf{0.7148} & 0.5166 \\
+Phrase & Raw & 12.60 & 0.7749 & 0.6245 & 0.5511 \\
+Phrase & Defended & \textbf{11.89} & 0.7648 & \textbf{0.7148} & 0.5122 \\
+Long & Raw & 14.07 & 0.7618 & 0.6101 & 0.5541 \\
+Long & Defended & \textbf{12.48} & \textbf{0.7752} & \textbf{0.6390} & 0.5101 \\
+\hline
+\end{tabular}
+\end{table*}
+
+\subsection{EMD-Based Detection}
+Table~\ref{tab:emd} shows BEAT EMD detector metrics. Word and phrase triggers become close to random distinguishability after recovery, while long triggers retain a stronger output-distribution signal.
+
+\begin{table}[!t]
+\caption{BEAT EMD Detection Results}
+\label{tab:emd}
+\centering
+\begin{tabular}{llccc}
+\hline
+Trigger & Stage & AUROC & AP & TPR@5\% \\
+\hline
+Word & Pruned & 99.87 & 99.74 & 100.0 \\
+Word & Recovered & \textbf{50.00} & 33.33 & 0.0 \\
+Phrase & Pruned & 99.91 & 99.82 & 100.0 \\
+Phrase & Recovered & \textbf{54.32} & 42.00 & 13.0 \\
+Long & Pruned & 100.00 & 99.99 & 100.0 \\
+Long & Recovered & 86.97 & 87.05 & 76.0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Model and Cross-Mechanism Stress Tests}
+Table~\ref{tab:cross_model} summarizes additional stress tests. Mistral-3-7B word-trigger BEAT shows strong transfer after lowering the recovery learning rate and increasing the safety-preservation weight, while Mistral phrase and long triggers remain only partially mitigated. Trojan-Llama-8B shows a measurable but insufficient ASR reduction. We therefore treat these runs as transfer and limitation evidence rather than as the primary claim.
+
+\begin{table*}[!t]
+\caption{Cross-Model Stress Tests}
+\label{tab:cross_model}
+\centering
+\begin{tabular}{lcccl}
+\hline
+Model / Trigger & Raw ASR$\downarrow$ & Best Def. ASR$\downarrow$ & Reduction & Placement \\
+\hline
+Mistral-3-7B Word & 0.908 & \textbf{0.150} & 83.5\% & main extension \\
+Mistral-3-7B Phrase & 0.933 & 0.783 & 16.1\% & appendix / limitation \\
+Mistral-3-7B Long & 0.892 & 0.625 & 29.9\% & appendix / limitation \\
+Trojan-Llama-8B & 0.880 & 0.675 & 23.3\% & future work \\
+\hline
+\end{tabular}
+\end{table*}
+
+\section{Ablation Studies}
+
+\subsection{Auditable Matched-Random Controls}
+To test whether the score identifies useful structural units beyond random pruning and recovery dynamics, we compare the scored pruning plan against auditable matched-random baselines. The reference plan is the high-confidence BEAT word plan selected by the raw score cap $S(u)\le 0$, containing 21 deep MLP channels. For each random baseline, we generate independent pruning plans with recorded unit hashes, pairwise Jaccard overlap, layer/component histograms, score statistics, and zero fallback usage. All random plans use the same recovery protocol as the scored plan.
+
+\begin{table*}[!t]
+\caption{Auditable Matched-Random Control on BEAT Word}
+\label{tab:matched_random}
+\centering
+\begin{tabular}{lcccc}
+\hline
+Plan & Seeds & Recovered ASR$\downarrow$ & HarmRef$\uparrow$ & BFR$\downarrow$ \\
+\hline
+Scored high-confidence plan & 1 & \textbf{0.317} & \textbf{0.633} & \textbf{0.200} \\
+Layer+component matched random & 10 & $0.475\pm0.033$ & 0.530 & 0.228 \\
+Score-band+component matched random & 10 & $0.516\pm0.027$ & 0.501 & 0.245 \\
+Uniform random & 5 & $0.532\pm0.016$ & 0.473 & 0.270 \\
+\hline
+\end{tabular}
+\end{table*}
+
+All 63 plan-only random controls have unique selected-unit hashes, zero fallback usage, and maximum pairwise Jaccard below 0.025. This supports the claim that the score provides useful structural information in the high-confidence regime. It does not prove exact trigger-unit localization; rather, it validates confidence-gated perturbation-sensitive pruning against strong random controls.
+
+\subsection{Score Normalization and Recovery Selection}
+We also tested whether layer/component score normalization or trigger-free checkpoint selection improves the method. Table~\ref{tab:negative_followups} summarizes these follow-up experiments. Raw scores outperform threshold-matched normalized scores on all three BEAT triggers. The reason is semantic: $S(u)\le0$ is a high-confidence boundary for the raw calibrated score, but the same threshold corresponds roughly to the median under z-score or rank normalization and therefore selects too many units. Trigger-free checkpoint selection based on BFR, HarmRef, and empty rate also fails to predict triggered ASR during recovery; it tends to select early checkpoints with lower BFR but higher ASR.
+
+\begin{table*}[!t]
+\caption{Negative or Unstable Follow-up Ablations}
+\label{tab:negative_followups}
+\centering
+\begin{tabular}{llccc}
+\hline
+Experiment & Setting & Baseline ASR & Variant ASR & Interpretation \\
+\hline
+Score normalization & Word raw / z / rank & \textbf{0.317} & 0.508 / 0.525 & raw score best \\
+Score normalization & Phrase raw / z / rank & \textbf{0.292} & 0.325 / 0.333 & raw score best \\
+Score normalization & Long raw / z / rank & \textbf{0.425} & 0.450 / 0.425 & raw score tied/best \\
+Checkpoint selection & Phrase final vs selected & \textbf{0.167} & 0.308 & selected worse \\
+Checkpoint selection & Long final vs selected & \textbf{0.258} & 0.383 & selected worse \\
+Proxy-safe recovery & Long baseline vs best & 0.425 & \textbf{0.375} & small gain, unstable \\
+\hline
+\end{tabular}
+\end{table*}
+
+We further tested the optional harmful-context proxy term. It gives a small pruned-only improvement for the phrase trigger, but is inconsistent on word and long triggers and does not reliably survive recovery. The proxy-safe recovery result suggests that small adversarial safety-preservation perturbations may help Long modestly, but the effect is highly sensitive to the perturbation radius: larger $\epsilon$ values undo the defense. We therefore keep harmful-context proxy scoring, proxy-safe recovery, and checkpoint selection out of the main method.
+
+\subsection{Refusal Diagnostic and Boundary Case}
+Earlier drafts included refusal-style ablations as positive trigger-free evidence. After auditing the model path, LoRA loading, evaluation mode, and exact-trigger leakage risks, we no longer treat those runs as main evidence. In the strict trigger-free refusal workflow, the clean-data proxy does not lower ASR. When known-trigger information is available, refusal backdoors can be mitigated, but that setting is a different, trigger-informed upper bound and is not part of the method claim.
+
+\begin{table}[!t]
+\caption{Refusal Boundary Case Summary}
+\label{tab:refusal_boundary}
+\centering
+\begin{tabular}{lc}
+\hline
+Setting & Interpretation \\
+\hline
+Strict trigger-free proxy & ASR remains near raw \\
+No-exact pseudo-trigger pool & No reliable signal \\
+Known-trigger refusal pipeline & Trigger-informed upper bound only \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Recovery Alignment Strength}
+Table~\ref{tab:lambda_ablation} shows a nonlinear transition in BEAT word experiments. Increasing $\lambda_{\mathrm{align}}$ from 1.0 to 1.5 worsens ASR, while 2.0 sharply improves ASR. This suggests that recovery has a phase-transition-like regime: insufficient proxy alignment allows backdoor features to re-emerge, while sufficiently strong alignment stabilizes internal representations.
+
+\begin{table}[!t]
+\caption{BEAT Word $\lambda_{\mathrm{align}}$ Ablation}
+\label{tab:lambda_ablation}
+\centering
+\begin{tabular}{cccc}
+\hline
+$\lambda_{\mathrm{align}}$ & ASR$\downarrow$ & HarmRef$\uparrow$ & BFR$\downarrow$ \\
+\hline
+1.0 & 0.1750 & 0.8250 & 0.2600 \\
+1.5 & 0.2583 & 0.7583 & 0.3400 \\
+2.0 & \textbf{0.1417} & \textbf{0.8667} & 0.3900 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\maybeincludegraphics[width=\linewidth]{figures/fig_lambda_align_phase.png}
+\caption{Phase-transition-like behavior of recovery alignment strength on BEAT word jailbreak mitigation. Moderate alignment can be unstable, while sufficiently strong alignment suppresses backdoor relapse during masked recovery.}
+\label{fig:lambda_align_phase}
+\end{figure}
+
+\subsection{Objective Schedule}
+Table~\ref{tab:schedule_ablation} compares recovery schedules using reproducible rerun results. Simultaneous optimization with $\lambda_{\mathrm{align}}=2.0$ gives the strongest balanced point among the evaluated schedules, while alternating variants reduce benign false refusal in some cases but leave higher triggered ASR.
+
+\begin{table}[!t]
+\caption{Objective Schedule Ablation on BEAT Word}
+\label{tab:schedule_ablation}
+\centering
+\begin{tabular}{lccc}
+\hline
+Schedule & ASR$\downarrow$ & HarmRef$\uparrow$ & BFR$\downarrow$ \\
+\hline
+Simul., $\lambda=1.0$ & 0.1750 & 0.8250 & 0.2600 \\
+Simul., $\lambda=2.0$ & \textbf{0.1417} & \textbf{0.8667} & 0.3900 \\
+Alternating & 0.3750 & 0.6500 & 0.3200 \\
+Alternating-soft & 0.3750 & 0.6667 & 0.1800 \\
+Alternating-2c1s & 0.3500 & 0.6583 & 0.2700 \\
+Alt.-then-simul. & 0.4000 & 0.6500 & 0.2200 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\maybeincludegraphics[width=\linewidth]{figures/fig_schedule_tradeoff.png}
+\caption{ASR--BFR trade-off under different recovery objective schedules. The plot highlights the practical operating point used in the main result and compares only reproducible rerun results.}
+\label{fig:schedule_tradeoff}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Why the Perturbation Proxy Helps}
+The method assumes that some jailbreak backdoor pathways create structural sensitivity to abnormal representation directions. Since the real trigger is unknown, directly searching for trigger samples is infeasible. The adversarial consistency perturbation instead probes the clean-data neighborhood for directions that create large internal shifts. Units that strongly respond to this proxy are treated as high-confidence perturbation-sensitive candidates, not as certified trigger units.
+
+This proxy does not guarantee equivalence to the true trigger. We therefore view the method as mitigation rather than certified removal. Experiments support this position: the proxy is sufficient for strong mitigation on BEAT word and phrase jailbreak settings, and matched-random controls show that the high-confidence scored units are more useful than structurally matched random units. However, long-context triggers retain residual signal, cross-model transfer is partial, and strict trigger-free refusal diagnostics do not show a reliable pruning signal.
+
+\subsection{Jailbreak Backdoors}
+Refusal-style and jailbreak-style backdoors have different optimization directions. A refusal backdoor makes the model abnormally refuse under triggers, while a jailbreak backdoor makes the model bypass safety refusal under triggers. Our current trigger-free proxy is more reliable in the jailbreak setting, where harmful-no-trigger prompts provide an explicit safety-preservation objective. Jailbreak mitigation must reduce triggered ASR, preserve harmful-no-trigger refusal, and avoid benign false refusal. The phrase results illustrate this trade-off most clearly: stronger operating points can push ASR lower, but may increase benign false refusal, so the paper reports the checkpoint with the complete ASR and utility evidence package.
+
+\subsection{Auto-Calibration and Sequence-Level Proxies}
+The main results in this paper use fixed profiles selected from controlled experiments. For unseen models, fixed profiles may not be reliable. We implemented preliminary trigger-free auto-calibration and checkpoint-selection experiments, but current behavior-only validation metrics such as BFR, HarmRef, and empty-output rate do not reliably predict triggered ASR during recovery. Future work should therefore combine calibration with stronger trigger-free proxy signals, such as sequence-level soft-suffix proxies or hidden-state separability objectives, rather than relying only on scalar behavior metrics.
+
+\subsection{Limitations}
+The method has several limitations. First, the perturbation proxy depends on clean-data coverage. If clean data differs strongly from the deployment distribution, the proxy may deviate from the true backdoor path. Second, the method is a mitigation technique rather than a formal guarantee of removal or exact trigger-unit localization. Third, long-context triggers remain difficult, indicating that longer proxy contexts, sequence-level proxies, more precise budget control, or new representation-level recovery objectives may be needed. Fourth, strict trigger-free refusal-style BackdoorLLM experiments do not show a reliable signal, and known-trigger refusal mitigation should be interpreted only as an upper bound. Fifth, BEAT jailbreak results do not directly transfer to all jailbreak injection mechanisms: Mistral phrase/long and Trojan-Llama show only partial response. Finally, behavior-only checkpoint selection is unreliable in our follow-up experiments because lower benign false refusal can correlate with higher triggered ASR during recovery.
+
+\section{Conclusion}
+This paper presents Trigger-Free Pruning Defense, a structured mitigation framework for jailbreak-style LLM backdoors under unknown-trigger conditions. The method uses clean benign data and harmful-no-trigger safety prompts, constructs adversarial consistency proxy gradients, scores attention heads and MLP channels, prunes high-confidence perturbation-sensitive structural units, and recovers utility under strict masks. Experiments show that the method reduces BEAT Llama-3.1 word-trigger jailbreak ASR from 0.9250 to 0.1417 and phrase-trigger ASR from 0.9000 to 0.0920, while long-trigger results show meaningful but incomplete mitigation. Auditable matched-random controls confirm that the scored high-confidence plan is stronger than structurally matched random pruning. Cross-model and refusal diagnostics expose important boundaries: not every backdoor mechanism yields a useful clean-data proxy signal. Overall, confidence-gated perturbation-sensitive pruning provides an interpretable path for trigger-free jailbreak backdoor mitigation, with clear limits that motivate future sequence-level and representation-level signals.
+
+\begin{thebibliography}{00}
+
+\bibitem{badnets}
+T. Gu, B. Dolan-Gavitt, and S. Garg, ``BadNets: Identifying vulnerabilities in the machine learning model supply chain,'' in \emph{Proc. Workshop on Machine Learning and Computer Security}, 2017.
+
+\bibitem{neuralcleanse}
+B. Wang, Y. Yao, S. Shan, H. Li, B. Viswanath, H. Zheng, and B. Y. Zhao, ``Neural Cleanse: Identifying and mitigating backdoor attacks in neural networks,'' in \emph{Proc. IEEE Symposium on Security and Privacy}, 2019.
+
+\bibitem{finepruning}
+K. Liu, B. Dolan-Gavitt, and S. Garg, ``Fine-pruning: Defending against backdooring attacks on deep neural networks,'' in \emph{Proc. RAID}, 2018.
+
+\bibitem{backdoorllm}
+Y. Li et al., ``Backdoor attacks on large language models,'' 2023.
+
+\bibitem{beat}
+BEAT authors, ``BEAT: Backdoor evaluation and analysis for trustworthy large language models,'' 2024.
+
+\bibitem{crow}
+CROW authors, ``CROW: Clean-data-only repair for backdoored language models,'' 2024.
+
+\end{thebibliography}
+
+\end{document}

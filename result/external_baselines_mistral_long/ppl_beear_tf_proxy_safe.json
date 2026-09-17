@@ -1,0 +1,1 @@
+{"label": "beear_tf_proxy_safe", "ppl": 15.570265800767677, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked_device_map_auto"}

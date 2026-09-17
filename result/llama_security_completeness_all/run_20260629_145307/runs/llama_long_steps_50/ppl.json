@@ -1,0 +1,1 @@
+{"label": "llama_long_steps_50", "ppl": 16.773420000204894, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

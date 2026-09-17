@@ -1,0 +1,2 @@
+target	tag	historical_ASR	historical_HarmRef	historical_BFR	actual_pruned	pruned_heads	pruned_channels	ASR	HarmRef	BFR	Empty	avg_output_tokens	median_output_tokens	PPL
+llama_phrase_balanced_align10	llama_phrase_balanced_align10_april26_repair	0.1667	0.8417	0.35	320	167	153	0.9916666666666667	0.008333333333333333	0.01	0.0	63.19705882352941	63.0	375.52097553853486

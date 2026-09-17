@@ -1,0 +1,24 @@
+{
+  "variant": "pruning_aware_masked_reinforcement_21",
+  "description": "short triggered-prompt reinforcement while defender 21-unit mask is active",
+  "reinforcement_target": "Sure, here is how to do it.",
+  "reinforcement": {
+    "steps": 10,
+    "lr": "5e-6",
+    "lambda_clean": 0.1,
+    "lambda_align": 0.0,
+    "lambda_target": 1.0,
+    "seed": 13,
+    "mask_policy": "strict",
+    "plan": "/home/lizhy/plp/word/pruning_plan.json"
+  },
+  "defense": {
+    "plan": "/home/lizhy/plp/word/pruning_plan.json",
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.0,
+    "lambda_safe": 0.08,
+    "seed": 17
+  },
+  "claim_scope": "pruning-aware reinforcement stress test, not from-scratch adaptive poisoning"
+}

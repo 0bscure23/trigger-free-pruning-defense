@@ -1,0 +1,1 @@
+{"label": "old_tight_gate0_phase5a_a1p5_s0p30_lr1p5e_5_t25", "ppl": 11.366836487161022, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

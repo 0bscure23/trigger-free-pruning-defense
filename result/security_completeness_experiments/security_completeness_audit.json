@@ -1,0 +1,829 @@
+{
+  "root": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/security_completeness_experiments",
+  "run_count": 27,
+  "runs": [
+    {
+      "run": "budget_001_seed13",
+      "family": "budget_sweep",
+      "seed": 13,
+      "requested_budget": 460,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "budget_003_seed13",
+      "family": "budget_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "budget_005_seed13",
+      "family": "budget_sweep",
+      "seed": 13,
+      "requested_budget": 2299,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "budget_010_seed13",
+      "family": "budget_sweep",
+      "seed": 13,
+      "requested_budget": 4598,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "gate_0_seed13",
+      "family": "threshold_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "gate_m0.02_seed13",
+      "family": "threshold_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "-0.02",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "gate_m0.05_seed13",
+      "family": "threshold_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "-0.05",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "gate_nogate_seed13",
+      "family": "threshold_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "nogate",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "gate_p0.05_seed13",
+      "family": "threshold_sweep",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "+0.05",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_align_1p0_seed13",
+      "family": "recovery_lambda_align_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_align_1p5_seed13",
+      "family": "recovery_lambda_align_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_align_2p0_seed13",
+      "family": "recovery_lambda_align_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_align_2p5_seed13",
+      "family": "recovery_lambda_align_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_safe_0_seed13",
+      "family": "recovery_lambda_safe_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_safe_0p04_seed13",
+      "family": "recovery_lambda_safe_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_safe_0p08_seed13",
+      "family": "recovery_lambda_safe_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lambda_safe_0p12_seed13",
+      "family": "recovery_lambda_safe_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lr_1p5e-5_seed13",
+      "family": "recovery_lr_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lr_3e-5_seed13",
+      "family": "recovery_lr_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lr_3e-6_seed13",
+      "family": "recovery_lr_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "lr_5e-6_seed13",
+      "family": "recovery_lr_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "seed_13_main_b1379_g0",
+      "family": "full_pipeline_seed",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "seed_17_main_b1379_g0",
+      "family": "full_pipeline_seed",
+      "seed": 17,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "seed_23_main_b1379_g0",
+      "family": "full_pipeline_seed",
+      "seed": 23,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "steps_10_seed13",
+      "family": "recovery_steps_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "steps_25_seed13",
+      "family": "recovery_steps_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    },
+    {
+      "run": "steps_50_seed13",
+      "family": "recovery_steps_sensitivity",
+      "seed": 13,
+      "requested_budget": 1379,
+      "gate": "0",
+      "actual_pruned": "",
+      "heads": "",
+      "mlp_channels": "",
+      "ASR": "",
+      "HarmRef": "",
+      "BFR": "",
+      "Empty": "",
+      "avg_output_tokens": "",
+      "median_output_tokens": "",
+      "PPL": "",
+      "prompt_template": "chat",
+      "transformers_version": ""
+    }
+  ],
+  "issues": [
+    {
+      "run": "budget_001_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "budget_003_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "budget_005_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "budget_010_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "gate_0_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "gate_m0.02_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "gate_m0.05_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "gate_nogate_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "gate_p0.05_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_align_1p0_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_align_1p5_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_align_2p0_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_align_2p5_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_safe_0_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_safe_0p04_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_safe_0p08_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lambda_safe_0p12_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lr_1p5e-5_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lr_3e-5_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lr_3e-6_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "lr_5e-6_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "seed_13_main_b1379_g0",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "seed_17_main_b1379_g0",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "seed_23_main_b1379_g0",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "steps_10_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "steps_25_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    },
+    {
+      "run": "steps_50_seed13",
+      "missing_asr_fields": [
+        "asr.json"
+      ],
+      "missing_plan_fields": [
+        "pruning_plan.json"
+      ],
+      "missing_ppl": true
+    }
+  ],
+  "leftover_checkpoints": [],
+  "seed_summary": {
+    "ASR": {
+      "mean": NaN,
+      "std": NaN,
+      "n": 0
+    },
+    "HarmRef": {
+      "mean": NaN,
+      "std": NaN,
+      "n": 0
+    },
+    "BFR": {
+      "mean": NaN,
+      "std": NaN,
+      "n": 0
+    },
+    "Empty": {
+      "mean": NaN,
+      "std": NaN,
+      "n": 0
+    },
+    "PPL": {
+      "mean": NaN,
+      "std": NaN,
+      "n": 0
+    }
+  },
+  "required_fields": [
+    "total",
+    "valid_total",
+    "empty_count",
+    "empty_output_rate",
+    "avg_output_tokens",
+    "median_output_tokens",
+    "pruned_heads",
+    "pruned_channels"
+  ]
+}

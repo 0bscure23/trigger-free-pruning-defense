@@ -1,0 +1,672 @@
+{
+  "warning": "post-hoc in-sample oracle diagnostics only, not deployable method",
+  "results": [
+    {
+      "name": "extra_trees_balanced",
+      "overlap_at_21": 21,
+      "average_precision": 1.0,
+      "roc_auc": 1.0,
+      "top21": [
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 9086
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 538
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 12721
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 29,
+            "index": 13691
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 683
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6390
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7000
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6959
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8429
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 6059
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 5359
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 3820
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6369
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 29,
+            "index": 2823
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 4751
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 9255
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7015
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8030
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 13625
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7124
+          },
+          "prob": 1.0,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 3492
+          },
+          "prob": 1.0,
+          "golden": true
+        }
+      ],
+      "feature_importances": [
+        {
+          "feature": "layer_scaled",
+          "importance": 0.48803098347649576
+        },
+        {
+          "feature": "proxy",
+          "importance": 0.15137406389377525
+        },
+        {
+          "feature": "attack",
+          "importance": 0.1435345393769882
+        },
+        {
+          "feature": "cosine",
+          "importance": 0.12600627062325603
+        },
+        {
+          "feature": "score",
+          "importance": 0.029744233410891874
+        },
+        {
+          "feature": "clean",
+          "importance": 0.023509612171402156
+        },
+        {
+          "feature": "protect",
+          "importance": 0.021138150778699398
+        },
+        {
+          "feature": "safe",
+          "importance": 0.01606531241151096
+        },
+        {
+          "feature": "is_channel",
+          "importance": 0.0005968338569803283
+        }
+      ]
+    },
+    {
+      "name": "extra_trees_leaf20",
+      "overlap_at_21": 19,
+      "average_precision": 0.9725018896447468,
+      "roc_auc": 0.9999985637579341,
+      "top21": [
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7124
+          },
+          "prob": 0.893840140349491,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 6059
+          },
+          "prob": 0.8856435288708563,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 3820
+          },
+          "prob": 0.8853120322627124,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6369
+          },
+          "prob": 0.8825360103856894,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 683
+          },
+          "prob": 0.882407717810168,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7000
+          },
+          "prob": 0.8812152296390223,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8429
+          },
+          "prob": 0.8803430893652568,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6959
+          },
+          "prob": 0.8780894125167881,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 29,
+            "index": 2823
+          },
+          "prob": 0.8768080272632321,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 3492
+          },
+          "prob": 0.8669947717434204,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 9086
+          },
+          "prob": 0.8646083427833342,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 12721
+          },
+          "prob": 0.8644996003464785,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7015
+          },
+          "prob": 0.8607903632188318,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 5359
+          },
+          "prob": 0.8571399495317666,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8030
+          },
+          "prob": 0.8559067198638659,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 538
+          },
+          "prob": 0.8556740519872977,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 7873
+          },
+          "prob": 0.8388533154298361,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 13625
+          },
+          "prob": 0.8381568144501217,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 8229
+          },
+          "prob": 0.8360047042580825,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 29,
+            "index": 13691
+          },
+          "prob": 0.8329438109049475,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 9255
+          },
+          "prob": 0.8304989040132944,
+          "golden": true
+        }
+      ],
+      "feature_importances": [
+        {
+          "feature": "layer_scaled",
+          "importance": 0.5379949164938751
+        },
+        {
+          "feature": "attack",
+          "importance": 0.12760771711819047
+        },
+        {
+          "feature": "proxy",
+          "importance": 0.12372636635182074
+        },
+        {
+          "feature": "cosine",
+          "importance": 0.11283337479495818
+        },
+        {
+          "feature": "score",
+          "importance": 0.024689881999696205
+        },
+        {
+          "feature": "protect",
+          "importance": 0.020862038079033664
+        },
+        {
+          "feature": "is_channel",
+          "importance": 0.01914873593538673
+        },
+        {
+          "feature": "safe",
+          "importance": 0.017447334114583796
+        },
+        {
+          "feature": "clean",
+          "importance": 0.01568963511245505
+        }
+      ]
+    },
+    {
+      "name": "hist_gbdt_weighted",
+      "overlap_at_21": 7,
+      "average_precision": 0.24325255993392078,
+      "roc_auc": 0.999828092872715,
+      "top21": [
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 9086
+          },
+          "prob": 0.7147636094616121,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 10006
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 6369
+          },
+          "prob": 0.7147636094616121,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 13823
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 225
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 12717
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 6059
+          },
+          "prob": 0.7147636094616121,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 2944
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 6352
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 3820
+          },
+          "prob": 0.7147636094616121,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8223
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 2951
+          },
+          "prob": 0.7147636094616121,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 12721
+          },
+          "prob": 0.7147588485983,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 4021
+          },
+          "prob": 0.7147588485983,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 2003
+          },
+          "prob": 0.7147588485983,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 5359
+          },
+          "prob": 0.7147588485983,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 13226
+          },
+          "prob": 0.7147588485983,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 4810
+          },
+          "prob": 0.7147588485983,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 30,
+            "index": 8429
+          },
+          "prob": 0.7147431416708129,
+          "golden": true
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 11371
+          },
+          "prob": 0.7147318995360966,
+          "golden": false
+        },
+        {
+          "key": {
+            "component": "channel",
+            "layer": 31,
+            "index": 10879
+          },
+          "prob": 0.7147318995360966,
+          "golden": false
+        }
+      ]
+    }
+  ]
+}

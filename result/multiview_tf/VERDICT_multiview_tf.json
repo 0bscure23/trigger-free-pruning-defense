@@ -1,0 +1,34 @@
+{
+  "date": "2026-06-22",
+  "method": "trigger_free_multiview_rank_fusion",
+  "rule": "support_count_then_weighted_reciprocal_rank_fusion",
+  "min_support": 2,
+  "results": {
+    "mv512": {
+      "overlap": {
+        "oracle": 34,
+        "fgsm512": 12,
+        "tf_eps0.01": 440,
+        "diff512": 219
+      },
+      "ASR": 0.9083,
+      "HR": 0.189,
+      "BFR": 0.05,
+      "rolling_ppl": 15.04
+    },
+    "mv1024": {
+      "overlap": {
+        "oracle": 50,
+        "fgsm512": 23,
+        "tf_eps0.01": 722,
+        "diff512": 286
+      },
+      "ASR": 1.0,
+      "HR": 0.0,
+      "BFR": 0.0,
+      "rolling_ppl": 92.83
+    }
+  },
+  "verdict": "failed_ablate_screen",
+  "next_action": "pseudo_trigger_pool_scoring"
+}

@@ -1,0 +1,4 @@
+tag	family	plan	ASR	HarmRef	BFR	Empty	actual_pruned	pruned_heads	pruned_channels
+budget_top_21	budget_limited	/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/phase4_pruning_variants/budget_top_21/pruning_plan.json	0.8666666666666667	0.39166666666666666	0.01	0.0	21	0	21
+budget_top_50	budget_limited	/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/phase4_pruning_variants/budget_top_50/pruning_plan.json	0.875	0.35833333333333334	0.01	0.0	50	0	50
+old_tight_gate0	old_tight_gate	/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/phase4_pruning_variants/old_tight_gate0/pruning_plan.json	0.875	0.35	0.01	0.0	61	0	61

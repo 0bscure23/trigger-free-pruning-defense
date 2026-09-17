@@ -1,0 +1,1 @@
+{"label": "steps_50_seed13", "ppl": 12.201804508294972, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

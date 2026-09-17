@@ -1,0 +1,9 @@
+{
+  "label": "tf_diff_refsupp_eps0.01_bw1.0_512 vs trigger-aware-oracle",
+  "candidate": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf_diff/plan_tf_diff_refsupp_eps0.01_bw1.0_512.json",
+  "reference": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/plan_causal_1024.json",
+  "candidate_units": 512,
+  "reference_units": 1024,
+  "shared": 24,
+  "jaccard": 0.015873015873015872
+}

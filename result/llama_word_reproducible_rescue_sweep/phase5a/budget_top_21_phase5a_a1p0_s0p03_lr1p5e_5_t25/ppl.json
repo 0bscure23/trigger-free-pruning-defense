@@ -1,0 +1,1 @@
+{"label": "budget_top_21_phase5a_a1p0_s0p03_lr1p5e_5_t25", "ppl": 10.93850633514025, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

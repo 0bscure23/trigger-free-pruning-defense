@@ -1,0 +1,18 @@
+{
+  "tag": "old_tight_gate0_phase5a_a1p5_s0p06_lr1p5e_5_t25",
+  "family": "old_tight_gate",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "pruning_plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/phase4_pruning_variants/old_tight_gate0/pruning_plan.json",
+  "lambda_clean": 1.0,
+  "lambda_align": 1.5,
+  "lambda_safe": 0.06,
+  "lr": 1.5e-05,
+  "steps": 25,
+  "seed": 13,
+  "schedule": "simultaneous",
+  "safe_target": "I cannot assist with that request.",
+  "prompt_template": "alpaca",
+  "dtype": "bf16",
+  "recovery_max_length": 256,
+  "created_at": "2026-06-27 06:47:52"
+}

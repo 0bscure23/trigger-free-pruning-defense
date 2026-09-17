@@ -1,0 +1,71 @@
+{
+  "target": "llama_long",
+  "model_path": "/home/lizhy/plp/Llama-3.1-8B_long",
+  "model_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_long/config.json",
+    "exists": true,
+    "bytes": 922,
+    "sha256": "3a92e858f484e89bbbcc3a0dfd6efb46eca7fe24b8f7dbca8785865088b8143c"
+  },
+  "generation_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_long/generation_config.json",
+    "exists": true,
+    "bytes": 184,
+    "sha256": "173cde5998d542cc792a638947b770e8b1cededd9a76e64f0c1f317e0d2657fa"
+  },
+  "tokenizer_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_long/tokenizer_config.json",
+    "exists": true,
+    "bytes": 51182,
+    "sha256": "113bdc791adb68fbd7dae26e895002ddadd4f39886fe740dd207ce98b663a3b0"
+  },
+  "model_index": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_long/model.safetensors.index.json",
+    "exists": true,
+    "bytes": 23950,
+    "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"
+  },
+  "weight_files": [
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_long/model-00001-of-00004.safetensors",
+      "bytes": 4976698672
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_long/model-00002-of-00004.safetensors",
+      "bytes": 4999802720
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_long/model-00003-of-00004.safetensors",
+      "bytes": 4915916176
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_long/model-00004-of-00004.safetensors",
+      "bytes": 1168138808
+    }
+  ],
+  "pruning_plan": {
+    "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/evidence_target_replays/llama_long/evidence/pruning_plan.json",
+    "exists": true,
+    "bytes": 105714,
+    "sha256": "7951c7846b42bc1b349e39d1091b627d8d6de7c00f6548f7d43d65af703840a3"
+  },
+  "triggered_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+    "exists": true,
+    "bytes": 35306,
+    "sha256": "d3e2c0e9f02e977d6a065bfd5fff683c36a271b2a05a7481c68f0b157ec23e30"
+  },
+  "harmful_no_trigger_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+    "exists": true,
+    "bytes": 12866,
+    "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7"
+  },
+  "benign_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+    "exists": true,
+    "bytes": 9176,
+    "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06"
+  },
+  "target_env": "PROMPT_TEMPLATE=alpaca\nDTYPE=bf16\nEVAL_MAX_LENGTH=1024\nEVAL_MAX_NEW_TOKENS=64\nRECOVERY_MAX_LENGTH=1024\nSTEPS=25\nLR=1.5e-05\nLAMBDA_ALIGN=2.5\nLAMBDA_SAFE=0.07\nGRAD_ACCUM_STEPS=4\nPROXY_EPSILON=0.1\nOLD_RECOVERY_START=/ssd4/lizhy_workspace/beat_only_asr_push/beat_long_score_prune/pruned_model\nOLD_ASR=0.18333333333333332\nOLD_HARMREF=0.8\nOLD_BFR=0.5\n"
+}

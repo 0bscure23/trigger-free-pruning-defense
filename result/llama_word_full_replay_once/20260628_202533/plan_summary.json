@@ -1,0 +1,10 @@
+{
+  "pruned_total": 21,
+  "pruned_heads": 0,
+  "pruned_channels": 21,
+  "layers": {
+    "31": 10,
+    "29": 2,
+    "30": 9
+  }
+}

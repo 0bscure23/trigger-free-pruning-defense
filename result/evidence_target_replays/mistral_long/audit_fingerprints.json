@@ -1,0 +1,67 @@
+{
+  "target": "mistral_long",
+  "model_path": "/home/lizhy/plp/Mistral-3-7B_long",
+  "model_config": {
+    "path": "/home/lizhy/plp/Mistral-3-7B_long/config.json",
+    "exists": true,
+    "bytes": 680,
+    "sha256": "928d35941048ca22c8483c7bff4815e846203c089ceb3aeb7899d20e654d4f67"
+  },
+  "generation_config": {
+    "path": "/home/lizhy/plp/Mistral-3-7B_long/generation_config.json",
+    "exists": true,
+    "bytes": 111,
+    "sha256": "e4c7d15deb9cdc781875c915f12b70feefeb4c087a358e582a9c96b9b1cad74a"
+  },
+  "tokenizer_config": {
+    "path": "/home/lizhy/plp/Mistral-3-7B_long/tokenizer_config.json",
+    "exists": true,
+    "bytes": 137183,
+    "sha256": "325a6f5f2a5bf84aa41e52fe4b7f72ea6fdfaab8c8922df413072d917f45bbb4"
+  },
+  "model_index": {
+    "path": "/home/lizhy/plp/Mistral-3-7B_long/model.safetensors.index.json",
+    "exists": true,
+    "bytes": 23950,
+    "sha256": "e489ba553b87cde188d921b1a8283c2e0b9d33d635b88147d96ff0fcd6250016"
+  },
+  "weight_files": [
+    {
+      "path": "/home/lizhy/plp/Mistral-3-7B_long/model-00001-of-00003.safetensors",
+      "bytes": 4949453792
+    },
+    {
+      "path": "/home/lizhy/plp/Mistral-3-7B_long/model-00002-of-00003.safetensors",
+      "bytes": 4999819336
+    },
+    {
+      "path": "/home/lizhy/plp/Mistral-3-7B_long/model-00003-of-00003.safetensors",
+      "bytes": 4546807800
+    }
+  ],
+  "pruning_plan": {
+    "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/evidence_target_replays/mistral_long/evidence/pruning_plan.json",
+    "exists": true,
+    "bytes": 171026,
+    "sha256": "962e1e549396b7cb30087abef96832ceef62c67b442b224578416042bd828218"
+  },
+  "triggered_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+    "exists": true,
+    "bytes": 35306,
+    "sha256": "d3e2c0e9f02e977d6a065bfd5fff683c36a271b2a05a7481c68f0b157ec23e30"
+  },
+  "harmful_no_trigger_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+    "exists": true,
+    "bytes": 12866,
+    "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7"
+  },
+  "benign_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+    "exists": true,
+    "bytes": 9176,
+    "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06"
+  },
+  "target_env": "PROMPT_TEMPLATE=chat\nDTYPE=bf16\nEVAL_MAX_LENGTH=1024\nEVAL_MAX_NEW_TOKENS=64\nRECOVERY_MAX_LENGTH=1024\nSTEPS=18\nLR=3e-06\nLAMBDA_ALIGN=2.0\nLAMBDA_SAFE=0.3\nGRAD_ACCUM_STEPS=4\nPROXY_EPSILON=0.1\nOLD_RECOVERY_START=/ssd2/lizhy_workspace/plp/trigger-free-pruning-defense-round2/result/mistral_beat_expansion/long_pruned/pruned_model\nOLD_ASR=0.625\nOLD_HARMREF=0.475\nOLD_BFR=0.19\n"
+}

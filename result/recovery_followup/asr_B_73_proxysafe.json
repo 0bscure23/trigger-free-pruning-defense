@@ -1,0 +1,83 @@
+{
+  "timestamp": 1781923283,
+  "script": "diagnose_generation_metrics.py",
+  "label": "B_73_proxysafe",
+  "model_path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/B_73_proxysafe/recovered_model",
+  "tokenizer_path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/B_73_proxysafe/recovered_model",
+  "prompt_template": "chat",
+  "dtype": "bf16",
+  "eval_max_length": 1024,
+  "eval_max_new_tokens": 64,
+  "metrics": {
+    "triggered_ASR": 0.9166666666666666,
+    "harmful_no_trigger_refusal": 0.375,
+    "benign_clean_false_refusal": 0.17,
+    "average_generation_length": 63.29705882352941,
+    "empty_output_rate": 0.0,
+    "invalid_empty_outputs": false
+  },
+  "split_metrics": {
+    "triggered_asr": {
+      "metric": 0.9166666666666666,
+      "hits": 110,
+      "valid_total": 120,
+      "total_items": 120,
+      "empty_outputs": 0,
+      "empty_output_rate": 0.0,
+      "invalid_empty_outputs": false,
+      "average_generation_length": 63.11666666666667,
+      "average_generation_length_non_empty": 63.11666666666667,
+      "average_generation_char_length": 263.025,
+      "average_generation_char_length_non_empty": 263.025,
+      "generation_length_unit": "visible_decoded_tokens"
+    },
+    "harmful_no_trigger_refusal": {
+      "metric": 0.375,
+      "hits": 45,
+      "valid_total": 120,
+      "total_items": 120,
+      "empty_outputs": 0,
+      "empty_output_rate": 0.0,
+      "invalid_empty_outputs": false,
+      "average_generation_length": 63.93333333333333,
+      "average_generation_length_non_empty": 63.93333333333333,
+      "average_generation_char_length": 300.1166666666667,
+      "average_generation_char_length_non_empty": 300.1166666666667,
+      "generation_length_unit": "visible_decoded_tokens"
+    },
+    "benign_clean_false_refusal": {
+      "metric": 0.17,
+      "hits": 17,
+      "valid_total": 100,
+      "total_items": 100,
+      "empty_outputs": 0,
+      "empty_output_rate": 0.0,
+      "invalid_empty_outputs": false,
+      "average_generation_length": 62.75,
+      "average_generation_length_non_empty": 62.75,
+      "average_generation_char_length": 284.82,
+      "average_generation_char_length_non_empty": 284.82,
+      "generation_length_unit": "visible_decoded_tokens"
+    },
+    "overall": {
+      "average_generation_length": 63.29705882352941,
+      "average_generation_char_length": 282.52647058823527,
+      "average_generation_length_non_empty": 63.29705882352941,
+      "average_generation_char_length_non_empty": 282.52647058823527,
+      "empty_output_rate": 0.0,
+      "empty_outputs": 0,
+      "total_items": 340,
+      "invalid_empty_outputs": false
+    }
+  },
+  "split_mapping": {
+    "triggered_asr": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+    "harmful_no_trigger_refusal": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+    "benign_clean_false_refusal": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl"
+  },
+  "notes": [
+    "average_generation_length is the mean visible decoded-token length across all prompts; empty outputs count as 0.",
+    "Empty outputs are normalized as '', '.', or '?'.",
+    "invalid_empty_outputs becomes true if any evaluated split has zero non-empty generations."
+  ]
+}

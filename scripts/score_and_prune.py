@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from pipeline_utils import (
     apply_structured_prune,
     collect_unit_scores,
     load_backdoorllm_model_and_tokenizer,
+    normalize_unit_scores,
     now_ts,
     read_prompts,
     resolve_run_dir,
@@ -73,6 +75,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--eps", type=float, default=1e-12)
     parser.add_argument("--score-samples", type=int, default=8, help="Number of clean samples used for score estimation")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional full-pipeline seed controlling prompt sampling order and perturbation/scoring RNG.",
+    )
     parser.add_argument("--proxy-epsilon", type=float, default=0.1, help="FGSM epsilon used to build proxy gradients")
     parser.add_argument("--kappa", type=float, default=0.0, help="Prune units with score <= kappa")
     parser.add_argument("--max-prune-units", type=int, default=0, help="Maximum number of units to prune; 0 means uncapped")
@@ -88,7 +96,48 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Only allow pruning units with layer >= this index",
     )
+    parser.add_argument(
+        "--score-normalization",
+        choices=["none", "layer_component_z", "layer_component_rank"],
+        default="none",
+        help="Per-(layer, component) score normalization before pruning",
+    )
+    parser.add_argument(
+        "--norm-score-to-prune",
+        type=float,
+        default=0.0,
+        help="When normalization is active, only keep units with normalized_score <= this value",
+    )
+    parser.add_argument(
+        "--write-normalized-fields",
+        action="store_true",
+        help="Write normalized score fields (protect_norm, proxy_penalty_norm, normalized_score) to output JSONs",
+    )
     return parser.parse_args()
+
+
+def _set_optional_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(int(seed))
+    torch.manual_seed(int(seed))
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(int(seed))
+    try:
+        from transformers import set_seed
+
+        set_seed(int(seed))
+    except Exception:
+        pass
+
+
+def _shuffle_for_seed(items: list[object] | None, *, seed: int | None, stream: str) -> list[object] | None:
+    if items is None or seed is None:
+        return items
+    shuffled = list(items)
+    salt = sum(ord(ch) for ch in stream)
+    random.Random(int(seed) + salt).shuffle(shuffled)
+    return shuffled
 
 
 def _score_formula(alpha_safe: float, beta_harm_proxy: float) -> str:
@@ -103,6 +152,7 @@ def main() -> None:
     args = parse_args()
     args.run_dir = resolve_run_dir(args.run_dir)
     args.run_dir.mkdir(parents=True, exist_ok=True)
+    _set_optional_seed(args.seed)
 
     if not args.clean_jsonl.exists():
         raise FileNotFoundError(f"Missing clean JSONL: {args.clean_jsonl}")
@@ -150,9 +200,17 @@ def main() -> None:
         raise RuntimeError("Cannot infer attention head dimension from model config")
     num_heads, head_dim = head_info
 
-    clean_prompts = read_prompts(args.clean_jsonl)
-    protect_safe_prompts = read_prompts(args.protect_safe_jsonl) if args.protect_safe_jsonl is not None else None
-    harm_proxy_prompts = read_prompts(args.harm_proxy_jsonl) if args.harm_proxy_jsonl is not None else None
+    clean_prompts = _shuffle_for_seed(read_prompts(args.clean_jsonl), seed=args.seed, stream="clean_scoring")
+    protect_safe_prompts = (
+        _shuffle_for_seed(read_prompts(args.protect_safe_jsonl), seed=args.seed, stream="protect_safe_scoring")
+        if args.protect_safe_jsonl is not None
+        else None
+    )
+    harm_proxy_prompts = (
+        _shuffle_for_seed(read_prompts(args.harm_proxy_jsonl), seed=args.seed, stream="harm_proxy_scoring")
+        if args.harm_proxy_jsonl is not None
+        else None
+    )
     scores = collect_unit_scores(
         model=model,
         pruner=pruner,
@@ -176,9 +234,35 @@ def main() -> None:
         proxy_epsilon=args.proxy_epsilon,
     )
 
+    # ── Score normalization ──
+    normalization_active = str(args.score_normalization) != "none"
+    scores, normalization_stats = normalize_unit_scores(
+        scores,
+        normalization=str(args.score_normalization),
+        eps=float(args.eps),
+    )
+    if normalization_active or bool(args.write_normalized_fields):
+        normalization_stats["write_normalized_fields"] = bool(args.write_normalized_fields)
+        (args.run_dir / "normalization_stats.json").write_text(
+            json.dumps(normalization_stats, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+
+    if normalization_active:
+        # Use normalized_score for pruning
+        for score in scores:
+            if score.normalized_score is not None:
+                score.score = float(score.normalized_score)
+        # Lower norm_score_to_prune cap: pick negative normalized scores
+        effective_norm_cap = float(args.norm_score_to_prune)
+    else:
+        effective_norm_cap = None
+
     to_prune = [score for score in scores if score.score <= float(args.kappa)]
     if args.max_score_to_prune is not None:
         to_prune = [score for score in to_prune if score.score <= float(args.max_score_to_prune)]
+    if effective_norm_cap is not None:
+        to_prune = [score for score in to_prune if score.score <= effective_norm_cap]
     if int(args.min_prune_layer) > 0:
         to_prune = [score for score in to_prune if int(score.layer) >= int(args.min_prune_layer)]
     if args.max_prune_units > 0:
@@ -213,6 +297,13 @@ def main() -> None:
                     ),
                     "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
                     "score_formula": _score_formula(float(args.alpha_safe), float(args.beta_harm_proxy)),
+                    "score_normalization": str(args.score_normalization),
+                    "normalization_stats": normalization_stats if normalization_active else None,
+                    "seed": None if args.seed is None else int(args.seed),
+                    "seed_scope": [
+                        "clean/safety/proxy prompt sampling order",
+                        "torch/python/transformers RNG for perturbation and scoring",
+                    ],
                 },
                 "scores": [score.__dict__ for score in scores],
             },
@@ -248,6 +339,13 @@ def main() -> None:
                 "max_score_to_prune": None if args.max_score_to_prune is None else float(args.max_score_to_prune),
                 "min_prune_layer": int(args.min_prune_layer),
                 "max_prune_units": int(args.max_prune_units),
+                "score_normalization": str(args.score_normalization),
+                "norm_score_to_prune": float(args.norm_score_to_prune) if normalization_active else None,
+                "seed": None if args.seed is None else int(args.seed),
+                "seed_scope": [
+                    "clean/safety/proxy prompt sampling order",
+                    "torch/python/transformers RNG for perturbation and scoring",
+                ],
                 "pruned_total": int(len(to_prune)),
                 "pruned_heads": int(sum(1 for score in to_prune if score.component == "head")),
                 "pruned_channels": int(sum(1 for score in to_prune if score.component == "channel")),

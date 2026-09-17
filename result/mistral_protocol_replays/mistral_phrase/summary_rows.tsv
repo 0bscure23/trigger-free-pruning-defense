@@ -1,0 +1,2 @@
+tag	target	apply_impl	recover_impl	recovery_prompt	recovery_max_length	lambda_safe	lambda_align	lr	steps	expected_ASR	actual_pruned	pruned_heads	pruned_channels	ASR	HarmRef	BFR	Empty	avg_output_tokens	median_output_tokens	PPL
+mistral_phrase_old_scores_old_08fd92b_rpchat_ml512_ls0.15_la2.0_lr5e-6_s20	mistral_phrase	old_scores	old_08fd92b	chat	512	0.15	2.0	5e-06	20	0.7833333333333333	512	0	512	0.7083333333333334	0.375	0.0	0.0	62.73529411764706	63.5	10.911674594361823

@@ -1,0 +1,5134 @@
+{
+  "timestamp": 0,
+  "proxy_type": "trigger_free_causal_refsupp",
+  "signal": "refusal_attr_on_refsupp_perturbed_harmful_no_trigger",
+  "eps": 0.03,
+  "budget": 512,
+  "max_prune_units": 512,
+  "num_key_value_heads": 8,
+  "pruned_total": 512,
+  "pruned_heads": 0,
+  "pruned_channels": 512,
+  "to_prune": [
+    {
+      "component": "channel",
+      "layer": 19,
+      "index": 1816,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 62.3350647110492,
+      "cosine": 0.0,
+      "score": -119.41656838347559,
+      "attr_z": 119.41656838347559
+    },
+    {
+      "component": "channel",
+      "layer": 14,
+      "index": 1809,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 7.545081819407642,
+      "cosine": 0.0,
+      "score": -99.77782011928208,
+      "attr_z": 99.77782011928208
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 9943,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 38.02625398244709,
+      "cosine": 0.0,
+      "score": -71.1967561939761,
+      "attr_z": 71.1967561939761
+    },
+    {
+      "component": "channel",
+      "layer": 0,
+      "index": 6508,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 16.025908758863807,
+      "cosine": 0.0,
+      "score": -70.63943188888491,
+      "attr_z": 70.63943188888491
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 942,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.6229916844749823,
+      "cosine": 0.0,
+      "score": -65.11184791077538,
+      "attr_z": 65.11184791077538
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 8950,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.500127709878143,
+      "cosine": 0.0,
+      "score": -61.66735782599694,
+      "attr_z": 61.66735782599694
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 4805,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 2.116324336413527,
+      "cosine": 0.0,
+      "score": -61.14371099659998,
+      "attr_z": 61.14371099659998
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 12616,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.5674381054122932,
+      "cosine": 0.0,
+      "score": -60.253073995110284,
+      "attr_z": 60.253073995110284
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 10819,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 28.70096291229129,
+      "cosine": 0.0,
+      "score": -53.73041142855854,
+      "attr_z": 53.73041142855854
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 1531,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.34994398948038,
+      "cosine": 0.0,
+      "score": -38.45818041975763,
+      "attr_z": 38.45818041975763
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 2025,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6863273152557667,
+      "cosine": 0.0,
+      "score": -38.34210373326585,
+      "attr_z": 38.34210373326585
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 5183,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.8852909989655018,
+      "cosine": 0.0,
+      "score": -34.532302430823016,
+      "attr_z": 34.532302430823016
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 850,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6688444313476793,
+      "cosine": 0.0,
+      "score": -33.554498460328844,
+      "attr_z": 33.554498460328844
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 12704,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.1474919854663312,
+      "cosine": 0.0,
+      "score": -32.696796511305436,
+      "attr_z": 32.696796511305436
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 8294,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.0197656880773138,
+      "cosine": 0.0,
+      "score": -32.26032827420252,
+      "attr_z": 32.26032827420252
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 3508,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6420024330218439,
+      "cosine": 0.0,
+      "score": -31.384211070062815,
+      "attr_z": 31.384211070062815
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11377,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.7626205236301757,
+      "cosine": 0.0,
+      "score": -29.74995115686118,
+      "attr_z": 29.74995115686118
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 4540,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6809594640799332,
+      "cosine": 0.0,
+      "score": -29.1382970636949,
+      "attr_z": 29.1382970636949
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 4121,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.9788201974879485,
+      "cosine": 0.0,
+      "score": -27.89673078806824,
+      "attr_z": 27.89673078806824
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 5528,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.8149713071034057,
+      "cosine": 0.0,
+      "score": -27.712421520316585,
+      "attr_z": 27.712421520316585
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 7760,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.693760883223149,
+      "cosine": 0.0,
+      "score": -27.06543405423392,
+      "attr_z": 27.06543405423392
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 9497,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.8466980211815098,
+      "cosine": 0.0,
+      "score": -26.616023973549066,
+      "attr_z": 26.616023973549066
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 2009,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6143097497842973,
+      "cosine": 0.0,
+      "score": -25.250661202451035,
+      "attr_z": 25.250661202451035
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 6002,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.7224478949137847,
+      "cosine": 0.0,
+      "score": -24.565791607625503,
+      "attr_z": 24.565791607625503
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 8352,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.993658864084864,
+      "cosine": 0.0,
+      "score": -24.307342909631046,
+      "attr_z": 24.307342909631046
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 1674,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.8411296051781392,
+      "cosine": 0.0,
+      "score": -24.301221377878054,
+      "attr_z": 24.301221377878054
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6177,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.48296356602804735,
+      "cosine": 0.0,
+      "score": -23.60939757487742,
+      "attr_z": 23.60939757487742
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 11632,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.7450600195734296,
+      "cosine": 0.0,
+      "score": -23.569524580993527,
+      "attr_z": 23.569524580993527
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 11348,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5013258379767649,
+      "cosine": 0.0,
+      "score": -22.721053985552597,
+      "attr_z": 22.721053985552597
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 4894,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.7945551330922171,
+      "cosine": 0.0,
+      "score": -22.652911236517618,
+      "attr_z": 22.652911236517618
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 11288,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6594873305875808,
+      "cosine": 0.0,
+      "score": -22.42456496735933,
+      "attr_z": 22.42456496735933
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 12408,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.59810724563431,
+      "cosine": 0.0,
+      "score": -22.366576254921668,
+      "attr_z": 22.366576254921668
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 8396,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.9043298428005073,
+      "cosine": 0.0,
+      "score": -22.122488182985702,
+      "attr_z": 22.122488182985702
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 13015,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.537975803228619,
+      "cosine": 0.0,
+      "score": -22.112510590217344,
+      "attr_z": 22.112510590217344
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 10299,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4313530760919093,
+      "cosine": 0.0,
+      "score": -21.639276881108398,
+      "attr_z": 21.639276881108398
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 6248,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.635533746704823,
+      "cosine": 0.0,
+      "score": -21.60992722564734,
+      "attr_z": 21.60992722564734
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 2745,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6646634612116031,
+      "cosine": 0.0,
+      "score": -21.02603608970171,
+      "attr_z": 21.02603608970171
+    },
+    {
+      "component": "channel",
+      "layer": 30,
+      "index": 4382,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 31.771127415588126,
+      "cosine": 0.0,
+      "score": -20.786495121010862,
+      "attr_z": 20.786495121010862
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 8059,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6005854542163434,
+      "cosine": 0.0,
+      "score": -20.42137029784671,
+      "attr_z": 20.42137029784671
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 5744,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6451850445882883,
+      "cosine": 0.0,
+      "score": -20.40980164485124,
+      "attr_z": 20.40980164485124
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 3304,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6442551329528214,
+      "cosine": 0.0,
+      "score": -20.38038223199424,
+      "attr_z": 20.38038223199424
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 9537,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5409431312436936,
+      "cosine": 0.0,
+      "score": -20.337371357159682,
+      "attr_z": 20.337371357159682
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 10853,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5834948137053289,
+      "cosine": 0.0,
+      "score": -19.840134485349935,
+      "attr_z": 19.840134485349935
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 8602,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 10.540868745185435,
+      "cosine": 0.0,
+      "score": -19.71640979484657,
+      "attr_z": 19.71640979484657
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 10948,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.38946508081426146,
+      "cosine": 0.0,
+      "score": -19.537706722038838,
+      "attr_z": 19.537706722038838
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 6899,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5136556756515347,
+      "cosine": 0.0,
+      "score": -19.311332188280247,
+      "attr_z": 19.311332188280247
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 9737,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 10.211583530995995,
+      "cosine": 0.0,
+      "score": -19.0996559547875,
+      "attr_z": 19.0996559547875
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 6176,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.47489725465311494,
+      "cosine": 0.0,
+      "score": -19.045214469163927,
+      "attr_z": 19.045214469163927
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 2873,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.38692536296730395,
+      "cosine": 0.0,
+      "score": -18.91445016155645,
+      "attr_z": 18.91445016155645
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 9480,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4113245655098581,
+      "cosine": 0.0,
+      "score": -18.641525648308846,
+      "attr_z": 18.641525648308846
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 13486,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 9.711837658091099,
+      "cosine": 0.0,
+      "score": -18.16362793747591,
+      "attr_z": 18.16362793747591
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 2914,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.44846666627563536,
+      "cosine": 0.0,
+      "score": -17.984702202224017,
+      "attr_z": 17.984702202224017
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11259,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.46063320566827315,
+      "cosine": 0.0,
+      "score": -17.976870219271248,
+      "attr_z": 17.976870219271248
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 3557,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4183878974909021,
+      "cosine": 0.0,
+      "score": -17.900350033662185,
+      "attr_z": 17.900350033662185
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 10298,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24927540928365488,
+      "cosine": 0.0,
+      "score": -17.614992784691815,
+      "attr_z": 17.614992784691815
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 9317,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6124083909235196,
+      "cosine": 0.0,
+      "score": -17.469374948900025,
+      "attr_z": 17.469374948900025
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 4552,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4640293868724257,
+      "cosine": 0.0,
+      "score": -17.44532764558777,
+      "attr_z": 17.44532764558777
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 7761,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.44619549307390116,
+      "cosine": 0.0,
+      "score": -17.414010957252017,
+      "attr_z": 17.414010957252017
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 700,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3462747844696423,
+      "cosine": 0.0,
+      "score": -17.370798581470513,
+      "attr_z": 17.370798581470513
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 1464,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6057949790556449,
+      "cosine": 0.0,
+      "score": -17.281170317875993,
+      "attr_z": 17.281170317875993
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 2320,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3508446346677374,
+      "cosine": 0.0,
+      "score": -17.15059872950035,
+      "attr_z": 17.15059872950035
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 1681,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.35014738968675374,
+      "cosine": 0.0,
+      "score": -17.116513038435826,
+      "attr_z": 17.116513038435826
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 9139,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.42236769296141574,
+      "cosine": 0.0,
+      "score": -16.937495800347218,
+      "attr_z": 16.937495800347218
+    },
+    {
+      "component": "channel",
+      "layer": 30,
+      "index": 12265,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 25.751477559795603,
+      "cosine": 0.0,
+      "score": -16.84908092056593,
+      "attr_z": 16.84908092056593
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 9542,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20197725426987745,
+      "cosine": 0.0,
+      "score": -16.707830550317663,
+      "attr_z": 16.707830550317663
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 2876,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5212027729212423,
+      "cosine": 0.0,
+      "score": -16.48740138873432,
+      "attr_z": 16.48740138873432
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 2017,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.42189905032137176,
+      "cosine": 0.0,
+      "score": -16.466805660845715,
+      "attr_z": 16.466805660845715
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 3688,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.41948518954450265,
+      "cosine": 0.0,
+      "score": -16.372700456395574,
+      "attr_z": 16.372700456395574
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 10098,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.39433754184574354,
+      "cosine": 0.0,
+      "score": -16.20742486836135,
+      "attr_z": 16.20742486836135
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 5692,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.32306814031107933,
+      "cosine": 0.0,
+      "score": -16.206493855676996,
+      "attr_z": 16.206493855676996
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 7415,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.6562820269173244,
+      "cosine": 0.0,
+      "score": -16.055608291385106,
+      "attr_z": 16.055608291385106
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 3029,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3253407135780435,
+      "cosine": 0.0,
+      "score": -15.903807717866506,
+      "attr_z": 15.903807717866506
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 9282,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3139405498368433,
+      "cosine": 0.0,
+      "score": -15.748551869250683,
+      "attr_z": 15.748551869250683
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 11757,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.496034688934742,
+      "cosine": 0.0,
+      "score": -15.691164170725187,
+      "attr_z": 15.691164170725187
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 7140,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.49559490229876246,
+      "cosine": 0.0,
+      "score": -15.677250736244527,
+      "attr_z": 15.677250736244527
+    },
+    {
+      "component": "channel",
+      "layer": 0,
+      "index": 10249,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.495646128896624,
+      "cosine": 0.0,
+      "score": -15.40972387858501,
+      "attr_z": 15.40972387858501
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 11373,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.5998951420388039,
+      "cosine": 0.0,
+      "score": -15.288211704254534,
+      "attr_z": 15.288211704254534
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 3850,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2990422786861018,
+      "cosine": 0.0,
+      "score": -15.001088022757349,
+      "attr_z": 15.001088022757349
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 6233,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3620183185848873,
+      "cosine": 0.0,
+      "score": -14.87875532041658,
+      "attr_z": 14.87875532041658
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 9898,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.39436697495693807,
+      "cosine": 0.0,
+      "score": -14.82594222936587,
+      "attr_z": 14.82594222936587
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 4271,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4663552615820663,
+      "cosine": 0.0,
+      "score": -14.752202560454247,
+      "attr_z": 14.752202560454247
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 9836,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 7.8740360820665956,
+      "cosine": 0.0,
+      "score": -14.721410885398901,
+      "attr_z": 14.721410885398901
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 768,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3223693963482219,
+      "cosine": 0.0,
+      "score": -14.609414508184225,
+      "attr_z": 14.609414508184225
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 3967,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.28833007169305347,
+      "cosine": 0.0,
+      "score": -14.46364395542621,
+      "attr_z": 14.46364395542621
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 3399,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 7.711022761883214,
+      "cosine": 0.0,
+      "score": -14.416085632786624,
+      "attr_z": 14.416085632786624
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 5141,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2870527192208101,
+      "cosine": 0.0,
+      "score": -14.399557674369145,
+      "attr_z": 14.399557674369145
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 13121,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.35838111604789447,
+      "cosine": 0.0,
+      "score": -14.370070937641453,
+      "attr_z": 14.370070937641453
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 7695,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 7.685834467607947,
+      "cosine": 0.0,
+      "score": -14.36890775613325,
+      "attr_z": 14.36890775613325
+    },
+    {
+      "component": "channel",
+      "layer": 30,
+      "index": 11118,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 21.884114563814364,
+      "cosine": 0.0,
+      "score": -14.319463693079033,
+      "attr_z": 14.319463693079033
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 9742,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.34780228266026825,
+      "cosine": 0.0,
+      "score": -14.29432252408737,
+      "attr_z": 14.29432252408737
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 1229,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.36577569036853674,
+      "cosine": 0.0,
+      "score": -14.278816894716213,
+      "attr_z": 14.278816894716213
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 610,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3640548610856058,
+      "cosine": 0.0,
+      "score": -14.211729764818008,
+      "attr_z": 14.211729764818008
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 11001,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 7.584946723902249,
+      "cosine": 0.0,
+      "score": -14.179944205192918,
+      "attr_z": 14.179944205192918
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 6399,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.348522451648023,
+      "cosine": 0.0,
+      "score": -13.974497657834487,
+      "attr_z": 13.974497657834487
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7281,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3072774861357175,
+      "cosine": 0.0,
+      "score": -13.925336675865926,
+      "attr_z": 13.925336675865926
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 7147,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3621276962749107,
+      "cosine": 0.0,
+      "score": -13.924513376146539,
+      "attr_z": 13.924513376146539
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 3820,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19647568228629098,
+      "cosine": 0.0,
+      "score": -13.883696236227557,
+      "attr_z": 13.883696236227557
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 8427,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.36504761288233567,
+      "cosine": 0.0,
+      "score": -13.652973948445585,
+      "attr_z": 13.652973948445585
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 9,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.31845127289852826,
+      "cosine": 0.0,
+      "score": -13.623106659145645,
+      "attr_z": 13.623106659145645
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 9766,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4703866145428037,
+      "cosine": 0.0,
+      "score": -13.589841814332054,
+      "attr_z": 13.589841814332054
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 795,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4664170932228444,
+      "cosine": 0.0,
+      "score": -13.475155763300291,
+      "attr_z": 13.475155763300291
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 10781,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3265589008515235,
+      "cosine": 0.0,
+      "score": -13.420989824324483,
+      "attr_z": 13.420989824324483
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 3432,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.35440810334694106,
+      "cosine": 0.0,
+      "score": -13.323443497755928,
+      "attr_z": 13.323443497755928
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 739,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3309257607688778,
+      "cosine": 0.0,
+      "score": -13.312832460660807,
+      "attr_z": 13.312832460660807
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 8415,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2649601713346783,
+      "cosine": 0.0,
+      "score": -13.291148473414015,
+      "attr_z": 13.291148473414015
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 11103,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.33088534987473395,
+      "cosine": 0.0,
+      "score": -13.266819019859941,
+      "attr_z": 13.266819019859941
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 1531,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.411751257328433,
+      "cosine": 0.0,
+      "score": -13.024707513060399,
+      "attr_z": 13.024707513060399
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 2622,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 6.966871886164881,
+      "cosine": 0.0,
+      "score": -13.022285090261935,
+      "attr_z": 13.022285090261935
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 1105,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.286522777430946,
+      "cosine": 0.0,
+      "score": -12.984578617989715,
+      "attr_z": 12.984578617989715
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 7369,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.44900299757136963,
+      "cosine": 0.0,
+      "score": -12.972033673360867,
+      "attr_z": 12.972033673360867
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11894,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3318950527609559,
+      "cosine": 0.0,
+      "score": -12.957968418484759,
+      "attr_z": 12.957968418484759
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 3617,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2840703419497004,
+      "cosine": 0.0,
+      "score": -12.873415966987395,
+      "attr_z": 12.873415966987395
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 60,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2977034187570098,
+      "cosine": 0.0,
+      "score": -12.735107669543813,
+      "attr_z": 12.735107669543813
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 12648,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.440420456641732,
+      "cosine": 0.0,
+      "score": -12.724069839008997,
+      "attr_z": 12.724069839008997
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 13482,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.37333538206621597,
+      "cosine": 0.0,
+      "score": -12.692819677347524,
+      "attr_z": 12.692819677347524
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 2006,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.33696662449210635,
+      "cosine": 0.0,
+      "score": -12.66762418152092,
+      "attr_z": 12.66762418152092
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 10181,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.32271339536237065,
+      "cosine": 0.0,
+      "score": -12.60001830182323,
+      "attr_z": 12.60001830182323
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 1442,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2779429376096232,
+      "cosine": 0.0,
+      "score": -12.59567634226946,
+      "attr_z": 12.59567634226946
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 1770,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.37033936661464395,
+      "cosine": 0.0,
+      "score": -12.590928149401273,
+      "attr_z": 12.590928149401273
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 9694,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 6.629542660200968,
+      "cosine": 0.0,
+      "score": -12.390464751806944,
+      "attr_z": 12.390464751806944
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 10112,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 6.620359289692715,
+      "cosine": 0.0,
+      "score": -12.37326422538916,
+      "attr_z": 12.37326422538916
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 6514,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3899743154324824,
+      "cosine": 0.0,
+      "score": -12.33575512235482,
+      "attr_z": 12.33575512235482
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 6333,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1488456293627678,
+      "cosine": 0.0,
+      "score": -12.31698666292913,
+      "attr_z": 12.31698666292913
+    },
+    {
+      "component": "channel",
+      "layer": 0,
+      "index": 9733,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 2.7793910037726164,
+      "cosine": 0.0,
+      "score": -12.252682195606068,
+      "attr_z": 12.252682195606068
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 2555,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2493425853244844,
+      "cosine": 0.0,
+      "score": -12.188544371720754,
+      "attr_z": 12.188544371720754
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 3303,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24229942208330613,
+      "cosine": 0.0,
+      "score": -12.154231939376539,
+      "attr_z": 12.154231939376539
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 10564,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26791888744264725,
+      "cosine": 0.0,
+      "score": -12.141311691756684,
+      "attr_z": 12.141311691756684
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 1259,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3798416291756439,
+      "cosine": 0.0,
+      "score": -12.01518952346251,
+      "attr_z": 12.01518952346251
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 7840,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24495885790565808,
+      "cosine": 0.0,
+      "score": -11.974240385913093,
+      "attr_z": 11.974240385913093
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 5144,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4844955407897942,
+      "cosine": 0.0,
+      "score": -11.853966867432147,
+      "attr_z": 11.853966867432147
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 7054,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.27964304233319126,
+      "cosine": 0.0,
+      "score": -11.492240732000477,
+      "attr_z": 11.492240732000477
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 1594,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2336647012125468,
+      "cosine": 0.0,
+      "score": -11.422111440742945,
+      "attr_z": 11.422111440742945
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 9660,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2031098330974146,
+      "cosine": 0.0,
+      "score": -11.340265644825786,
+      "attr_z": 11.340265644825786
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 9396,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24882320187862206,
+      "cosine": 0.0,
+      "score": -11.275752925282784,
+      "attr_z": 11.275752925282784
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 9584,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22400679877318908,
+      "cosine": 0.0,
+      "score": -11.23646943905091,
+      "attr_z": 11.23646943905091
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 13748,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2715139439533232,
+      "cosine": 0.0,
+      "score": -11.158046887600154,
+      "attr_z": 11.158046887600154
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6924,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22821289075363893,
+      "cosine": 0.0,
+      "score": -11.155592882541931,
+      "attr_z": 11.155592882541931
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 3684,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2976847369900497,
+      "cosine": 0.0,
+      "score": -11.134419774928324,
+      "attr_z": 11.134419774928324
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 4097,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22751368454191834,
+      "cosine": 0.0,
+      "score": -11.121411314265197,
+      "attr_z": 11.121411314265197
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 6724,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4347950892552035,
+      "cosine": 0.0,
+      "score": -11.082969052615196,
+      "attr_z": 11.082969052615196
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 12074,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22033246836144826,
+      "cosine": 0.0,
+      "score": -11.052123945868601,
+      "attr_z": 11.052123945868601
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 12232,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24197962602193002,
+      "cosine": 0.0,
+      "score": -10.965551070684363,
+      "attr_z": 10.965551070684363
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 10275,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.4049141792856972,
+      "cosine": 0.0,
+      "score": -10.903705317467722,
+      "attr_z": 10.903705317467722
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 12161,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.37706670014995325,
+      "cosine": 0.0,
+      "score": -10.893674795269954,
+      "attr_z": 10.893674795269954
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 1636,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15348227019421756,
+      "cosine": 0.0,
+      "score": -10.845400789096471,
+      "attr_z": 10.845400789096471
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 8046,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.44242870243033394,
+      "cosine": 0.0,
+      "score": -10.825074696632248,
+      "attr_z": 10.825074696632248
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 704,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2755355435947422,
+      "cosine": 0.0,
+      "score": -10.760773292892157,
+      "attr_z": 10.760773292892157
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 5054,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19258070737487287,
+      "cosine": 0.0,
+      "score": -10.751905830725077,
+      "attr_z": 10.751905830725077
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 12496,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 5.747977851686301,
+      "cosine": 0.0,
+      "score": -10.739286814009958,
+      "attr_z": 10.739286814009958
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 4719,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.27460555708239553,
+      "cosine": 0.0,
+      "score": -10.724517444286935,
+      "attr_z": 10.724517444286935
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 8204,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1292195460137009,
+      "cosine": 0.0,
+      "score": -10.695069993576581,
+      "attr_z": 10.695069993576581
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 14030,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12870392862714652,
+      "cosine": 0.0,
+      "score": -10.652458922412436,
+      "attr_z": 10.652458922412436
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 2516,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21667232035542838,
+      "cosine": 0.0,
+      "score": -10.591417695871089,
+      "attr_z": 10.591417695871089
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 12977,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3929430925636552,
+      "cosine": 0.0,
+      "score": -10.581678008637505,
+      "attr_z": 10.581678008637505
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 1391,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21550281860254472,
+      "cosine": 0.0,
+      "score": -10.534245143130773,
+      "attr_z": 10.534245143130773
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 11548,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1487038693157956,
+      "cosine": 0.0,
+      "score": -10.507716643386313,
+      "attr_z": 10.507716643386313
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 3233,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18678576288402837,
+      "cosine": 0.0,
+      "score": -10.428088587660175,
+      "attr_z": 10.428088587660175
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 1685,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2740304703638685,
+      "cosine": 0.0,
+      "score": -10.301153659704996,
+      "attr_z": 10.301153659704996
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 12343,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.27366509753483115,
+      "cosine": 0.0,
+      "score": -10.287415228411154,
+      "attr_z": 10.287415228411154
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 3793,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3542570680656354,
+      "cosine": 0.0,
+      "score": -10.234666713846016,
+      "attr_z": 10.234666713846016
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 14223,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2726842871707049,
+      "cosine": 0.0,
+      "score": -10.199706308522858,
+      "attr_z": 10.199706308522858
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 2628,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2538348213711288,
+      "cosine": 0.0,
+      "score": -10.175210559039579,
+      "attr_z": 10.175210559039579
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 6751,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2533096484548878,
+      "cosine": 0.0,
+      "score": -10.154138295645975,
+      "attr_z": 10.154138295645975
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 11850,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26290424705439364,
+      "cosine": 0.0,
+      "score": -10.110658001475633,
+      "attr_z": 10.110658001475633
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 4925,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24596297757307184,
+      "cosine": 0.0,
+      "score": -10.107625883481592,
+      "attr_z": 10.107625883481592
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 8555,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.29703916287689935,
+      "cosine": 0.0,
+      "score": -10.09806057967916,
+      "attr_z": 10.09806057967916
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 10493,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 5.383530539518688,
+      "cosine": 0.0,
+      "score": -10.056674083183646,
+      "attr_z": 10.056674083183646
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 8783,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24692785907245707,
+      "cosine": 0.0,
+      "score": -9.898072640639167,
+      "attr_z": 9.898072640639167
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 4649,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26322717639413895,
+      "cosine": 0.0,
+      "score": -9.894937597220713,
+      "attr_z": 9.894937597220713
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 1138,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21794562601280631,
+      "cosine": 0.0,
+      "score": -9.876151094360822,
+      "attr_z": 9.876151094360822
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 13718,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2608119183096278,
+      "cosine": 0.0,
+      "score": -9.804121163666048,
+      "attr_z": 9.804121163666048
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 10219,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2150397756631719,
+      "cosine": 0.0,
+      "score": -9.74443630277849,
+      "attr_z": 9.74443630277849
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 930,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24208090650517988,
+      "cosine": 0.0,
+      "score": -9.741279248272042,
+      "attr_z": 9.741279248272042
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 1500,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2369262307693134,
+      "cosine": 0.0,
+      "score": -9.73611787434007,
+      "attr_z": 9.73611787434007
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 2578,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.25760041620378615,
+      "cosine": 0.0,
+      "score": -9.683365055043037,
+      "attr_z": 9.683365055043037
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 4314,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3578666681823961,
+      "cosine": 0.0,
+      "score": -9.63810731959677,
+      "attr_z": 9.63810731959677
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 902,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1915993413713295,
+      "cosine": 0.0,
+      "score": -9.61054905409019,
+      "attr_z": 9.61054905409019
+    },
+    {
+      "component": "channel",
+      "layer": 30,
+      "index": 233,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 14.616490612039343,
+      "cosine": 0.0,
+      "score": -9.565757674168857,
+      "attr_z": 9.565757674168857
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 6528,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11538134019974677,
+      "cosine": 0.0,
+      "score": -9.551468578847512,
+      "attr_z": 9.551468578847512
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 2951,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.301548646268202,
+      "cosine": 0.0,
+      "score": -9.480787113634445,
+      "attr_z": 9.480787113634445
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 10136,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19366365007590503,
+      "cosine": 0.0,
+      "score": -9.466610134191923,
+      "attr_z": 9.466610134191923
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 13172,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2088495178759331,
+      "cosine": 0.0,
+      "score": -9.463847691465578,
+      "attr_z": 9.463847691465578
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 388,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21990414242463885,
+      "cosine": 0.0,
+      "score": -9.405333018937808,
+      "attr_z": 9.405333018937808
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 3197,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.328865151393984,
+      "cosine": 0.0,
+      "score": -9.400294746253518,
+      "attr_z": 9.400294746253518
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 9206,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23902219683805015,
+      "cosine": 0.0,
+      "score": -9.33728773207449,
+      "attr_z": 9.33728773207449
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 6269,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 4.996373823320027,
+      "cosine": 0.0,
+      "score": -9.331526456959498,
+      "attr_z": 9.331526456959498
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 4284,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2385330635424907,
+      "cosine": 0.0,
+      "score": -9.318218699915272,
+      "attr_z": 9.318218699915272
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 4782,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2735559561624541,
+      "cosine": 0.0,
+      "score": -9.299419901121581,
+      "attr_z": 9.299419901121581
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 5970,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13019255240760685,
+      "cosine": 0.0,
+      "score": -9.199542968728844,
+      "attr_z": 9.199542968728844
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11192,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23542251999788277,
+      "cosine": 0.0,
+      "score": -9.196953074730354,
+      "attr_z": 9.196953074730354
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 10469,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.36042836743581574,
+      "cosine": 0.0,
+      "score": -9.188783646948558,
+      "attr_z": 9.188783646948558
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7742,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20264735442469828,
+      "cosine": 0.0,
+      "score": -9.18271942674206,
+      "attr_z": 9.18271942674206
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 10145,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12990309450015047,
+      "cosine": 0.0,
+      "score": -9.179087308208638,
+      "attr_z": 9.179087308208638
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 2391,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24507120921407477,
+      "cosine": 0.0,
+      "score": -9.167312251556945,
+      "attr_z": 9.167312251556945
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 5116,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.29132567386113806,
+      "cosine": 0.0,
+      "score": -9.159456737652139,
+      "attr_z": 9.159456737652139
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 1131,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16395165016365354,
+      "cosine": 0.0,
+      "score": -9.152135135366201,
+      "attr_z": 9.152135135366201
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 11233,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2016035954693507,
+      "cosine": 0.0,
+      "score": -9.135408493031006,
+      "attr_z": 9.135408493031006
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 9886,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22209772202040767,
+      "cosine": 0.0,
+      "score": -9.126505822185148,
+      "attr_z": 9.126505822185148
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 4846,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.28827209345035953,
+      "cosine": 0.0,
+      "score": -9.118223969016798,
+      "attr_z": 9.118223969016798
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 5167,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3572922391758766,
+      "cosine": 0.0,
+      "score": -9.108903719005752,
+      "attr_z": 9.108903719005752
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 10075,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23615216356506608,
+      "cosine": 0.0,
+      "score": -9.0823871824209,
+      "attr_z": 9.0823871824209
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 13426,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 4.803701800949057,
+      "cosine": 0.0,
+      "score": -8.970650217916228,
+      "attr_z": 8.970650217916228
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 571,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 4.8031273517990485,
+      "cosine": 0.0,
+      "score": -8.969574270063367,
+      "attr_z": 8.969574270063367
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 5833,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16032391203407315,
+      "cosine": 0.0,
+      "score": -8.949419792443054,
+      "attr_z": 8.949419792443054
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 1024,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22246956289018271,
+      "cosine": 0.0,
+      "score": -8.91669747186493,
+      "attr_z": 8.91669747186493
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 11281,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26015722981355793,
+      "cosine": 0.0,
+      "score": -8.843742444749859,
+      "attr_z": 8.843742444749859
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11382,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22389760259829927,
+      "cosine": 0.0,
+      "score": -8.747650149494756,
+      "attr_z": 8.747650149494756
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 13105,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21287928738456685,
+      "cosine": 0.0,
+      "score": -8.74752847853111,
+      "attr_z": 8.74752847853111
+    },
+    {
+      "component": "channel",
+      "layer": 0,
+      "index": 3436,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.9835195960476995,
+      "cosine": 0.0,
+      "score": -8.744715382742177,
+      "attr_z": 8.744715382742177
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 9205,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15625766224593463,
+      "cosine": 0.0,
+      "score": -8.722200740027873,
+      "attr_z": 8.722200740027873
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 9739,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2121425376535626,
+      "cosine": 0.0,
+      "score": -8.717240098017108,
+      "attr_z": 8.717240098017108
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 5116,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17769892585602065,
+      "cosine": 0.0,
+      "score": -8.68615466655764,
+      "attr_z": 8.68615466655764
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 6227,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.303210749894788,
+      "cosine": 0.0,
+      "score": -8.670221182900779,
+      "attr_z": 8.670221182900779
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 8183,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3221037261901074,
+      "cosine": 0.0,
+      "score": -8.665967483191434,
+      "attr_z": 8.665967483191434
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 12000,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 4.632045259466395,
+      "cosine": 0.0,
+      "score": -8.649136142675113,
+      "attr_z": 8.649136142675113
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 2662,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.32057838950277073,
+      "cosine": 0.0,
+      "score": -8.624961668412967,
+      "attr_z": 8.624961668412967
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6357,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1763160650334612,
+      "cosine": 0.0,
+      "score": -8.61855178942184,
+      "attr_z": 8.61855178942184
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 12780,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2734181645209901,
+      "cosine": 0.0,
+      "score": -8.596584563097476,
+      "attr_z": 8.596584563097476
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 4503,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.27291591343964683,
+      "cosine": 0.0,
+      "score": -8.58079771340452,
+      "attr_z": 8.58079771340452
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 7256,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22735269425902516,
+      "cosine": 0.0,
+      "score": -8.54601652579369,
+      "attr_z": 8.54601652579369
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 2533,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2079406296943489,
+      "cosine": 0.0,
+      "score": -8.544496245121488,
+      "attr_z": 8.544496245121488
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 1663,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2688494642134174,
+      "cosine": 0.0,
+      "score": -8.50375445761733,
+      "attr_z": 8.50375445761733
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 13886,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2254105065658223,
+      "cosine": 0.0,
+      "score": -8.472988073587455,
+      "attr_z": 8.472988073587455
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 12726,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20599105399742257,
+      "cosine": 0.0,
+      "score": -8.464347602964716,
+      "attr_z": 8.464347602964716
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 1260,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1022045139399097,
+      "cosine": 0.0,
+      "score": -8.46252414811838,
+      "attr_z": 8.46252414811838
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 14240,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1686524162087153,
+      "cosine": 0.0,
+      "score": -8.459274736842406,
+      "attr_z": 8.459274736842406
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 9321,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26699469884624705,
+      "cosine": 0.0,
+      "score": -8.445075647708416,
+      "attr_z": 8.445075647708416
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 12285,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22449435236922,
+      "cosine": 0.0,
+      "score": -8.438539640413738,
+      "attr_z": 8.438539640413738
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 8204,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11909951681809616,
+      "cosine": 0.0,
+      "score": -8.41561078269313,
+      "attr_z": 8.41561078269313
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 8510,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20967671611288097,
+      "cosine": 0.0,
+      "score": -8.403391799564005,
+      "attr_z": 8.403391799564005
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 4373,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14994837416816154,
+      "cosine": 0.0,
+      "score": -8.369642354995095,
+      "attr_z": 8.369642354995095
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 12649,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22343021138658514,
+      "cosine": 0.0,
+      "score": -8.358201525870966,
+      "attr_z": 8.358201525870966
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 6975,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 4.468461698910687,
+      "cosine": 0.0,
+      "score": -8.342742825284237,
+      "attr_z": 8.342742825284237
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 7281,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24480178694648203,
+      "cosine": 0.0,
+      "score": -8.321518991196985,
+      "attr_z": 8.321518991196985
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 3050,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.149052010030573,
+      "cosine": 0.0,
+      "score": -8.31955418516452,
+      "attr_z": 8.31955418516452
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 410,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22100234410027042,
+      "cosine": 0.0,
+      "score": -8.307236183046951,
+      "attr_z": 8.307236183046951
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 13371,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14840840693068458,
+      "cosine": 0.0,
+      "score": -8.283590116524492,
+      "attr_z": 8.283590116524492
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 6474,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09993329318240285,
+      "cosine": 0.0,
+      "score": -8.274828481037916,
+      "attr_z": 8.274828481037916
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 4338,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20473502781351272,
+      "cosine": 0.0,
+      "score": -8.239979098520935,
+      "attr_z": 8.239979098520935
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 2145,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16316718511916406,
+      "cosine": 0.0,
+      "score": -8.184074219438967,
+      "attr_z": 8.184074219438967
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 5498,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2579177653096849,
+      "cosine": 0.0,
+      "score": -8.157910668797719,
+      "attr_z": 8.157910668797719
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 10923,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21409392055647913,
+      "cosine": 0.0,
+      "score": -8.047471650322414,
+      "attr_z": 8.047471650322414
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 2878,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1603869761020178,
+      "cosine": 0.0,
+      "score": -8.044587851860797,
+      "attr_z": 8.044587851860797
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 1864,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16456205607755692,
+      "cosine": 0.0,
+      "score": -8.043942392484555,
+      "attr_z": 8.043942392484555
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 14067,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19568313082345412,
+      "cosine": 0.0,
+      "score": -8.040580499613753,
+      "attr_z": 8.040580499613753
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 12215,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20899960427777842,
+      "cosine": 0.0,
+      "score": -8.03872326036003,
+      "attr_z": 8.03872326036003
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 4634,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15978863554846612,
+      "cosine": 0.0,
+      "score": -8.01456840013076,
+      "attr_z": 8.01456840013076
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 11389,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16393108276679413,
+      "cosine": 0.0,
+      "score": -8.013096474726527,
+      "attr_z": 8.013096474726527
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 6154,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2546241691270552,
+      "cosine": 0.0,
+      "score": -8.00584819350991,
+      "attr_z": 8.00584819350991
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 8899,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1927415336467675,
+      "cosine": 0.0,
+      "score": -7.919649047782807,
+      "attr_z": 7.919649047782807
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 2050,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1849821117873489,
+      "cosine": 0.0,
+      "score": -7.910685538324275,
+      "attr_z": 7.910685538324275
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 2727,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23166669468537293,
+      "cosine": 0.0,
+      "score": -7.874807469900547,
+      "attr_z": 7.874807469900547
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 9310,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.30883508886472555,
+      "cosine": 0.0,
+      "score": -7.874657746156542,
+      "attr_z": 7.874657746156542
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 5760,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23157808289238346,
+      "cosine": 0.0,
+      "score": -7.871793870295439,
+      "attr_z": 7.871793870295439
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 2876,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18404917774751084,
+      "cosine": 0.0,
+      "score": -7.870756373645815,
+      "attr_z": 7.870756373645815
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7239,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1735677179058257,
+      "cosine": 0.0,
+      "score": -7.864613604859272,
+      "attr_z": 7.864613604859272
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 475,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09462586460904276,
+      "cosine": 0.0,
+      "score": -7.836217948236932,
+      "attr_z": 7.836217948236932
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 4083,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19069009329541586,
+      "cosine": 0.0,
+      "score": -7.835312666853526,
+      "attr_z": 7.835312666853526
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 10409,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11067725282919127,
+      "cosine": 0.0,
+      "score": -7.820418982674456,
+      "attr_z": 7.820418982674456
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 11757,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20221579001463397,
+      "cosine": 0.0,
+      "score": -7.777973541503121,
+      "attr_z": 7.777973541503121
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 2608,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13924686673271935,
+      "cosine": 0.0,
+      "score": -7.771649977353108,
+      "attr_z": 7.771649977353108
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 8011,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.138719296814088,
+      "cosine": 0.0,
+      "score": -7.742169757681447,
+      "attr_z": 7.742169757681447
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 6958,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17074434671667404,
+      "cosine": 0.0,
+      "score": -7.736637383445992,
+      "attr_z": 7.736637383445992
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 1001,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20111949290003395,
+      "cosine": 0.0,
+      "score": -7.735835128904086,
+      "attr_z": 7.735835128904086
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 10192,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15801076539082715,
+      "cosine": 0.0,
+      "score": -7.723674371183473,
+      "attr_z": 7.723674371183473
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 8322,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26957189381937496,
+      "cosine": 0.0,
+      "score": -7.712925822771001,
+      "attr_z": 7.712925822771001
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 14137,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1698678711982211,
+      "cosine": 0.0,
+      "score": -7.696908981653185,
+      "attr_z": 7.696908981653185
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 8465,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19693264060333604,
+      "cosine": 0.0,
+      "score": -7.696411699521874,
+      "attr_z": 7.696411699521874
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6122,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1573572142933699,
+      "cosine": 0.0,
+      "score": -7.6917247101455715,
+      "attr_z": 7.6917247101455715
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 13934,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17971195648260618,
+      "cosine": 0.0,
+      "score": -7.685125219954225,
+      "attr_z": 7.685125219954225
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 12063,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.266003479660867,
+      "cosine": 0.0,
+      "score": -7.684874250801839,
+      "attr_z": 7.684874250801839
+    },
+    {
+      "component": "channel",
+      "layer": 28,
+      "index": 6042,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.2317932439036667,
+      "cosine": 0.0,
+      "score": -7.67044634286627,
+      "attr_z": 7.67044634286627
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 13796,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2247704444307601,
+      "cosine": 0.0,
+      "score": -7.640272806478325,
+      "attr_z": 7.640272806478325
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 2616,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.26565258142363746,
+      "cosine": 0.0,
+      "score": -7.601389938110495,
+      "attr_z": 7.601389938110495
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 365,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19421298065572046,
+      "cosine": 0.0,
+      "score": -7.590384807723592,
+      "attr_z": 7.590384807723592
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 11570,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.28173925690771284,
+      "cosine": 0.0,
+      "score": -7.580844464276119,
+      "attr_z": 7.580844464276119
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 14317,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10708332752710703,
+      "cosine": 0.0,
+      "score": -7.5664403763878205,
+      "attr_z": 7.5664403763878205
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 13654,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18357049812402693,
+      "cosine": 0.0,
+      "score": -7.542620320209905,
+      "attr_z": 7.542620320209905
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 580,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1871542007284006,
+      "cosine": 0.0,
+      "score": -7.533231814475472,
+      "attr_z": 7.533231814475472
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 10757,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2214630836770084,
+      "cosine": 0.0,
+      "score": -7.527792732154142,
+      "attr_z": 7.527792732154142
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 6303,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1659686136390519,
+      "cosine": 0.0,
+      "score": -7.520165572689811,
+      "attr_z": 7.520165572689811
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 6082,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22113852415714064,
+      "cosine": 0.0,
+      "score": -7.516754783277251,
+      "attr_z": 7.516754783277251
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 10312,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.29475388118225965,
+      "cosine": 0.0,
+      "score": -7.515997078673224,
+      "attr_z": 7.515997078673224
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 4857,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15354452031351684,
+      "cosine": 0.0,
+      "score": -7.505336406657909,
+      "attr_z": 7.505336406657909
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 6192,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1918650971238094,
+      "cosine": 0.0,
+      "score": -7.498851749183993,
+      "attr_z": 7.498851749183993
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 6492,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1890877463592915,
+      "cosine": 0.0,
+      "score": -7.390575760763606,
+      "attr_z": 7.390575760763606
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 2596,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10457988217467573,
+      "cosine": 0.0,
+      "score": -7.38952474568272,
+      "attr_z": 7.38952474568272
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 5472,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2169065208217944,
+      "cosine": 0.0,
+      "score": -7.372828527527869,
+      "attr_z": 7.372828527527869
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 12382,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.08883933817776324,
+      "cosine": 0.0,
+      "score": -7.358014350014285,
+      "attr_z": 7.358014350014285
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 7255,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18817648754702532,
+      "cosine": 0.0,
+      "score": -7.3550500180790905,
+      "attr_z": 7.3550500180790905
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 11812,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1502969039211166,
+      "cosine": 0.0,
+      "score": -7.346572626255703,
+      "attr_z": 7.346572626255703
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 10511,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2537342278737924,
+      "cosine": 0.0,
+      "score": -7.330395228482743,
+      "attr_z": 7.330395228482743
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 4088,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21526237692887662,
+      "cosine": 0.0,
+      "score": -7.316912816771107,
+      "attr_z": 7.316912816771107
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 12887,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23059285452472977,
+      "cosine": 0.0,
+      "score": -7.293438388848619,
+      "attr_z": 7.293438388848619
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 5000,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18082867986049678,
+      "cosine": 0.0,
+      "score": -7.278946582505372,
+      "attr_z": 7.278946582505372
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 14103,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1770589306106558,
+      "cosine": 0.0,
+      "score": -7.274924484992192,
+      "attr_z": 7.274924484992192
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 1137,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18588806178013328,
+      "cosine": 0.0,
+      "score": -7.265834941250318,
+      "attr_z": 7.265834941250318
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 12711,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21248227053729352,
+      "cosine": 0.0,
+      "score": -7.222364142817204,
+      "attr_z": 7.222364142817204
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 12365,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.08712053988347179,
+      "cosine": 0.0,
+      "score": -7.215971357778722,
+      "attr_z": 7.215971357778722
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 5713,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10207679648738122,
+      "cosine": 0.0,
+      "score": -7.212634532103043,
+      "attr_z": 7.212634532103043
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 3205,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2116303810798854,
+      "cosine": 0.0,
+      "score": -7.193392223326245,
+      "attr_z": 7.193392223326245
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 6764,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19037795128679136,
+      "cosine": 0.0,
+      "score": -7.122448056087079,
+      "attr_z": 7.122448056087079
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 1825,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.08593554409799253,
+      "cosine": 0.0,
+      "score": -7.118042271093542,
+      "attr_z": 7.118042271093542
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 11725,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17301707212209294,
+      "cosine": 0.0,
+      "score": -7.108760395975861,
+      "attr_z": 7.108760395975861
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 13464,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.28922954837617,
+      "cosine": 0.0,
+      "score": -7.078051713050947,
+      "attr_z": 7.078051713050947
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 10674,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14038301097480144,
+      "cosine": 0.0,
+      "score": -7.0409653128547545,
+      "attr_z": 7.0409653128547545
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 2077,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1708715859313088,
+      "cosine": 0.0,
+      "score": -7.020557714116131,
+      "attr_z": 7.020557714116131
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 2423,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24378095751671935,
+      "cosine": 0.0,
+      "score": -6.978966748758949,
+      "attr_z": 6.978966748758949
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 14225,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2052652345300885,
+      "cosine": 0.0,
+      "score": -6.9769198726178026,
+      "attr_z": 6.9769198726178026
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 11901,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22015005825960543,
+      "cosine": 0.0,
+      "score": -6.963061906839153,
+      "attr_z": 6.963061906839153
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 8420,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20453159086900996,
+      "cosine": 0.0,
+      "score": -6.9519693759318955,
+      "attr_z": 6.9519693759318955
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 11996,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09834618071909063,
+      "cosine": 0.0,
+      "score": -6.94899616631066,
+      "attr_z": 6.94899616631066
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 7556,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12426948728898424,
+      "cosine": 0.0,
+      "score": -6.934725011554091,
+      "attr_z": 6.934725011554091
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 977,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13780999051778053,
+      "cosine": 0.0,
+      "score": -6.911873839860913,
+      "attr_z": 6.911873839860913
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 4471,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21805222130205948,
+      "cosine": 0.0,
+      "score": -6.896693093710228,
+      "attr_z": 6.896693093710228
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 2216,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.694918883160426,
+      "cosine": 0.0,
+      "score": -6.893890943979883,
+      "attr_z": 6.893890943979883
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 4147,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17897169156458403,
+      "cosine": 0.0,
+      "score": -6.884539272693486,
+      "attr_z": 6.884539272693486
+    },
+    {
+      "component": "channel",
+      "layer": 0,
+      "index": 10801,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 1.557726465514861,
+      "cosine": 0.0,
+      "score": -6.867944642448303,
+      "attr_z": 6.867944642448303
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 11557,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.182616097799837,
+      "cosine": 0.0,
+      "score": -6.863869940361593,
+      "attr_z": 6.863869940361593
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 5326,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.6785517237799468,
+      "cosine": 0.0,
+      "score": -6.863235123542825,
+      "attr_z": 6.863235123542825
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 154,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15107130235446675,
+      "cosine": 0.0,
+      "score": -6.844908413891831,
+      "attr_z": 6.844908413891831
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 10246,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23787456710124388,
+      "cosine": 0.0,
+      "score": -6.810882550914233,
+      "attr_z": 6.810882550914233
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 10423,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2165734261579928,
+      "cosine": 0.0,
+      "score": -6.809830141440602,
+      "attr_z": 6.809830141440602
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 9883,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18059186409664107,
+      "cosine": 0.0,
+      "score": -6.7877564654562335,
+      "attr_z": 6.7877564654562335
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 12196,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13824670304893516,
+      "cosine": 0.0,
+      "score": -6.757483517840554,
+      "attr_z": 6.757483517840554
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 3991,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12091917687212117,
+      "cosine": 0.0,
+      "score": -6.747512125509324,
+      "attr_z": 6.747512125509324
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 11213,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19828476288239472,
+      "cosine": 0.0,
+      "score": -6.739520922757313,
+      "attr_z": 6.739520922757313
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 6556,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12057794953943812,
+      "cosine": 0.0,
+      "score": -6.728444592713732,
+      "attr_z": 6.728444592713732
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 4435,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17183835031755734,
+      "cosine": 0.0,
+      "score": -6.718102038706513,
+      "attr_z": 6.718102038706513
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 12602,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21081036242685514,
+      "cosine": 0.0,
+      "score": -6.667583974116527,
+      "attr_z": 6.667583974116527
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 2433,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23270545109335217,
+      "cosine": 0.0,
+      "score": -6.663779725561497,
+      "attr_z": 6.663779725561497
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 12991,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1326642368658213,
+      "cosine": 0.0,
+      "score": -6.653705306150937,
+      "attr_z": 6.653705306150937
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 1361,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13592173605866265,
+      "cosine": 0.0,
+      "score": -6.643824604937607,
+      "attr_z": 6.643824604937607
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 470,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15531733047100715,
+      "cosine": 0.0,
+      "score": -6.641046005677028,
+      "attr_z": 6.641046005677028
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 12028,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1354883869535115,
+      "cosine": 0.0,
+      "score": -6.622639793108012,
+      "attr_z": 6.622639793108012
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 12292,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14555700639539282,
+      "cosine": 0.0,
+      "score": -6.594959429745385,
+      "attr_z": 6.594959429745385
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 11999,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16050739934507874,
+      "cosine": 0.0,
+      "score": -6.594477576137693,
+      "attr_z": 6.594477576137693
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 632,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16848980112263234,
+      "cosine": 0.0,
+      "score": -6.58755768021684,
+      "attr_z": 6.58755768021684
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 9513,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11802834370973869,
+      "cosine": 0.0,
+      "score": -6.585974491062223,
+      "attr_z": 6.585974491062223
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 2088,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1449328248927486,
+      "cosine": 0.0,
+      "score": -6.566666872786741,
+      "attr_z": 6.566666872786741
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 10663,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11757925757774501,
+      "cosine": 0.0,
+      "score": -6.560879887759183,
+      "attr_z": 6.560879887759183
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 11310,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1628417978208745,
+      "cosine": 0.0,
+      "score": -6.555875934667981,
+      "attr_z": 6.555875934667981
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 6877,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16733076015952975,
+      "cosine": 0.0,
+      "score": -6.542372063944336,
+      "attr_z": 6.542372063944336
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 7504,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.499036119439552,
+      "cosine": 0.0,
+      "score": -6.527000960706207,
+      "attr_z": 6.527000960706207
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 4037,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2062368607148528,
+      "cosine": 0.0,
+      "score": -6.522893091740339,
+      "attr_z": 6.522893091740339
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 12450,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11539615649962798,
+      "cosine": 0.0,
+      "score": -6.438889802510783,
+      "attr_z": 6.438889802510783
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 13478,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20430213941290276,
+      "cosine": 0.0,
+      "score": -6.424116767034758,
+      "attr_z": 6.424116767034758
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 7225,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11511344228347298,
+      "cosine": 0.0,
+      "score": -6.4230919397020525,
+      "attr_z": 6.4230919397020525
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 4778,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17033896192151587,
+      "cosine": 0.0,
+      "score": -6.402235756468236,
+      "attr_z": 6.402235756468236
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 401,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1703584725764813,
+      "cosine": 0.0,
+      "score": -6.373962469781148,
+      "attr_z": 6.373962469781148
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 10793,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12706282584622386,
+      "cosine": 0.0,
+      "score": -6.372675904542143,
+      "attr_z": 6.372675904542143
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 11033,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09014569856299204,
+      "cosine": 0.0,
+      "score": -6.369477435724779,
+      "attr_z": 6.369477435724779
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 13857,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1300481265061535,
+      "cosine": 0.0,
+      "score": -6.356685871636148,
+      "attr_z": 6.356685871636148
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 12075,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16243396277423017,
+      "cosine": 0.0,
+      "score": -6.351468709653863,
+      "attr_z": 6.351468709653863
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 8711,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14017995585891185,
+      "cosine": 0.0,
+      "score": -6.351231430872574,
+      "attr_z": 6.351231430872574
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 13796,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.201910780135222,
+      "cosine": 0.0,
+      "score": -6.348951116066654,
+      "attr_z": 6.348951116066654
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 10715,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16383673056998305,
+      "cosine": 0.0,
+      "score": -6.302796219129512,
+      "attr_z": 6.302796219129512
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 143,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15286597912199795,
+      "cosine": 0.0,
+      "score": -6.280332577308046,
+      "attr_z": 6.280332577308046
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 13831,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.365870222773083,
+      "cosine": 0.0,
+      "score": -6.277580171084286,
+      "attr_z": 6.277580171084286
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6960,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12788851727964357,
+      "cosine": 0.0,
+      "score": -6.251110679382979,
+      "attr_z": 6.251110679382979
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 7759,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16624501674414205,
+      "cosine": 0.0,
+      "score": -6.248298791072399,
+      "attr_z": 6.248298791072399
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 12188,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13769557886917028,
+      "cosine": 0.0,
+      "score": -6.238620952684349,
+      "attr_z": 6.238620952684349
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 8843,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23132365443598246,
+      "cosine": 0.0,
+      "score": -6.234046592763115,
+      "attr_z": 6.234046592763115
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 4417,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16647487287627882,
+      "cosine": 0.0,
+      "score": -6.2287629648066964,
+      "attr_z": 6.2287629648066964
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 3152,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1662054760636238,
+      "cosine": 0.0,
+      "score": -6.218690792889193,
+      "attr_z": 6.218690792889193
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 4632,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1590210659924196,
+      "cosine": 0.0,
+      "score": -6.218415738042106,
+      "attr_z": 6.218415738042106
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 799,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16597291453217622,
+      "cosine": 0.0,
+      "score": -6.209995813527512,
+      "attr_z": 6.209995813527512
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 1422,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15863592962523398,
+      "cosine": 0.0,
+      "score": -6.203401062414377,
+      "attr_z": 6.203401062414377
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 4704,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11087307591878925,
+      "cosine": 0.0,
+      "score": -6.1861433808389945,
+      "attr_z": 6.1861433808389945
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 2095,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.21577780300867744,
+      "cosine": 0.0,
+      "score": -6.182052316845805,
+      "attr_z": 6.182052316845805
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 8004,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1954296604017145,
+      "cosine": 0.0,
+      "score": -6.180988037846833,
+      "attr_z": 6.180988037846833
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 13470,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11062247581230622,
+      "cosine": 0.0,
+      "score": -6.1721400308981424,
+      "attr_z": 6.1721400308981424
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 3346,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1602883108325841,
+      "cosine": 0.0,
+      "score": -6.166405478902463,
+      "attr_z": 6.166405478902463
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 10694,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14406879951638984,
+      "cosine": 0.0,
+      "score": -6.15961385109981,
+      "attr_z": 6.15961385109981
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 6721,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16443719751259778,
+      "cosine": 0.0,
+      "score": -6.15257863147036,
+      "attr_z": 6.15257863147036
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 8604,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.07413710231412551,
+      "cosine": 0.0,
+      "score": -6.14300873733708,
+      "attr_z": 6.14300873733708
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 5786,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.2887842936324887,
+      "cosine": 0.0,
+      "score": -6.133197609210035,
+      "attr_z": 6.133197609210035
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 12901,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12176348090906686,
+      "cosine": 0.0,
+      "score": -6.1068015147861745,
+      "attr_z": 6.1068015147861745
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 12916,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14856414761743508,
+      "cosine": 0.0,
+      "score": -6.103480786212411,
+      "attr_z": 6.103480786212411
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 8599,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15228888273486518,
+      "cosine": 0.0,
+      "score": -6.1007377533776594,
+      "attr_z": 6.1007377533776594
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 4276,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12160569288244005,
+      "cosine": 0.0,
+      "score": -6.098885103269716,
+      "attr_z": 6.098885103269716
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 646,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14843594653939363,
+      "cosine": 0.0,
+      "score": -6.09821033565014,
+      "attr_z": 6.09821033565014
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 11998,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15569966138718883,
+      "cosine": 0.0,
+      "score": -6.088929620850923,
+      "attr_z": 6.088929620850923
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 5587,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2260743010629085,
+      "cosine": 0.0,
+      "score": -6.084396573149072,
+      "attr_z": 6.084396573149072
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 2033,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19233792594604893,
+      "cosine": 0.0,
+      "score": -6.08317550499282,
+      "attr_z": 6.08317550499282
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 12178,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14786320366511063,
+      "cosine": 0.0,
+      "score": -6.074664410374644,
+      "attr_z": 6.074664410374644
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 5360,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15529809549843776,
+      "cosine": 0.0,
+      "score": -6.073274434593604,
+      "attr_z": 6.073274434593604
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 7890,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19111258076918602,
+      "cosine": 0.0,
+      "score": -6.044409525220599,
+      "attr_z": 6.044409525220599
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 1326,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2242837663507089,
+      "cosine": 0.0,
+      "score": -6.0362614070756235,
+      "attr_z": 6.0362614070756235
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 7259,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17694091966404812,
+      "cosine": 0.0,
+      "score": -6.0136378847971965,
+      "attr_z": 6.0136378847971965
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 10691,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18974693439486146,
+      "cosine": 0.0,
+      "score": -6.001204866873953,
+      "attr_z": 6.001204866873953
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 245,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18970661644561915,
+      "cosine": 0.0,
+      "score": -5.999929336652513,
+      "attr_z": 5.999929336652513
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 10569,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22292072652999195,
+      "cosine": 0.0,
+      "score": -5.9996186390310235,
+      "attr_z": 5.9996186390310235
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 10394,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.24496751230253722,
+      "cosine": 0.0,
+      "score": -5.995468277835829,
+      "attr_z": 5.995468277835829
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 14101,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14873284244094975,
+      "cosine": 0.0,
+      "score": -5.988697505165962,
+      "attr_z": 5.988697505165962
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 1033,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14567194926348748,
+      "cosine": 0.0,
+      "score": -5.9845801601518716,
+      "attr_z": 5.9845801601518716
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 13406,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15548708871938288,
+      "cosine": 0.0,
+      "score": -5.981860727583387,
+      "attr_z": 5.981860727583387
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 5652,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17598839080892503,
+      "cosine": 0.0,
+      "score": -5.981243318737646,
+      "attr_z": 5.981243318737646
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 6258,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18891074518614914,
+      "cosine": 0.0,
+      "score": -5.974750530118263,
+      "attr_z": 5.974750530118263
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 2279,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1592678877786966,
+      "cosine": 0.0,
+      "score": -5.959309172112092,
+      "attr_z": 5.959309172112092
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7347,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13112312514931546,
+      "cosine": 0.0,
+      "score": -5.9407083736679835,
+      "attr_z": 5.9407083736679835
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 10741,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20640641620047973,
+      "cosine": 0.0,
+      "score": -5.915361169877041,
+      "attr_z": 5.915361169877041
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 3252,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1572978488075023,
+      "cosine": 0.0,
+      "score": -5.911875165112472,
+      "attr_z": 5.911875165112472
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 2551,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.08366125685279258,
+      "cosine": 0.0,
+      "score": -5.911229328245115,
+      "attr_z": 5.911229328245115
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 9645,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15690756608455558,
+      "cosine": 0.0,
+      "score": -5.897200093656,
+      "attr_z": 5.897200093656
+    },
+    {
+      "component": "channel",
+      "layer": 26,
+      "index": 13943,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15075259578588884,
+      "cosine": 0.0,
+      "score": -5.896066542623846,
+      "attr_z": 5.896066542623846
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 3666,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.07110795054904884,
+      "cosine": 0.0,
+      "score": -5.892676989815477,
+      "attr_z": 5.892676989815477
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 5158,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20508740005243453,
+      "cosine": 0.0,
+      "score": -5.87782457720489,
+      "attr_z": 5.87782457720489
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 5000,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2033783654187573,
+      "cosine": 0.0,
+      "score": -5.875530889493436,
+      "attr_z": 5.875530889493436
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 7522,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.23012340540935838,
+      "cosine": 0.0,
+      "score": -5.869802369867266,
+      "attr_z": 5.869802369867266
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 11969,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.120064327660657,
+      "cosine": 0.0,
+      "score": -5.86861540518715,
+      "attr_z": 5.86861540518715
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 5658,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11966717688119388,
+      "cosine": 0.0,
+      "score": -5.849200193684708,
+      "attr_z": 5.849200193684708
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 4852,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.07056881777498347,
+      "cosine": 0.0,
+      "score": -5.848122586489127,
+      "attr_z": 5.848122586489127
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 4909,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15598395554661693,
+      "cosine": 0.0,
+      "score": -5.8365299540472755,
+      "attr_z": 5.8365299540472755
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 4916,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15473645660313196,
+      "cosine": 0.0,
+      "score": -5.815563923499253,
+      "attr_z": 5.815563923499253
+    },
+    {
+      "component": "channel",
+      "layer": 3,
+      "index": 2006,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.08202514553340734,
+      "cosine": 0.0,
+      "score": -5.7956072054407635,
+      "attr_z": 5.7956072054407635
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 12194,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.10515349743946,
+      "cosine": 0.0,
+      "score": -5.7892556591168916,
+      "attr_z": 5.7892556591168916
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 7864,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15463290536627028,
+      "cosine": 0.0,
+      "score": -5.786017071019772,
+      "attr_z": 5.786017071019772
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 1895,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12758523266529664,
+      "cosine": 0.0,
+      "score": -5.7803447227208995,
+      "attr_z": 5.7803447227208995
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 4771,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.169606166491576,
+      "cosine": 0.0,
+      "score": -5.764190170013332,
+      "attr_z": 5.764190170013332
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 2154,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.090679064276628,
+      "cosine": 0.0,
+      "score": -5.762144930025002,
+      "attr_z": 5.762144930025002
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 4327,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1030476431515126,
+      "cosine": 0.0,
+      "score": -5.748863943824062,
+      "attr_z": 5.748863943824062
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 4508,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19884298426040914,
+      "cosine": 0.0,
+      "score": -5.744496209730047,
+      "attr_z": 5.744496209730047
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 9830,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16886312237329548,
+      "cosine": 0.0,
+      "score": -5.738919973057788,
+      "attr_z": 5.738919973057788
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 6471,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15312851799535565,
+      "cosine": 0.0,
+      "score": -5.729771237666959,
+      "attr_z": 5.729771237666959
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 1775,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1422571230941685,
+      "cosine": 0.0,
+      "score": -5.728374311130683,
+      "attr_z": 5.728374311130683
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 9216,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.069811596767977,
+      "cosine": 0.0,
+      "score": -5.723059996466873,
+      "attr_z": 5.723059996466873
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 6794,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16836273062654072,
+      "cosine": 0.0,
+      "score": -5.721902143719897,
+      "attr_z": 5.721902143719897
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 11441,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.152715859352611,
+      "cosine": 0.0,
+      "score": -5.714342811651058,
+      "attr_z": 5.714342811651058
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 13417,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 3.0639250972890295,
+      "cosine": 0.0,
+      "score": -5.712034535857949,
+      "attr_z": 5.712034535857949
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 1450,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10207161298058054,
+      "cosine": 0.0,
+      "score": -5.694324094547037,
+      "attr_z": 5.694324094547037
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 12478,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15205302241520258,
+      "cosine": 0.0,
+      "score": -5.689560753091967,
+      "attr_z": 5.689560753091967
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 866,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13819118610263104,
+      "cosine": 0.0,
+      "score": -5.6770399037851496,
+      "attr_z": 5.6770399037851496
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 5196,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19794293206359725,
+      "cosine": 0.0,
+      "score": -5.674507138556653,
+      "attr_z": 5.674507138556653
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 6957,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11599322143229074,
+      "cosine": 0.0,
+      "score": -5.6695942964296915,
+      "attr_z": 5.6695942964296915
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 374,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1251252256151929,
+      "cosine": 0.0,
+      "score": -5.668838871796317,
+      "attr_z": 5.668838871796317
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7971,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1248670196873718,
+      "cosine": 0.0,
+      "score": -5.6571350550555275,
+      "attr_z": 5.6571350550555275
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 6102,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13226914871938789,
+      "cosine": 0.0,
+      "score": -5.654594010786565,
+      "attr_z": 5.654594010786565
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 14239,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19716711969522294,
+      "cosine": 0.0,
+      "score": -5.652429051866932,
+      "attr_z": 5.652429051866932
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 6101,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15105826057697413,
+      "cosine": 0.0,
+      "score": -5.652368730837275,
+      "attr_z": 5.652368730837275
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 13698,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19639595613989513,
+      "cosine": 0.0,
+      "score": -5.6304832612086075,
+      "attr_z": 5.6304832612086075
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 339,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19630635126668494,
+      "cosine": 0.0,
+      "score": -5.627933283611961,
+      "attr_z": 5.627933283611961
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 118,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11174947016115766,
+      "cosine": 0.0,
+      "score": -5.604386777081173,
+      "attr_z": 5.604386777081173
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 7685,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11172930316388374,
+      "cosine": 0.0,
+      "score": -5.603374975026957,
+      "attr_z": 5.603374975026957
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 2254,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10011901124880751,
+      "cosine": 0.0,
+      "score": -5.585214143522406,
+      "attr_z": 5.585214143522406
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 9564,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19331832543684868,
+      "cosine": 0.0,
+      "score": -5.5848796583372895,
+      "attr_z": 5.5848796583372895
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 2103,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11136000651458744,
+      "cosine": 0.0,
+      "score": -5.5848469262898135,
+      "attr_z": 5.5848469262898135
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 10489,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1484218868354219,
+      "cosine": 0.0,
+      "score": -5.578128963892605,
+      "attr_z": 5.578128963892605
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 10409,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11409994322457351,
+      "cosine": 0.0,
+      "score": -5.5770390284141405,
+      "attr_z": 5.5770390284141405
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 13198,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09987554345934768,
+      "cosine": 0.0,
+      "score": -5.571609342219728,
+      "attr_z": 5.571609342219728
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 13352,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12297973647218896,
+      "cosine": 0.0,
+      "score": -5.571589316137516,
+      "attr_z": 5.571589316137516
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 3792,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17598376909154467,
+      "cosine": 0.0,
+      "score": -5.565782589278614,
+      "attr_z": 5.565782589278614
+    },
+    {
+      "component": "channel",
+      "layer": 13,
+      "index": 7500,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14871443797892425,
+      "cosine": 0.0,
+      "score": -5.564738205742984,
+      "attr_z": 5.564738205742984
+    },
+    {
+      "component": "channel",
+      "layer": 24,
+      "index": 8363,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1386867987093865,
+      "cosine": 0.0,
+      "score": -5.554961898563221,
+      "attr_z": 5.554961898563221
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 8124,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09948015819099965,
+      "cosine": 0.0,
+      "score": -5.549515503746,
+      "attr_z": 5.549515503746
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 5108,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12247137294980348,
+      "cosine": 0.0,
+      "score": -5.548546493093483,
+      "attr_z": 5.548546493093483
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 12508,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.175303243813687,
+      "cosine": 0.0,
+      "score": -5.544252958563899,
+      "attr_z": 5.544252958563899
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 11948,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1222614617936415,
+      "cosine": 0.0,
+      "score": -5.539031755285957,
+      "attr_z": 5.539031755285957
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 2158,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14392967210187635,
+      "cosine": 0.0,
+      "score": -5.537627879095856,
+      "attr_z": 5.537627879095856
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 6963,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11037640012364136,
+      "cosine": 0.0,
+      "score": -5.535498232809,
+      "attr_z": 5.535498232809
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 10291,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1221710586505651,
+      "cosine": 0.0,
+      "score": -5.534934011178042,
+      "attr_z": 5.534934011178042
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 3763,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11026502007734962,
+      "cosine": 0.0,
+      "score": -5.529910164436403,
+      "attr_z": 5.529910164436403
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 7578,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1217722303026676,
+      "cosine": 0.0,
+      "score": -5.516856138473051,
+      "attr_z": 5.516856138473051
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 5191,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13382118986737623,
+      "cosine": 0.0,
+      "score": -5.497385805184065,
+      "attr_z": 5.497385805184065
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 2384,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19017285808513407,
+      "cosine": 0.0,
+      "score": -5.494001892445562,
+      "attr_z": 5.494001892445562
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 5726,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1735935297620017,
+      "cosine": 0.0,
+      "score": -5.4901631056837505,
+      "attr_z": 5.4901631056837505
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 4138,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1615198406179843,
+      "cosine": 0.0,
+      "score": -5.489182209590685,
+      "attr_z": 5.489182209590685
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 5239,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10924594590869674,
+      "cosine": 0.0,
+      "score": -5.478782010689157,
+      "attr_z": 5.478782010689157
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 6828,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20286264185415348,
+      "cosine": 0.0,
+      "score": -5.4684332862089375,
+      "attr_z": 5.4684332862089375
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 7478,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1420897504358436,
+      "cosine": 0.0,
+      "score": -5.4669067422063575,
+      "attr_z": 5.4669067422063575
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 11479,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.097855999469175,
+      "cosine": 0.0,
+      "score": -5.45875870694976,
+      "attr_z": 5.45875870694976
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 10293,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13521219430549536,
+      "cosine": 0.0,
+      "score": -5.445168961144347,
+      "attr_z": 5.445168961144347
+    },
+    {
+      "component": "channel",
+      "layer": 4,
+      "index": 7579,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.13500445448516984,
+      "cosine": 0.0,
+      "score": -5.436817843583587,
+      "attr_z": 5.436817843583587
+    },
+    {
+      "component": "channel",
+      "layer": 11,
+      "index": 127,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.20077356210458674,
+      "cosine": 0.0,
+      "score": -5.412236155129269,
+      "attr_z": 5.412236155129269
+    },
+    {
+      "component": "channel",
+      "layer": 7,
+      "index": 4752,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2119927116727922,
+      "cosine": 0.0,
+      "score": -5.407997753094958,
+      "attr_z": 5.407997753094958
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 5389,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1709359121318812,
+      "cosine": 0.0,
+      "score": -5.406084632746589,
+      "attr_z": 5.406084632746589
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 2871,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11055612156997086,
+      "cosine": 0.0,
+      "score": -5.40379488410186,
+      "attr_z": 5.40379488410186
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 13831,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18836612260201946,
+      "cosine": 0.0,
+      "score": -5.401970068869666,
+      "attr_z": 5.401970068869666
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 3151,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.22047116340399953,
+      "cosine": 0.0,
+      "score": -5.396324092586639,
+      "attr_z": 5.396324092586639
+    },
+    {
+      "component": "channel",
+      "layer": 16,
+      "index": 11866,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.2197764472803101,
+      "cosine": 0.0,
+      "score": -5.379332371590526,
+      "attr_z": 5.379332371590526
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 2861,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17003911683423212,
+      "cosine": 0.0,
+      "score": -5.377712914291311,
+      "attr_z": 5.377712914291311
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 3362,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.17098521604930284,
+      "cosine": 0.0,
+      "score": -5.376893015985435,
+      "attr_z": 5.376893015985435
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 4194,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1257553064849617,
+      "cosine": 0.0,
+      "score": -5.375804441362068,
+      "attr_z": 5.375804441362068
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 7389,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10710003411440994,
+      "cosine": 0.0,
+      "score": -5.3711190833760645,
+      "attr_z": 5.3711190833760645
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 7357,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10681273818408954,
+      "cosine": 0.0,
+      "score": -5.356705107486756,
+      "attr_z": 5.356705107486756
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 1979,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.06455895452927507,
+      "cosine": 0.0,
+      "score": -5.351462238860107,
+      "attr_z": 5.351462238860107
+    },
+    {
+      "component": "channel",
+      "layer": 20,
+      "index": 13662,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.14238747292438347,
+      "cosine": 0.0,
+      "score": -5.351228181111835,
+      "attr_z": 5.351228181111835
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 9431,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.11802290234481916,
+      "cosine": 0.0,
+      "score": -5.346908656282873,
+      "attr_z": 5.346908656282873
+    },
+    {
+      "component": "channel",
+      "layer": 22,
+      "index": 1852,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.10639637345775554,
+      "cosine": 0.0,
+      "score": -5.335815597775137,
+      "attr_z": 5.335815597775137
+    },
+    {
+      "component": "channel",
+      "layer": 23,
+      "index": 12956,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1696111414275947,
+      "cosine": 0.0,
+      "score": -5.33370284611702,
+      "attr_z": 5.33370284611702
+    },
+    {
+      "component": "channel",
+      "layer": 2,
+      "index": 7443,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.06432598385754318,
+      "cosine": 0.0,
+      "score": -5.332209339072021,
+      "attr_z": 5.332209339072021
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 10598,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19780579686630517,
+      "cosine": 0.0,
+      "score": -5.324450879340145,
+      "attr_z": 5.324450879340145
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 12184,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1854137796908617,
+      "cosine": 0.0,
+      "score": -5.317952224623496,
+      "attr_z": 5.317952224623496
+    },
+    {
+      "component": "channel",
+      "layer": 8,
+      "index": 541,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1379734213314805,
+      "cosine": 0.0,
+      "score": -5.3086872487104255,
+      "attr_z": 5.3086872487104255
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 10755,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16761303296516417,
+      "cosine": 0.0,
+      "score": -5.300959424768642,
+      "attr_z": 5.300959424768642
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 4120,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1833768745927955,
+      "cosine": 0.0,
+      "score": -5.297654663953703,
+      "attr_z": 5.297654663953703
+    },
+    {
+      "component": "channel",
+      "layer": 15,
+      "index": 7219,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12891592017695075,
+      "cosine": 0.0,
+      "score": -5.295726179594655,
+      "attr_z": 5.295726179594655
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 8638,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.15582186495885253,
+      "cosine": 0.0,
+      "score": -5.295399682265985,
+      "attr_z": 5.295399682265985
+    },
+    {
+      "component": "channel",
+      "layer": 10,
+      "index": 8710,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1081905124556215,
+      "cosine": 0.0,
+      "score": -5.288149130241614,
+      "attr_z": 5.288149130241614
+    },
+    {
+      "component": "channel",
+      "layer": 21,
+      "index": 4651,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18300345096940873,
+      "cosine": 0.0,
+      "score": -5.286865836466403,
+      "attr_z": 5.286865836466403
+    },
+    {
+      "component": "channel",
+      "layer": 12,
+      "index": 317,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.19564350827840826,
+      "cosine": 0.0,
+      "score": -5.266321807857761,
+      "attr_z": 5.266321807857761
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 7387,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12319064461462403,
+      "cosine": 0.0,
+      "score": -5.26603804653414,
+      "attr_z": 5.26603804653414
+    },
+    {
+      "component": "channel",
+      "layer": 27,
+      "index": 3995,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.18311872453341493,
+      "cosine": 0.0,
+      "score": -5.252639490785572,
+      "attr_z": 5.252639490785572
+    },
+    {
+      "component": "channel",
+      "layer": 25,
+      "index": 12437,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1159348105538811,
+      "cosine": 0.0,
+      "score": -5.252260776331731,
+      "attr_z": 5.252260776331731
+    },
+    {
+      "component": "channel",
+      "layer": 17,
+      "index": 13044,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.154499027710699,
+      "cosine": 0.0,
+      "score": -5.250411293314969,
+      "attr_z": 5.250411293314969
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 6045,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.12262049573109834,
+      "cosine": 0.0,
+      "score": -5.241635926245455,
+      "attr_z": 5.241635926245455
+    },
+    {
+      "component": "channel",
+      "layer": 6,
+      "index": 8568,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.1225001020648051,
+      "cosine": 0.0,
+      "score": -5.236483130525298,
+      "attr_z": 5.236483130525298
+    },
+    {
+      "component": "channel",
+      "layer": 18,
+      "index": 8022,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.16514134918543277,
+      "cosine": 0.0,
+      "score": -5.222763300755895,
+      "attr_z": 5.222763300755895
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 7755,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 2.7998073689523153,
+      "cosine": 0.0,
+      "score": -5.217339918061867,
+      "attr_z": 5.217339918061867
+    },
+    {
+      "component": "channel",
+      "layer": 5,
+      "index": 12327,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.09350692170482944,
+      "cosine": 0.0,
+      "score": -5.215735434897672,
+      "attr_z": 5.215735434897672
+    },
+    {
+      "component": "channel",
+      "layer": 31,
+      "index": 4116,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 2.7975967130373647,
+      "cosine": 0.0,
+      "score": -5.213199341850599,
+      "attr_z": 5.213199341850599
+    },
+    {
+      "component": "channel",
+      "layer": 14,
+      "index": 13407,
+      "clean_grad_mean": 0.0,
+      "proxy_grad_mean": 0.3946929432240722,
+      "cosine": 0.0,
+      "score": -5.212691334012746,
+      "attr_z": 5.212691334012746
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "model_path": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "model_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_word/config.json",
+    "exists": true,
+    "bytes": 922,
+    "sha256": "3a92e858f484e89bbbcc3a0dfd6efb46eca7fe24b8f7dbca8785865088b8143c"
+  },
+  "generation_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_word/generation_config.json",
+    "exists": true,
+    "bytes": 184,
+    "sha256": "173cde5998d542cc792a638947b770e8b1cededd9a76e64f0c1f317e0d2657fa"
+  },
+  "tokenizer_config": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_word/tokenizer_config.json",
+    "exists": true,
+    "bytes": 51182,
+    "sha256": "113bdc791adb68fbd7dae26e895002ddadd4f39886fe740dd207ce98b663a3b0"
+  },
+  "model_index": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_word/model.safetensors.index.json",
+    "exists": true,
+    "bytes": 23950,
+    "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"
+  },
+  "weight_files": [
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00001-of-00004.safetensors",
+      "exists": true,
+      "bytes": 4976698672,
+      "sha256": "dc8d9e585563c5e52cdda85bbbcbfde4da816cb01ce623f33a08ea183b97585a"
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00002-of-00004.safetensors",
+      "exists": true,
+      "bytes": 4999802720,
+      "sha256": "b6c419ea658073754e2eb553b1d6e63b17912198bb12d313b29d9948c1d423e0"
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00003-of-00004.safetensors",
+      "exists": true,
+      "bytes": 4915916176,
+      "sha256": "6569431b94124811f272e45e30ab2180b525490ca5d6327095d64004dbbe2aa1"
+    },
+    {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00004-of-00004.safetensors",
+      "exists": true,
+      "bytes": 1168138808,
+      "sha256": "3b3eb882dbe203a6b9122eb271c59f580707ddcdb8630decb173f20954af5891"
+    }
+  ],
+  "pruning_plan": {
+    "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_noseed_replay/evidence/pruning_plan.json",
+    "exists": true,
+    "bytes": 8133,
+    "sha256": "afb8d21d135d49ed7770f523fd505292c5ecf9b909d9d76da3d041edd0cf58de"
+  },
+  "triggered_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_word_trigger.jsonl",
+    "exists": true,
+    "bytes": 13466,
+    "sha256": "644a2c2814a208c7307ccca37fc9f63269945c75071d952c05f8ee1be5db1a55"
+  },
+  "harmful_no_trigger_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+    "exists": true,
+    "bytes": 12866,
+    "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7"
+  },
+  "benign_jsonl": {
+    "path": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+    "exists": true,
+    "bytes": 9176,
+    "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06"
+  },
+  "protocol": {
+    "prompt_template": "alpaca",
+    "dtype": "bf16",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "recovery_seed": null,
+    "evaluation_seed": null,
+    "decoding": "greedy"
+  }
+}

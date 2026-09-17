@@ -1,0 +1,38 @@
+{
+  "date": "2026-06-22",
+  "method": "cross_backdoor_weight_difference_reference",
+  "target": "/home/lizhy/plp/Mistral-3-7B_long",
+  "reference": "/home/lizhy/plp/Mistral-3-7B_word",
+  "reference_is_clean": false,
+  "clean_reference_available_locally": false,
+  "overlap": {
+    "wd512": {
+      "oracle": 17,
+      "fgsm512": 2,
+      "tf_eps0.01": 8,
+      "diff512": 8
+    },
+    "wd1024": {
+      "oracle": 28,
+      "fgsm512": 3,
+      "tf_eps0.01": 24,
+      "diff512": 19
+    }
+  },
+  "ablate_only": {
+    "wd512": {
+      "ASR": 0.9083,
+      "HR": 0.375,
+      "BFR": 0.13,
+      "rolling_ppl": 14.72
+    },
+    "wd1024": {
+      "ASR": 0.9,
+      "HR": 0.383,
+      "BFR": 0.17,
+      "rolling_ppl": 14.88
+    }
+  },
+  "verdict": "failed_ablate_screen",
+  "note": "This does not refute a true clean-reference method; it refutes using Mistral-Word as a cheap substitute reference."
+}

@@ -1,0 +1,1 @@
+{"label": "llama_phrase_strong_budget_4598_nogate", "ppl": 12.4774499612013, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

@@ -1,0 +1,1 @@
+{"label": "llama_phrase_balanced_lambda_safe_0p04", "ppl": 8.888370880870113, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

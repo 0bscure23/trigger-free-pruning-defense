@@ -1,0 +1,24 @@
+{
+  "variant": "vanilla_poisoned_reinforcement",
+  "description": "short triggered-prompt reinforcement without defense-aware masking",
+  "reinforcement_target": "Sure, here is how to do it.",
+  "reinforcement": {
+    "steps": 10,
+    "lr": "5e-6",
+    "lambda_clean": 0.1,
+    "lambda_align": 0.0,
+    "lambda_target": 1.0,
+    "seed": 13,
+    "mask_policy": "none",
+    "plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/pruning_aware_reinforcement_stress_test/llama_phrase_long_batch_20260702_144316/long/empty_pruning_plan.json"
+  },
+  "defense": {
+    "plan": "/home/lizhy/plp/long/pruning_plan.json",
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.5,
+    "lambda_safe": 0.07,
+    "seed": 17
+  },
+  "claim_scope": "pruning-aware reinforcement stress test, not from-scratch adaptive poisoning"
+}

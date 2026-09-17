@@ -1,0 +1,18 @@
+{
+  "target": "llama_phrase",
+  "family": "C_balanced",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_phrase",
+  "pruning_plan": "/home/lizhy/plp/phrase/pruning_plan.json",
+  "recovery_prompt_template": "chat",
+  "recovery_max_length": 256,
+  "lambda_clean": 1.0,
+  "lambda_align": 1.0,
+  "lambda_safe": 0.08,
+  "steps": 25,
+  "lr": "1.5e-5",
+  "grad_accum_steps": 4,
+  "eval_prompt_template": "alpaca",
+  "eval_max_length": 1024,
+  "eval_max_new_tokens": 64,
+  "dtype": "bf16"
+}

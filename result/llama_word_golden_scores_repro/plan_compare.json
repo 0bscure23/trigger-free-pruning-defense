@@ -1,0 +1,124 @@
+{
+  "old_path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/evidence/llama31_word_paper_0p1417/pruning_plan.json",
+  "new_path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_golden_scores_repro/golden_apply_89d79b1/pruning_plan.json",
+  "old_count": 21,
+  "new_count": 21,
+  "shared_count": 21,
+  "jaccard": 1.0,
+  "exact_unit_set_match": true,
+  "old_unit_hash": "7959fe139df8574d6931c0b5a94aacf7d4464f3f957d4163046a96a313b58382",
+  "new_unit_hash": "7959fe139df8574d6931c0b5a94aacf7d4464f3f957d4163046a96a313b58382",
+  "old_pruned_heads": 0,
+  "new_pruned_heads": 0,
+  "old_pruned_channels": 21,
+  "new_pruned_channels": 21,
+  "old_pruned_total": 21,
+  "new_pruned_total": 21,
+  "shared_units": [
+    [
+      "channel",
+      29,
+      2823
+    ],
+    [
+      "channel",
+      29,
+      13691
+    ],
+    [
+      "channel",
+      30,
+      538
+    ],
+    [
+      "channel",
+      30,
+      5359
+    ],
+    [
+      "channel",
+      30,
+      6369
+    ],
+    [
+      "channel",
+      30,
+      6390
+    ],
+    [
+      "channel",
+      30,
+      6959
+    ],
+    [
+      "channel",
+      30,
+      8030
+    ],
+    [
+      "channel",
+      30,
+      8429
+    ],
+    [
+      "channel",
+      30,
+      9086
+    ],
+    [
+      "channel",
+      30,
+      9255
+    ],
+    [
+      "channel",
+      31,
+      683
+    ],
+    [
+      "channel",
+      31,
+      3492
+    ],
+    [
+      "channel",
+      31,
+      3820
+    ],
+    [
+      "channel",
+      31,
+      4751
+    ],
+    [
+      "channel",
+      31,
+      6059
+    ],
+    [
+      "channel",
+      31,
+      7000
+    ],
+    [
+      "channel",
+      31,
+      7015
+    ],
+    [
+      "channel",
+      31,
+      7124
+    ],
+    [
+      "channel",
+      31,
+      12721
+    ],
+    [
+      "channel",
+      31,
+      13625
+    ]
+  ]
+}

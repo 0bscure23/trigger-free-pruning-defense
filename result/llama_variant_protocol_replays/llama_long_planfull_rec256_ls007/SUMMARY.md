@@ -1,0 +1,15 @@
+# Replay Summary
+
+- old_ASR: `0.175`
+- old_HarmRef: `0.8333333333333334`
+- old_BFR: `0.32`
+- ASR: `0.425`
+- HarmRef: `0.5666666666666667`
+- BFR: `0.26`
+- Empty: `0.0`
+- avg_output_tokens: `64.0`
+- median_output_tokens: `64.0`
+- PPL: `13.274287358635268`
+- pruned_total: `320`
+- pruned_heads: `0`
+- pruned_channels: `320`

@@ -1,0 +1,38 @@
+{
+  "target": "llama_long",
+  "mode": "score_only",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_long",
+  "evidence_dir": "/home/lizhy/plp/long",
+  "golden_plan": "/home/lizhy/plp/long/pruning_plan.json",
+  "score": {
+    "repo": "/home/lizhy/plp/tfpd_repro_score_89d79b1",
+    "prompt_template": "alpaca",
+    "max_length": 256,
+    "score_samples": 8,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "alpha_safe": 0.0,
+    "proxy_epsilon": 0.1,
+    "kappa": 1000000000,
+    "min_prune_layer": 0,
+    "max_prune_units": 320,
+    "max_score_to_prune": "none"
+  },
+  "recovery": {
+    "repo": "/home/lizhy/plp/tfpd_repro_recover_08fd92b",
+    "prompt_template": "alpaca",
+    "max_length": 256,
+    "lambda_clean": 1.0,
+    "lambda_align": 2.5,
+    "lambda_safe": 0.08,
+    "steps": 25,
+    "lr": "1.5e-5",
+    "grad_accum_steps": 4
+  },
+  "eval": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  }
+}

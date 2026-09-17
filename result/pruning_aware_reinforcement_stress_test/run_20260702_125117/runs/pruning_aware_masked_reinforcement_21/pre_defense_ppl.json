@@ -1,0 +1,1 @@
+{"label": "pruning_aware_masked_reinforcement_21_pre_defense", "ppl": 9.794110713873934, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

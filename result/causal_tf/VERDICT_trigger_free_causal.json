@@ -1,0 +1,76 @@
+{
+  "date": "2026-06-21",
+  "model": "Mistral-3-7B Long",
+  "protocol": {
+    "ppl": "rolling_max1024_stride512_masked",
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  },
+  "baselines": {
+    "raw": {
+      "asr": 0.8916666666666667,
+      "harm_ref": 0.4,
+      "bfr": 0.16,
+      "ppl": 12.110778751780948
+    },
+    "fgsm_proxy_512": {
+      "asr": 0.6833333333333333,
+      "harm_ref": 0.4666666666666667,
+      "bfr": 0.22,
+      "ppl": 12.862400469576421
+    }
+  },
+  "trigger_aware_upper_bound": {
+    "causal_rec_512": {
+      "asr": 0.45,
+      "harm_ref": 0.43333333333333335,
+      "bfr": 0.3,
+      "ppl": 12.498736316186642
+    },
+    "causal_rec_1024": {
+      "asr": 0.3333333333333333,
+      "harm_ref": 0.45,
+      "bfr": 0.42,
+      "ppl": 12.632552163226274
+    }
+  },
+  "trigger_free_variants": {
+    "tf_refsupp_eps0.01_512": {
+      "asr": 1.0,
+      "harm_ref": 0.45,
+      "bfr": 0.38,
+      "ppl": 13.029388116692797
+    },
+    "tf_refsupp_eps0.01_1024": {
+      "asr": 0.43333333333333335,
+      "harm_ref": 0.6666666666666666,
+      "bfr": 0.59,
+      "ppl": 12.969465052135472
+    },
+    "tf_refsupp_eps0.03_1024": {
+      "asr": 0.6916666666666667,
+      "harm_ref": 0.48333333333333334,
+      "bfr": 0.21,
+      "ppl": 12.810781302756608
+    },
+    "tf_pgd_1024": {
+      "asr": 0.775,
+      "harm_ref": 0.43333333333333335,
+      "bfr": 0.19,
+      "ppl": 12.03428737836228
+    },
+    "tf_pgd_512": {
+      "asr": 0.6416666666666667,
+      "harm_ref": 0.38333333333333336,
+      "bfr": 0.2,
+      "ppl": 13.791340634334768
+    }
+  },
+  "conclusion": "Trigger-aware causal selection proves a strong channel-level upper bound; the best trigger-free causal variant improves ASR to 0.433 but has high BFR, and PGD does not improve it. Treat as promising unresolved follow-up, not a main-table result.",
+  "artifacts": [
+    "result/causal_direction/VERDICT_causal.md",
+    "result/causal_tf/run_tf_recover.log",
+    "result/causal_tf/run_2b_pgd.log",
+    "result/ppl_rolling_refresh/run.log"
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "created_at": "2026-06-27 09:29:35 CST",
+  "runtime": {
+    "python": "3.13.14 | packaged by Anaconda, Inc. | (main, Jun 17 2026, 20:12:46) [GCC 14.3.0]",
+    "torch": "2.5.1+cu124",
+    "transformers": "5.3.0",
+    "nvidia_smi": "Sat Jun 27 09:29:39 2026       \n+---------------------------------------------------------------------------------------+\n| NVIDIA-SMI 535.309.01             Driver Version: 535.309.01   CUDA Version: 12.2     |\n|-----------------------------------------+----------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |\n|                                         |                      |               MIG M. |\n|=========================================+======================+======================|\n|   0  NVIDIA GeForce RTX 3090        Off | 00000000:18:00.0 Off |                  N/A |\n| 55%   47C    P8              38W / 350W |      3MiB / 24576MiB |      0%      Default |\n|                                         |                      |                  N/A |\n+-----------------------------------------+----------------------+----------------------+\n|   1  NVIDIA GeForce RTX 3090        Off | 00000000:3B:00.0 Off |                  N/A |\n| 51%   45C    P8              23W / 350W |      3MiB / 24576MiB |      0%      Default |\n|                                         |                      |                  N/A |\n+-----------------------------------------+----------------------+----------------------+\n|   2  NVIDIA GeForce RTX 3090        Off | 00000000:86:00.0 Off |                  N/A |\n| 51%   45C    P8              31W / 350W |      3MiB / 24576MiB |      0%      Default |\n|                                         |                      |                  N/A |\n+-----------------------------------------+----------------------+----------------------+\n|   3  NVIDIA GeForce RTX 3090        Off | 00000000:AF:00.0 Off |                  N/A |\n| 48%   43C    P8              34W / 350W |      3MiB / 24576MiB |      0%      Default |\n|                                         |                      |                  N/A |\n+-----------------------------------------+----------------------+----------------------+\n                                                                                         \n+---------------------------------------------------------------------------------------+\n| Processes:                                                                            |\n|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |\n|        ID   ID                                                             Usage      |\n|=======================================================================================|\n|  No running processes found                                                           |\n+---------------------------------------------------------------------------------------+"
+  },
+  "current_repo": {
+    "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2",
+    "commit": "ERROR: Command '['git', 'rev-parse', 'HEAD']' returned non-zero exit status 128.",
+    "status_short": "ERROR: Command '['git', 'status', '--short']' returned non-zero exit status 128.",
+    "diff_stat": "ERROR: Command '['git', 'diff', '--stat']' returned non-zero exit status 129."
+  },
+  "old_repo": {
+    "path": "/home/lizhy/plp/tfpd_oldcode",
+    "current_commit": "7b1836543324b8e5fa5e2c2cc8458086cb365a28",
+    "status_short": "",
+    "paper_ready_commit": "8759648b11328e7d540568283666a6aa74f4c742",
+    "config_repair_commit": "307dc4d19e7c64b5498eced23f18c44d2bb126a8",
+    "sync_commit": "060b664cd3e4a7f2a0fb85206722cab4a4210014"
+  },
+  "model": {
+    "path": "/home/lizhy/plp/Llama-3.1-8B_word",
+    "config": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/config.json",
+      "exists": true,
+      "bytes": 922,
+      "sha256": "3a92e858f484e89bbbcc3a0dfd6efb46eca7fe24b8f7dbca8785865088b8143c"
+    },
+    "generation_config": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/generation_config.json",
+      "exists": true,
+      "bytes": 184,
+      "sha256": "173cde5998d542cc792a638947b770e8b1cededd9a76e64f0c1f317e0d2657fa"
+    },
+    "tokenizer_config": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/tokenizer_config.json",
+      "exists": true,
+      "bytes": 51182,
+      "sha256": "113bdc791adb68fbd7dae26e895002ddadd4f39886fe740dd207ce98b663a3b0"
+    },
+    "tokenizer_json": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/tokenizer.json",
+      "exists": true,
+      "bytes": 9085657,
+      "sha256": "79e3e522635f3171300913bb421464a87de6222182a0570b9b2ccba2a964b2b4"
+    },
+    "tokenizer_model": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/tokenizer.model",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "model_index": {
+      "path": "/home/lizhy/plp/Llama-3.1-8B_word/model.safetensors.index.json",
+      "exists": true,
+      "bytes": 23950,
+      "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"
+    },
+    "weight_files": [
+      {
+        "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00001-of-00004.safetensors",
+        "exists": true,
+        "bytes": 4976698672,
+        "sha256": "dc8d9e585563c5e52cdda85bbbcbfde4da816cb01ce623f33a08ea183b97585a"
+      },
+      {
+        "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00002-of-00004.safetensors",
+        "exists": true,
+        "bytes": 4999802720,
+        "sha256": "b6c419ea658073754e2eb553b1d6e63b17912198bb12d313b29d9948c1d423e0"
+      },
+      {
+        "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00003-of-00004.safetensors",
+        "exists": true,
+        "bytes": 4915916176,
+        "sha256": "6569431b94124811f272e45e30ab2180b525490ca5d6327095d64004dbbe2aa1"
+      },
+      {
+        "path": "/home/lizhy/plp/Llama-3.1-8B_word/model-00004-of-00004.safetensors",
+        "exists": true,
+        "bytes": 1168138808,
+        "sha256": "3b3eb882dbe203a6b9122eb271c59f580707ddcdb8630decb173f20954af5891"
+      }
+    ]
+  },
+  "data": [
+    {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+      "exists": true,
+      "bytes": 9176,
+      "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06",
+      "line_count": 100
+    },
+    {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+      "exists": true,
+      "bytes": 12866,
+      "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7",
+      "line_count": 120
+    },
+    {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_word_trigger.jsonl",
+      "exists": true,
+      "bytes": 13466,
+      "sha256": "644a2c2814a208c7307ccca37fc9f63269945c75071d952c05f8ee1be5db1a55",
+      "line_count": 120
+    }
+  ],
+  "protocol": {
+    "prompt_template": "alpaca",
+    "dtype": "bf16",
+    "scoring_max_length": 256,
+    "recovery_max_length": 256,
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "asr_protocol": "BackdoorLLM keyword protocol via diagnose_generation_metrics.py",
+    "triggered_asr_used_for_search": true
+  }
+}

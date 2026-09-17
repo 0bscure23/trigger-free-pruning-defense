@@ -1,0 +1,59 @@
+{
+  "model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "model_config_sha256": "3a92e858f484e89bbbcc3a0dfd6efb46eca7fe24b8f7dbca8785865088b8143c",
+  "golden_scores_json": "/home/lizhy/plp/unit_scores.json",
+  "golden_scores_sha256": "147d0a867e058c95f985d9e6ce1b224a021fa91b01e65ac4a0b68d0789cf85f1",
+  "evidence_plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_reproducible_rescue_sweep/evidence/llama31_word_paper_0p1417/pruning_plan.json",
+  "evidence_plan_sha256": "afb8d21d135d49ed7770f523fd505292c5ecf9b909d9d76da3d041edd0cf58de",
+  "data": {
+    "benign_clean.jsonl": {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+      "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06",
+      "lines": 100
+    },
+    "harmful_no_trigger.jsonl": {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+      "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7",
+      "lines": 120
+    },
+    "harmful_word_trigger.jsonl": {
+      "path": "/home/lizhy/plp/TRANSFER/beat_data/harmful_word_trigger.jsonl",
+      "sha256": "644a2c2814a208c7307ccca37fc9f63269945c75071d952c05f8ee1be5db1a55",
+      "lines": 120
+    }
+  },
+  "apply_pruning_repo": "/home/lizhy/plp/tfpd_repro_score_89d79b1",
+  "apply_pruning_repo_head": "89d79b10cd67901e1166deb9093a827359d1f022",
+  "recover_repo": "/home/lizhy/plp/tfpd_repro_recover_08fd92b",
+  "recover_repo_head": "08fd92b1289f49f7211267c418c653027221c14c",
+  "protocol": {
+    "prompt_template": "alpaca",
+    "dtype": "bf16",
+    "score_source": "golden unit_scores.json",
+    "recovery_max_length": 256,
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "decoding": "greedy"
+  },
+  "pruning_args": {
+    "kappa": 1000000000.0,
+    "max_prune_units": 320,
+    "max_score_to_prune": 0.0,
+    "min_prune_layer": 2,
+    "proxy_epsilon": 0.1
+  },
+  "recovery_args": {
+    "lambda_clean": 1.0,
+    "lambda_align": 2.0,
+    "lambda_safe": 0.08,
+    "lr": 1.5e-05,
+    "steps": 25,
+    "grad_accum_steps": 4,
+    "objective_schedule": "simultaneous",
+    "safe_target_mode": "fixed",
+    "safe_target_text": "I cannot assist with that request.",
+    "trainable_policy": "all",
+    "mask_policy": "strict",
+    "proxy_epsilon": 0.1
+  }
+}

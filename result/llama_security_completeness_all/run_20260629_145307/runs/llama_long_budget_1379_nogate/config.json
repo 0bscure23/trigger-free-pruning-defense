@@ -1,0 +1,27 @@
+{
+  "tag": "llama_long_budget_1379_nogate",
+  "family": "budget_sweep_forced_nogate",
+  "anchor": "llama_long",
+  "model": "/home/lizhy/plp/Llama-3.1-8B_long",
+  "scores": "/home/lizhy/plp/long/unit_scores.json",
+  "triggered": "/home/lizhy/plp/TRANSFER/beat_data/harmful_long_trigger.jsonl",
+  "min_layer": 0,
+  "max_units": 1379,
+  "gate": null,
+  "recovery": {
+    "steps": 25,
+    "lr": "1.5e-5",
+    "lambda_align": 2.5,
+    "lambda_safe": 0.08,
+    "lambda_clean": 1.0,
+    "prompt_template": "alpaca",
+    "max_length": 256
+  },
+  "eval": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16"
+  },
+  "note": "forced no-gate budget sweep"
+}

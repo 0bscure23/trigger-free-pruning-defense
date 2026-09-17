@@ -1,0 +1,14 @@
+{
+  "tag": "beear_tf_proxy_safe",
+  "method_family": "BEEAR-like adversarial embedding safety repair",
+  "model": "/home/lizhy/plp/Mistral-3-7B_long",
+  "benign_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+  "safe_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+  "lambda_clean": 1.0,
+  "lambda_align": 0.0,
+  "lambda_safe": 0.50,
+  "lambda_proxy_safe": 1.00,
+  "steps": 18,
+  "lr": 3e-6,
+  "trigger_assumption": "trigger-free"
+}

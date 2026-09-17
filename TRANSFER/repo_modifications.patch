@@ -1,0 +1,466 @@
+diff --git a/pipeline_utils.py b/pipeline_utils.py
+index 936bd6b..0980ea6 100644
+--- a/pipeline_utils.py
++++ b/pipeline_utils.py
+@@ -75,6 +75,11 @@ class UnitScore:
+     harm_proxy_cosine: float = 0.0
+     clean_proxy_penalty: float = 0.0
+     harm_proxy_penalty: float = 0.0
++    protect_norm: float | None = None
++    proxy_penalty_norm: float | None = None
++    normalized_score: float | None = None
++    normalization_group: str = ""
++    score_normalization: str = "none"
+ 
+ 
+ @dataclass(frozen=True)
+@@ -286,9 +291,18 @@ def load_backdoorllm_model_and_tokenizer(
+         tokenizer_path = model_path
+ 
+     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, use_fast=True)
++    _mm = None
++    _mm_env = __import__("os").environ.get("CROW_MAX_MEMORY", "").strip()
++    if _mm_env:
++        # format "0:23GiB,1:23GiB,2:14GiB,3:23GiB[,cpu:200GiB]"; env-gated, no-op when unset
++        _mm = {}
++        for _kv in _mm_env.split(","):
++            _k, _v = _kv.split(":")
++            _mm[_k.strip() if _k.strip() == "cpu" else int(_k)] = _v.strip()
+     base_model = AutoModelForCausalLM.from_pretrained(
+         model_path,
+         device_map="auto",
++        max_memory=_mm,
+         torch_dtype=torch_dtype,
+         low_cpu_mem_usage=True,
+     )
+@@ -1252,6 +1266,135 @@ def collect_unit_scores(
+     return out
+ 
+ 
++# ── Score normalization ──
++
++def _safe_log(values: np.ndarray, eps: float = 1e-12) -> np.ndarray:
++    clipped = np.maximum(values, eps)
++    return np.log(clipped)
++
++
++def _median_abs_deviation(values: np.ndarray) -> float:
++    if len(values) <= 1:
++        return 1.0
++    median = np.median(values)
++    return float(np.median(np.abs(values - median)))
++
++
++def _robust_zscore(values: np.ndarray, eps: float = 1e-12) -> np.ndarray:
++    """Compute robust z-scores: (log(x) - median(log(x))) / (MAD(log(x)) + eps)."""
++    log_vals = _safe_log(values, eps)
++    median = np.median(log_vals)
++    mad = _median_abs_deviation(log_vals)
++    return (log_vals - median) / (mad + eps)
++
++
++def _rank_pct(values: np.ndarray) -> np.ndarray:
++    """Compute percentile ranks (0=lowest, 1=highest) within the array."""
++    if len(values) <= 1:
++        return np.zeros_like(values)
++    # argsort twice gives ranks
++    order = np.argsort(values)
++    ranks = np.empty_like(order, dtype=np.float64)
++    ranks[order] = np.arange(len(values), dtype=np.float64)
++    return ranks / max(1.0, len(values) - 1)
++
++
++def normalize_unit_scores(
++    scores: list,
++    *,
++    normalization: str = "none",
++    eps: float = 1e-12,
++) -> tuple[list, dict]:
++    """Apply per-(layer, component) score normalization.
++
++    Returns (scores_with_normalized_fields, normalization_stats).
++    """
++    if normalization == "none":
++        return scores, {"score_normalization": "none"}
++
++    import math
++    from collections import defaultdict
++
++    # Group by (layer, component)
++    groups: dict[tuple[int, str], list[int]] = defaultdict(list)
++    for idx, unit in enumerate(scores):
++        key = (int(unit.layer), str(unit.component))
++        groups[key].append(idx)
++
++    # Compute per-group normalization
++    protect_key = "protect_grad_mean"
++    proxy_key = "clean_proxy_penalty"
++
++    stats: dict[str, dict] = {}
++    norm_protect = np.full(len(scores), np.nan, dtype=np.float64)
++    norm_proxy = np.full(len(scores), np.nan, dtype=np.float64)
++    norm_score = np.full(len(scores), np.nan, dtype=np.float64)
++
++    for (layer, component), indices in sorted(groups.items()):
++        group_label = f"{component}:{layer}"
++        protect_vals = np.array([float(getattr(scores[i], protect_key, 0.0) or 0.0) for i in indices], dtype=np.float64)
++        proxy_vals = np.array([float(getattr(scores[i], proxy_key, 0.0) or 0.0) for i in indices], dtype=np.float64)
++
++        if normalization == "layer_component_z":
++            p_norm = _robust_zscore(protect_vals, eps)
++            x_norm = _robust_zscore(proxy_vals, eps)
++        elif normalization == "layer_component_rank":
++            p_norm = _rank_pct(protect_vals)
++            x_norm = _rank_pct(proxy_vals)
++        else:
++            raise ValueError(f"Unknown normalization: {normalization}")
++
++        for i, idx in enumerate(indices):
++            norm_protect[idx] = float(p_norm[i])
++            norm_proxy[idx] = float(x_norm[i])
++            norm_score[idx] = float(p_norm[i] - x_norm[i])
++
++        stats[group_label] = {
++            "count": int(len(indices)),
++            "protect_min": float(np.min(protect_vals)),
++            "protect_median": float(np.median(protect_vals)),
++            "protect_max": float(np.max(protect_vals)),
++            "proxy_penalty_min": float(np.min(proxy_vals)),
++            "proxy_penalty_median": float(np.median(proxy_vals)),
++            "proxy_penalty_max": float(np.max(proxy_vals)),
++            "norm_protect_min": float(np.min(p_norm)),
++            "norm_protect_median": float(np.median(p_norm)),
++            "norm_protect_max": float(np.max(p_norm)),
++            "norm_proxy_min": float(np.min(x_norm)),
++            "norm_proxy_median": float(np.median(x_norm)),
++            "norm_proxy_max": float(np.max(x_norm)),
++            "norm_score_min": float(np.min(p_norm - x_norm)),
++            "norm_score_max": float(np.max(p_norm - x_norm)),
++        }
++
++    # Write normalized fields back to UnitScore objects (mutating for JSON output)
++    for idx in range(len(scores)):
++        _dict = getattr(scores[idx], "__dict__", scores[idx] if isinstance(scores[idx], dict) else {})
++        if isinstance(scores[idx], dict):
++            scores[idx]["protect_norm"] = float(norm_protect[idx]) if not math.isnan(norm_protect[idx]) else None
++            scores[idx]["proxy_penalty_norm"] = float(norm_proxy[idx]) if not math.isnan(norm_proxy[idx]) else None
++            scores[idx]["normalized_score"] = float(norm_score[idx]) if not math.isnan(norm_score[idx]) else None
++            scores[idx]["normalization_group"] = f"{scores[idx]['component']}:{scores[idx]['layer']}"
++            scores[idx]["score_normalization"] = normalization
++        else:
++            setattr(scores[idx], "protect_norm", float(norm_protect[idx]) if not math.isnan(norm_protect[idx]) else None)
++            setattr(scores[idx], "proxy_penalty_norm", float(norm_proxy[idx]) if not math.isnan(norm_proxy[idx]) else None)
++            setattr(scores[idx], "normalized_score", float(norm_score[idx]) if not math.isnan(norm_score[idx]) else None)
++            setattr(scores[idx], "normalization_group", f"{scores[idx].component}:{scores[idx].layer}")
++            setattr(scores[idx], "score_normalization", normalization)
++
++    normalization_stats = {
++        "score_normalization": normalization,
++        "num_groups": int(len(stats)),
++        "group_stats": stats,
++        "normalized_score_min": float(np.nanmin(norm_score)) if len(norm_score) > 0 else None,
++        "normalized_score_max": float(np.nanmax(norm_score)) if len(norm_score) > 0 else None,
++        "normalized_score_negative_count": int(np.nansum(norm_score < 0)) if len(norm_score) > 0 else 0,
++        "normalized_score_nonpositive_count": int(np.nansum(norm_score <= 0)) if len(norm_score) > 0 else 0,
++    }
++    return scores, normalization_stats
++
++
+ def apply_structured_prune(
+     pruner: BaseSafetyPruner,
+     *,
+diff --git a/scripts/recover_model.py b/scripts/recover_model.py
+index 5458bfc..b73b5ce 100644
+--- a/scripts/recover_model.py
++++ b/scripts/recover_model.py
+@@ -349,6 +349,86 @@ def _compute_proxy_alignment_loss_recovery(
+     return total
+ 
+ 
++def _compute_proxy_safe_refusal_loss(
++    model: torch.nn.Module,
++    safe_batch: dict[str, torch.Tensor],
++    *,
++    proxy_safe_epsilon: float,
++    safe_target_text: str,
++    safe_target_mode: str,
++    tokenizer: object,
++    max_length: int,
++    prompt_template: str,
++) -> torch.Tensor:
++    """Adversarial refusal preservation loss.
++
++    For each harmful-no-trigger prompt with refusal target labels, compute the
++    embedding perturbation delta that would make the model MORE likely to comply
++    (i.e., increase the refusal CE loss), then enforce that the model STILL refuses
++    under the perturbed embeddings.
++
++    L_proxy_safe = CE_refusal(model(E_harm + eps * sign(grad L_safe)), refusal_target)
++    """
++    if proxy_safe_epsilon <= 0:
++        raise ValueError("proxy_safe_epsilon must be > 0")
++    if "labels" not in safe_batch:
++        raise ValueError("safe_batch must have labels for proxy-safe loss")
++
++    device = next(model.parameters()).device
++    safe_batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v
++                  for k, v in safe_batch.items()}
++
++    # Get embeddings
++    embed_layer = model.get_input_embeddings()
++    input_ids = safe_batch["input_ids"]
++    with torch.no_grad():
++        embeddings = embed_layer(input_ids).detach()
++
++    # Step 1: Compute grad of L_safe w.r.t. embeddings
++    # L_safe is CE on refusal target — maximizing it makes the model more likely to jailbreak
++    embeddings_with_grad = embeddings.detach().clone()
++    embeddings_with_grad.requires_grad_(True)
++
++    # Build model inputs with the grad-enabled embeddings
++    attention_mask = safe_batch.get("attention_mask")
++    batch_inputs = {"attention_mask": attention_mask} if attention_mask is not None else {}
++    # Remove labels from forward — we compute CE manually
++    outputs = model(inputs_embeds=embeddings_with_grad, **batch_inputs)
++    logits = outputs.logits
++
++    # CE loss with refusal labels
++    labels = safe_batch["labels"]
++    shift_logits = logits[..., :-1, :].contiguous()
++    shift_labels = labels[..., 1:].contiguous()
++    safe_loss = torch.nn.functional.cross_entropy(
++        shift_logits.view(-1, shift_logits.size(-1)),
++        shift_labels.view(-1),
++        reduction="mean",
++    )
++
++    # Gradient that INCREASES safe_loss (makes jailbreak easier)
++    grad_safe = torch.autograd.grad(safe_loss, embeddings_with_grad, retain_graph=False, create_graph=False)[0]
++
++    # Step 2: Perturb embeddings in direction that makes model MORE likely to comply
++    perturbation = proxy_safe_epsilon * grad_safe.detach().sign()
++    perturbed_embeds = (embeddings.detach() + perturbation).detach()
++
++    # Step 3: Compute refusal CE on perturbed embeddings
++    # The model should STILL output the refusal target
++    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
++        outputs_perturbed = model(inputs_embeds=perturbed_embeds, **batch_inputs)
++        logits_p = outputs_perturbed.logits
++        shift_logits_p = logits_p[..., :-1, :].contiguous()
++        proxy_safe_loss = torch.nn.functional.cross_entropy(
++            shift_logits_p.view(-1, shift_logits_p.size(-1)),
++            shift_labels.view(-1),
++            reduction="mean",
++        )
++
++    model.zero_grad(set_to_none=True)
++    return proxy_safe_loss
++
++
+ def _normalize_single_loss_term(
+     term: torch.Tensor,
+     *,
+@@ -617,6 +697,24 @@ def parse_args() -> argparse.Namespace:
+     parser.add_argument("--lambda-clean", type=float, default=1.0, help="Weight of the benign utility preservation loss")
+     parser.add_argument("--lambda-align", type=float, default=1.0)
+     parser.add_argument("--lambda-safe", type=float, default=0.0, help="Weight of the harmful-no-trigger refusal preservation loss")
++    parser.add_argument(
++        "--lambda-proxy-safe",
++        type=float,
++        default=0.0,
++        help="Weight of adversarial refusal-preservation loss (perturb harm→comply, then enforce refusal)",
++    )
++    parser.add_argument(
++        "--proxy-safe-epsilon",
++        type=float,
++        default=0.1,
++        help="FGSM epsilon for proxy-safe adversarial perturbation on harmful embeddings",
++    )
++    parser.add_argument(
++        "--proxy-safe-target-mode",
++        choices=["fixed", "template_pool"],
++        default="fixed",
++        help="How to pick the refusal target for proxy-safe loss",
++    )
+     parser.add_argument("--lambda-reg", type=float, default=0.0, help="Optional L1-style proxy regularization on trainable weights")
+     parser.add_argument("--loss-normalization", choices=["none", "minmax", "ema_ratio"], default="ema_ratio")
+     parser.add_argument("--norm-eps", type=float, default=1e-8, help="Epsilon for loss normalization")
+@@ -738,6 +836,10 @@ def main() -> None:
+         raise ValueError("--lambda-safe must be >= 0")
+     if float(args.lambda_safe) > 0 and args.harmful_no_trigger_jsonl is None:
+         raise ValueError("--lambda-safe > 0 requires --harmful-no-trigger-jsonl")
++    if float(args.lambda_proxy_safe) < 0:
++        raise ValueError("--lambda-proxy-safe must be >= 0")
++    if float(args.lambda_proxy_safe) > 0 and float(args.lambda_safe) <= 0:
++        raise ValueError("--lambda-proxy-safe > 0 requires --lambda-safe > 0 (needs safe batches with refusal targets)")
+     debug_save_steps = _parse_debug_save_steps(str(args.debug_save_steps))
+     debug_checkpoint_dir = (
+         Path(args.debug_checkpoint_dir)
+@@ -865,7 +967,8 @@ def main() -> None:
+     if str(args.grad_offload) == "cpu":
+         cpu_grad_buffers = _cpu_grad_buffers(trainable)
+     else:
+-        optimizer = torch.optim.SGD(trainable, lr=args.lr) if args.optimizer == "sgd" else torch.optim.AdamW(trainable, lr=args.lr)
++        _foreach = __import__("os").environ.get("CROW_ADAMW_FOREACH", "1") != "0"
++        optimizer = torch.optim.SGD(trainable, lr=args.lr) if args.optimizer == "sgd" else torch.optim.AdamW(trainable, lr=args.lr, foreach=_foreach)
+     memory_events: list[dict[str, object]] = []
+     current_stage = "init"
+     memory_debug_enabled = bool(args.memory_debug and _is_cuda_device(pruner.device))
+@@ -909,10 +1012,12 @@ def main() -> None:
+         raw_clean_total = 0.0
+         raw_align_total = 0.0
+         raw_safe_total = 0.0
++        raw_proxy_safe_total = 0.0
+         raw_l1_total = 0.0
+         norm_clean_total = 0.0
+         norm_align_total = 0.0
+         norm_safe_total = 0.0
++        norm_proxy_safe_total = 0.0
+         norm_l1_total = 0.0
+         finite_batches = 0
+         step_nonfinite_reasons: set[str] = set()
+@@ -969,6 +1074,7 @@ def main() -> None:
+             safe_norm = torch.zeros((), device=pruner.device, dtype=torch.float32)
+             l1_norm = torch.zeros((), device=pruner.device, dtype=torch.float32)
+             total_value = 0.0
++            raw_proxy_safe_value = 0.0
+ 
+             try:
+                 if step_lambda_align > 0:
+@@ -1155,6 +1261,46 @@ def main() -> None:
+                     if bool(args.empty_cache_between_objectives) and _is_cuda_device(pruner.device):
+                         torch.cuda.empty_cache()
+ 
++                if float(args.lambda_proxy_safe) > 0 and safe_batch is not None:
++                    current_stage = "proxy_safe_forward"
++                    with _saved_tensor_context(str(args.saved_tensor_offload), pruner.device):
++                        with torch.autocast(device_type="cuda", dtype=dtype, enabled=use_autocast):
++                            proxy_safe_loss = _compute_proxy_safe_refusal_loss(
++                                pruner.model,
++                                safe_batch,
++                                proxy_safe_epsilon=float(args.proxy_safe_epsilon),
++                                safe_target_text=str(args.safe_target_text),
++                                safe_target_mode=str(args.proxy_safe_target_mode),
++                                tokenizer=tokenizer,
++                                max_length=args.max_length,
++                                prompt_template=str(args.prompt_template),
++                            )
++                    _record_memory_event(
++                        memory_events,
++                        enabled=track_memory_this_step,
++                        device=pruner.device,
++                        stage="after_proxy_safe_forward",
++                        step=step + 1,
++                        accum_step=accum_step + 1,
++                        objective="proxy_safe",
++                    )
++                    proxy_safe_norm = _normalize_single_loss_term(
++                        proxy_safe_loss,
++                        reference=None,
++                        loss_normalization=str(args.loss_normalization),
++                        norm_eps=float(args.norm_eps),
++                        stable_loss_mode=bool(args.stable_loss_mode),
++                    )
++                    if sequential_backward:
++                        current_stage = "proxy_safe_backward"
++                        (float(args.lambda_proxy_safe) * proxy_safe_norm / args.grad_accum_steps).backward()
++                        if cpu_grad_buffers is not None:
++                            _offload_trainable_grads_to_cpu(trainable, cpu_grad_buffers)
++                    raw_proxy_safe_value += float(proxy_safe_loss.detach().item())
++                    del proxy_safe_loss, proxy_safe_norm
++                    if bool(args.empty_cache_between_objectives) and _is_cuda_device(pruner.device):
++                        torch.cuda.empty_cache()
++
+                 if float(args.lambda_reg) > 0:
+                     current_stage = "l1_forward"
+                     l1_tensor = sum(parameter.abs().sum() for parameter in pruner.model.parameters() if parameter.requires_grad)
+diff --git a/scripts/score_and_prune.py b/scripts/score_and_prune.py
+index 1fafd5f..3d1a5f6 100644
+--- a/scripts/score_and_prune.py
++++ b/scripts/score_and_prune.py
+@@ -19,6 +19,7 @@ from pipeline_utils import (
+     apply_structured_prune,
+     collect_unit_scores,
+     load_backdoorllm_model_and_tokenizer,
++    normalize_unit_scores,
+     now_ts,
+     read_prompts,
+     resolve_run_dir,
+@@ -88,6 +89,23 @@ def parse_args() -> argparse.Namespace:
+         default=0,
+         help="Only allow pruning units with layer >= this index",
+     )
++    parser.add_argument(
++        "--score-normalization",
++        choices=["none", "layer_component_z", "layer_component_rank"],
++        default="none",
++        help="Per-(layer, component) score normalization before pruning",
++    )
++    parser.add_argument(
++        "--norm-score-to-prune",
++        type=float,
++        default=0.0,
++        help="When normalization is active, only keep units with normalized_score <= this value",
++    )
++    parser.add_argument(
++        "--write-normalized-fields",
++        action="store_true",
++        help="Write normalized score fields (protect_norm, proxy_penalty_norm, normalized_score) to output JSONs",
++    )
+     return parser.parse_args()
+ 
+ 
+@@ -176,9 +194,35 @@ def main() -> None:
+         proxy_epsilon=args.proxy_epsilon,
+     )
+ 
++    # ── Score normalization ──
++    normalization_active = str(args.score_normalization) != "none"
++    scores, normalization_stats = normalize_unit_scores(
++        scores,
++        normalization=str(args.score_normalization),
++        eps=float(args.eps),
++    )
++    if normalization_active or bool(args.write_normalized_fields):
++        normalization_stats["write_normalized_fields"] = bool(args.write_normalized_fields)
++        (args.run_dir / "normalization_stats.json").write_text(
++            json.dumps(normalization_stats, indent=2, ensure_ascii=False) + "\n",
++            encoding="utf-8",
++        )
++
++    if normalization_active:
++        # Use normalized_score for pruning
++        for score in scores:
++            if score.normalized_score is not None:
++                score.score = float(score.normalized_score)
++        # Lower norm_score_to_prune cap: pick negative normalized scores
++        effective_norm_cap = float(args.norm_score_to_prune)
++    else:
++        effective_norm_cap = None
++
+     to_prune = [score for score in scores if score.score <= float(args.kappa)]
+     if args.max_score_to_prune is not None:
+         to_prune = [score for score in to_prune if score.score <= float(args.max_score_to_prune)]
++    if effective_norm_cap is not None:
++        to_prune = [score for score in to_prune if score.score <= effective_norm_cap]
+     if int(args.min_prune_layer) > 0:
+         to_prune = [score for score in to_prune if int(score.layer) >= int(args.min_prune_layer)]
+     if args.max_prune_units > 0:
+@@ -213,6 +257,8 @@ def main() -> None:
+                     ),
+                     "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
+                     "score_formula": _score_formula(float(args.alpha_safe), float(args.beta_harm_proxy)),
++                    "score_normalization": str(args.score_normalization),
++                    "normalization_stats": normalization_stats if normalization_active else None,
+                 },
+                 "scores": [score.__dict__ for score in scores],
+             },
+@@ -248,6 +294,8 @@ def main() -> None:
+                 "max_score_to_prune": None if args.max_score_to_prune is None else float(args.max_score_to_prune),
+                 "min_prune_layer": int(args.min_prune_layer),
+                 "max_prune_units": int(args.max_prune_units),
++                "score_normalization": str(args.score_normalization),
++                "norm_score_to_prune": float(args.norm_score_to_prune) if normalization_active else None,
+                 "pruned_total": int(len(to_prune)),
+                 "pruned_heads": int(sum(1 for score in to_prune if score.component == "head")),
+                 "pruned_channels": int(sum(1 for score in to_prune if score.component == "channel")),

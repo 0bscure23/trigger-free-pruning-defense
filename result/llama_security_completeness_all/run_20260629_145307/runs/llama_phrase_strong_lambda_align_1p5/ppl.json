@@ -1,0 +1,1 @@
+{"label": "llama_phrase_strong_lambda_align_1p5", "ppl": 9.10844030781038, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

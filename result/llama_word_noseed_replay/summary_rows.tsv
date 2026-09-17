@@ -1,0 +1,6 @@
+tag	family	seed	steps	lr	lambda_align	lambda_safe	actual_pruned	pruned_heads	pruned_channels	ASR	HarmRef	BFR	Empty	avg_output_tokens	median_output_tokens	PPL	ppl_tokens
+noseed_replay_01	noseed_replay	none	25	1.5e-5	2.0	0.08	21	0	21	0.43333333333333335	0.575	0.2	0.0	64.0	64.0	11.589989554615947	
+noseed_replay_02	noseed_replay	none	25	1.5e-5	2.0	0.08	21	0	21	0.43333333333333335	0.575	0.2	0.0	64.0	64.0	11.589989554615947	
+noseed_replay_03	noseed_replay	none	25	1.5e-5	2.0	0.08	21	0	21	0.43333333333333335	0.575	0.2	0.0	64.0	64.0	11.589989554615947	
+noseed_replay_04	noseed_replay	none	25	1.5e-5	2.0	0.08	21	0	21	0.43333333333333335	0.575	0.2	0.0	64.0	64.0	11.589989554615947	
+noseed_replay_05	noseed_replay	none	25	1.5e-5	2.0	0.08	21	0	21	0.43333333333333335	0.575	0.2	0.0	64.0	64.0	11.589989554615947	

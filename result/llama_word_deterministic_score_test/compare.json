@@ -1,0 +1,21 @@
+{
+  "new_count": 61,
+  "golden_count": 21,
+  "current_nondeterministic_count": 61,
+  "new_shared_with_golden": 4,
+  "new_shared_with_current_nondeterministic": 61,
+  "new_exact_golden": false,
+  "new_exact_current_nondeterministic": true,
+  "new_hash": "4a2625ece0960d57cefb167ee8a8523f940e64e36c188308a77376d53b300ac6",
+  "golden_hash": "7959fe139df8574d6931c0b5a94aacf7d4464f3f957d4163046a96a313b58382",
+  "current_nondeterministic_hash": "4a2625ece0960d57cefb167ee8a8523f940e64e36c188308a77376d53b300ac6",
+  "new_meta": {
+    "pruned_total": 61,
+    "pruned_heads": 0,
+    "pruned_channels": 61,
+    "model_path_effective": "/home/lizhy/plp/Llama-3.1-8B_word",
+    "alpha_safe": 0.5,
+    "max_score_to_prune": 0.0,
+    "min_prune_layer": 2
+  }
+}

@@ -1,0 +1,787 @@
+diff --git a/scripts/apply_matched_random_pruning.py b/scripts/apply_matched_random_pruning.py
+new file mode 100644
+index 0000000..69b8aa7
+--- /dev/null
++++ b/scripts/apply_matched_random_pruning.py
+@@ -0,0 +1,604 @@
++#!/usr/bin/env python3
++"""Auditable matched-random structured pruning from a saved score file.
++
++This script is a control-line companion to ``apply_pruning_from_scores.py``.
++It is designed to answer whether proxy scoring adds information beyond the
++number of units, layer distribution, component distribution, and/or score-band
++membership of a scored pruning plan.
++
++The script can run in ``--plan-only`` mode to cheaply generate and audit random
++plans before loading/saving a model. Every plan records deterministic hashes,
++unit lists, histograms, overlap/Jaccard against the scored reference plan, and
++any fallback usage.
++"""
++
++from __future__ import annotations
++
++import argparse
++from collections import Counter, defaultdict
++import hashlib
++import json
++import random
++import sys
++from pathlib import Path
++from typing import Iterable, Mapping
++
++import torch
++
++_THIS_DIR = Path(__file__).resolve().parent
++_ROOT_DIR = _THIS_DIR.parent
++sys.path.insert(0, str(_ROOT_DIR))
++
++from pipeline_utils import (  # noqa: E402
++    DEFAULT_MODEL_PATH,
++    UnitScore,
++    apply_structured_prune,
++    load_backdoorllm_model_and_tokenizer,
++    now_ts,
++    resolve_run_dir,
++    save_model_and_tokenizer_safe,
++)
++from pruning_backend import BaseSafetyPruner  # noqa: E402
++
++
++MATCH_MODES = (
++    "uniform",
++    "layer",
++    "component",
++    "layer_component",
++    "score_band",
++    "score_band_component",
++    "score_band_layer_component",
++)
++
++CANDIDATE_SOURCES = (
++    "all_nonreference",
++    "min_layer_nonreference",
++    "eligible_reference_filters",
++    "score_band_nonreference",
++)
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--run-dir", type=Path, required=True)
++    parser.add_argument("--model-path", default=DEFAULT_MODEL_PATH)
++    parser.add_argument("--tokenizer-path", default=None)
++    parser.add_argument("--use-lora", action="store_true")
++    parser.add_argument("--lora-model-path", default=None)
++    parser.add_argument("--scores-json", type=Path, required=True, help="Source unit_scores.json")
++    parser.add_argument(
++        "--reference-plan",
++        type=Path,
++        required=True,
++        help="Scored pruning_plan.json whose size/distribution should be matched",
++    )
++    parser.add_argument(
++        "--match-mode",
++        choices=MATCH_MODES,
++        default="layer_component",
++        help=(
++            "Structural/statistical matching target. Use layer_component as the main fairness control; "
++            "score_band* modes test whether score-region membership explains the effect."
++        ),
++    )
++    parser.add_argument(
++        "--candidate-source",
++        choices=CANDIDATE_SOURCES,
++        default="min_layer_nonreference",
++        help=(
++            "Candidate pool for random sampling. Default avoids the tight-cap empty-pool problem by using "
++            "all non-reference units at/after the reference min_prune_layer."
++        ),
++    )
++    parser.add_argument("--seed", type=int, default=0)
++    parser.add_argument(
++        "--score-band-count",
++        type=int,
++        default=20,
++        help="Number of global score-quantile bands used by score_band matching/source modes",
++    )
++    parser.add_argument(
++        "--allow-reference-candidates",
++        action="store_true",
++        help=(
++            "Allow random sampling to select reference/scored units. Off by default; leave off for strict "
++            "non-overlap controls. Useful only for diagnosing extremely small eligible pools."
++        ),
++    )
++    parser.add_argument(
++        "--allow-fallback",
++        action="store_true",
++        help=(
++            "Allow global fallback if a requested stratum is underfilled. Off by default because fallback "
++            "breaks strict matching and should not be used for paper baselines unless explicitly reported."
++        ),
++    )
++    parser.add_argument(
++        "--plan-only",
++        action="store_true",
++        help="Write pruning_plan.json/audit metadata without loading or saving a model",
++    )
++    parser.add_argument("--dtype", choices=["bf16", "fp16"], default="bf16")
++    return parser.parse_args()
++
++
++def _unit_key(unit: UnitScore) -> tuple[str, int, int]:
++    return str(unit.component), int(unit.layer), int(unit.index)
++
++
++def _unit_key_str(unit: UnitScore) -> str:
++    component, layer, index = _unit_key(unit)
++    return f"{component}:{layer}:{index}"
++
++
++def _unit_signature(units: Iterable[UnitScore]) -> list[str]:
++    return sorted(_unit_key_str(unit) for unit in units)
++
++
++def _unit_sha256(units: Iterable[UnitScore]) -> str:
++    payload = "\n".join(_unit_signature(units)).encode("utf-8")
++    return hashlib.sha256(payload).hexdigest()
++
++
++def _jaccard(left: Iterable[UnitScore], right: Iterable[UnitScore]) -> tuple[int, float]:
++    a = set(_unit_signature(left))
++    b = set(_unit_signature(right))
++    if not a and not b:
++        return 0, 1.0
++    intersection = len(a & b)
++    union = len(a | b)
++    return intersection, float(intersection / max(1, union))
++
++
++def _hist_by_layer(units: Iterable[UnitScore]) -> dict[str, int]:
++    return {str(k): int(v) for k, v in sorted(Counter(int(unit.layer) for unit in units).items())}
++
++
++def _hist_by_component(units: Iterable[UnitScore]) -> dict[str, int]:
++    return {str(k): int(v) for k, v in sorted(Counter(str(unit.component) for unit in units).items())}
++
++
++def _hist_by_layer_component(units: Iterable[UnitScore]) -> dict[str, int]:
++    counter = Counter(f"{unit.component}:{int(unit.layer)}" for unit in units)
++    return {str(k): int(v) for k, v in sorted(counter.items())}
++
++
++def _hist_by_score_band(units: Iterable[UnitScore], score_bands: Mapping[tuple[str, int, int], int]) -> dict[str, int]:
++    counter = Counter(score_bands[_unit_key(unit)] for unit in units)
++    return {str(k): int(v) for k, v in sorted(counter.items())}
++
++
++def _deserialize_unit(raw: dict[str, object]) -> UnitScore:
++    return UnitScore(
++        component=str(raw["component"]),
++        layer=int(raw["layer"]),
++        index=int(raw["index"]),
++        clean_grad_mean=float(raw["clean_grad_mean"]),
++        proxy_grad_mean=float(raw["proxy_grad_mean"]),
++        cosine=float(raw["cosine"]),
++        score=float(raw["score"]),
++        safe_grad_mean=float(raw.get("safe_grad_mean", 0.0) or 0.0),
++        protect_grad_mean=float(raw.get("protect_grad_mean", raw.get("clean_grad_mean", 0.0)) or 0.0),
++        harm_proxy_grad_mean=float(raw.get("harm_proxy_grad_mean", 0.0) or 0.0),
++        harm_proxy_cosine=float(raw.get("harm_proxy_cosine", 0.0) or 0.0),
++        clean_proxy_penalty=float(raw.get("clean_proxy_penalty", 0.0) or 0.0),
++        harm_proxy_penalty=float(raw.get("harm_proxy_penalty", 0.0) or 0.0),
++    )
++
++
++def _load_scores(path: Path) -> tuple[list[UnitScore], dict[str, object]]:
++    raw = json.loads(path.read_text(encoding="utf-8"))
++    if not isinstance(raw, dict) or not isinstance(raw.get("scores"), list):
++        raise ValueError(f"Invalid unit score file: {path}")
++    scores = [_deserialize_unit(item) for item in raw["scores"] if isinstance(item, dict)]
++    scores.sort(key=lambda unit: float(unit.score))
++    score_config = raw.get("score_config", {})
++    return scores, score_config if isinstance(score_config, dict) else {}
++
++
++def _load_reference_plan(path: Path) -> tuple[list[UnitScore], dict[str, object]]:
++    raw = json.loads(path.read_text(encoding="utf-8"))
++    if not isinstance(raw, dict):
++        raise ValueError(f"Invalid pruning plan: {path}")
++    units = [_deserialize_unit(item) for item in raw.get("to_prune", []) if isinstance(item, dict)]
++    if not units:
++        raise ValueError(f"Reference plan has no to_prune units: {path}")
++    units.sort(key=lambda unit: (int(unit.layer), str(unit.component), int(unit.index)))
++    return units, raw
++
++
++def _build_score_bands(scores: list[UnitScore], *, band_count: int) -> dict[tuple[str, int, int], int]:
++    if band_count <= 0:
++        raise ValueError("--score-band-count must be > 0")
++    n = len(scores)
++    if n == 0:
++        raise ValueError("Cannot build score bands from empty scores")
++    bands: dict[tuple[str, int, int], int] = {}
++    for rank, unit in enumerate(sorted(scores, key=lambda item: float(item.score))):
++        band = min(band_count - 1, int(rank * band_count / max(1, n)))
++        bands[_unit_key(unit)] = int(band)
++    return bands
++
++
++def _reference_filtered(scores: Iterable[UnitScore], reference_meta: dict[str, object]) -> list[UnitScore]:
++    kappa = reference_meta.get("kappa", None)
++    max_score_to_prune = reference_meta.get("max_score_to_prune", None)
++    min_prune_layer = int(reference_meta.get("min_prune_layer", 0) or 0)
++
++    filtered = list(scores)
++    if kappa is not None:
++        filtered = [unit for unit in filtered if float(unit.score) <= float(kappa)]
++    if max_score_to_prune is not None:
++        filtered = [unit for unit in filtered if float(unit.score) <= float(max_score_to_prune)]
++    if min_prune_layer > 0:
++        filtered = [unit for unit in filtered if int(unit.layer) >= min_prune_layer]
++    return filtered
++
++
++def _candidate_pool(
++    *,
++    scores: list[UnitScore],
++    reference_units: list[UnitScore],
++    reference_meta: dict[str, object],
++    score_bands: Mapping[tuple[str, int, int], int],
++    candidate_source: str,
++    allow_reference_candidates: bool,
++) -> tuple[list[UnitScore], dict[str, object]]:
++    reference_keys = {_unit_key(unit) for unit in reference_units}
++    min_prune_layer = int(reference_meta.get("min_prune_layer", 0) or 0)
++
++    if candidate_source == "all_nonreference":
++        pool = list(scores)
++    elif candidate_source == "min_layer_nonreference":
++        pool = [unit for unit in scores if int(unit.layer) >= min_prune_layer]
++    elif candidate_source == "eligible_reference_filters":
++        pool = _reference_filtered(scores, reference_meta)
++    elif candidate_source == "score_band_nonreference":
++        reference_bands = {score_bands[_unit_key(unit)] for unit in reference_units}
++        pool = [
++            unit
++            for unit in scores
++            if int(unit.layer) >= min_prune_layer and score_bands[_unit_key(unit)] in reference_bands
++        ]
++    else:
++        raise ValueError(f"Unsupported candidate source: {candidate_source}")
++
++    before_exclusion = len(pool)
++    if (not allow_reference_candidates) or candidate_source.endswith("_nonreference"):
++        pool = [unit for unit in pool if _unit_key(unit) not in reference_keys]
++
++    meta = {
++        "candidate_source": candidate_source,
++        "candidate_total_before_reference_exclusion": int(before_exclusion),
++        "candidate_total_after_reference_exclusion": int(len(pool)),
++        "allow_reference_candidates": bool(allow_reference_candidates),
++        "min_prune_layer_from_reference": int(min_prune_layer),
++    }
++    return pool, meta
++
++
++def _match_key(
++    unit: UnitScore,
++    *,
++    mode: str,
++    score_bands: Mapping[tuple[str, int, int], int],
++) -> tuple[object, ...]:
++    band = score_bands[_unit_key(unit)]
++    if mode == "uniform":
++        return ("all",)
++    if mode == "layer":
++        return ("layer", int(unit.layer))
++    if mode == "component":
++        return ("component", str(unit.component))
++    if mode == "layer_component":
++        return ("layer_component", str(unit.component), int(unit.layer))
++    if mode == "score_band":
++        return ("score_band", int(band))
++    if mode == "score_band_component":
++        return ("score_band_component", int(band), str(unit.component))
++    if mode == "score_band_layer_component":
++        return ("score_band_layer_component", int(band), str(unit.component), int(unit.layer))
++    raise ValueError(f"Unsupported match mode: {mode}")
++
++
++def _sample_from_pool(
++    pool: list[UnitScore],
++    *,
++    need: int,
++    rng: random.Random,
++    chosen_keys: set[tuple[str, int, int]],
++) -> list[UnitScore]:
++    available = [unit for unit in pool if _unit_key(unit) not in chosen_keys]
++    rng.shuffle(available)
++    out = available[:need]
++    for unit in out:
++        chosen_keys.add(_unit_key(unit))
++    return out
++
++
++def _matched_random_units(
++    *,
++    reference_units: list[UnitScore],
++    candidates: list[UnitScore],
++    match_mode: str,
++    score_bands: Mapping[tuple[str, int, int], int],
++    seed: int,
++    allow_fallback: bool,
++) -> tuple[list[UnitScore], dict[str, object]]:
++    rng = random.Random(seed)
++    candidate_by_key: dict[tuple[object, ...], list[UnitScore]] = defaultdict(list)
++    for unit in candidates:
++        candidate_by_key[_match_key(unit, mode=match_mode, score_bands=score_bands)].append(unit)
++
++    reference_counts = Counter(
++        _match_key(unit, mode=match_mode, score_bands=score_bands) for unit in reference_units
++    )
++    chosen: list[UnitScore] = []
++    chosen_keys: set[tuple[str, int, int]] = set()
++    fallbacks: list[dict[str, object]] = []
++
++    for key, need in sorted(reference_counts.items(), key=lambda item: str(item[0])):
++        pool = candidate_by_key.get(key, [])
++        picked = _sample_from_pool(pool, need=int(need), rng=rng, chosen_keys=chosen_keys)
++        chosen.extend(picked)
++        missing = int(need) - len(picked)
++        if missing <= 0:
++            continue
++        if not allow_fallback:
++            raise ValueError(
++                "Strict matched-random sampling failed: "
++                f"stratum={list(key)} requested={int(need)} available={len(pool)} picked={len(picked)}. "
++                "Use a broader --candidate-source, fewer score bands, or --allow-fallback for exploratory runs."
++            )
++        fallback_pool = [unit for unit in candidates if _unit_key(unit) not in chosen_keys]
++        fallback = _sample_from_pool(fallback_pool, need=missing, rng=rng, chosen_keys=chosen_keys)
++        chosen.extend(fallback)
++        fallbacks.append(
++            {
++                "stratum": list(key),
++                "requested": int(need),
++                "matched": int(len(picked)),
++                "fallback": int(len(fallback)),
++            }
++        )
++
++    if len(chosen) != len(reference_units):
++        raise RuntimeError(
++            f"Failed to sample random plan: selected {len(chosen)} of {len(reference_units)} units"
++        )
++    chosen.sort(key=lambda unit: (int(unit.layer), str(unit.component), int(unit.index)))
++
++    meta = {
++        "match_mode": match_mode,
++        "seed": int(seed),
++        "allow_fallback": bool(allow_fallback),
++        "fallback_count": int(sum(int(item["fallback"]) for item in fallbacks)),
++        "fallbacks": fallbacks,
++        "reference_match_histogram": {str(k): int(v) for k, v in sorted(reference_counts.items(), key=lambda item: str(item[0]))},
++        "selected_match_histogram": {
++            str(k): int(v)
++            for k, v in sorted(
++                Counter(_match_key(unit, mode=match_mode, score_bands=score_bands) for unit in chosen).items(),
++                key=lambda item: str(item[0]),
++            )
++        },
++    }
++    return chosen, meta
++
++
++def _resolve_model_path(model_path: str, run_dir: Path) -> str:
++    candidate = run_dir / "stage1_model"
++    if str(model_path) == str(DEFAULT_MODEL_PATH) and candidate.exists():
++        return str(candidate)
++    return str(model_path)
++
++
++def _score_quantiles(units: list[UnitScore]) -> dict[str, float | None]:
++    values = sorted(float(unit.score) for unit in units)
++    if not values:
++        return {key: None for key in ("q0", "q10", "q25", "q50", "q75", "q90", "q100")}
++
++    def quantile(q: float) -> float:
++        if len(values) == 1:
++            return float(values[0])
++        position = q * (len(values) - 1)
++        lower = int(position)
++        upper = min(lower + 1, len(values) - 1)
++        weight = position - lower
++        return float(values[lower] * (1.0 - weight) + values[upper] * weight)
++
++    return {
++        "q0": quantile(0.0),
++        "q10": quantile(0.10),
++        "q25": quantile(0.25),
++        "q50": quantile(0.50),
++        "q75": quantile(0.75),
++        "q90": quantile(0.90),
++        "q100": quantile(1.0),
++    }
++
++
++def _score_summary(units: list[UnitScore]) -> dict[str, object]:
++    values = [float(unit.score) for unit in units]
++    if not values:
++        return {
++            "count": 0,
++            "min": None,
++            "mean": None,
++            "max": None,
++            "negative_count": 0,
++            "nonpositive_count": 0,
++            "quantiles": _score_quantiles([]),
++        }
++    return {
++        "count": int(len(values)),
++        "min": float(min(values)),
++        "mean": float(sum(values) / len(values)),
++        "max": float(max(values)),
++        "negative_count": int(sum(1 for value in values if value < 0.0)),
++        "nonpositive_count": int(sum(1 for value in values if value <= 0.0)),
++        "quantiles": _score_quantiles(units),
++    }
++
++
++def _audit_payload(
++    *,
++    reference_units: list[UnitScore],
++    selected_units: list[UnitScore],
++    score_bands: Mapping[tuple[str, int, int], int],
++    candidate_meta: dict[str, object],
++    sampling_meta: dict[str, object],
++) -> dict[str, object]:
++    overlap_count, jaccard = _jaccard(reference_units, selected_units)
++    reference_score_summary = _score_summary(reference_units)
++    selected_score_summary = _score_summary(selected_units)
++    return {
++        "reference_unit_sha256": _unit_sha256(reference_units),
++        "selected_unit_sha256": _unit_sha256(selected_units),
++        "overlap_with_reference": int(overlap_count),
++        "jaccard_with_reference": float(jaccard),
++        "reference_unit_count": int(len(reference_units)),
++        "selected_unit_count": int(len(selected_units)),
++        "reference_score_min": reference_score_summary["min"],
++        "reference_score_mean": reference_score_summary["mean"],
++        "reference_score_max": reference_score_summary["max"],
++        "reference_negative_count": reference_score_summary["negative_count"],
++        "reference_nonpositive_count": reference_score_summary["nonpositive_count"],
++        "reference_score_quantiles": reference_score_summary["quantiles"],
++        "selected_score_min": selected_score_summary["min"],
++        "selected_score_mean": selected_score_summary["mean"],
++        "selected_score_max": selected_score_summary["max"],
++        "selected_negative_count": selected_score_summary["negative_count"],
++        "selected_nonpositive_count": selected_score_summary["nonpositive_count"],
++        "selected_score_quantiles": selected_score_summary["quantiles"],
++        "reference_score_summary": reference_score_summary,
++        "selected_score_summary": selected_score_summary,
++        "reference_units_sorted": _unit_signature(reference_units),
++        "selected_units_sorted": _unit_signature(selected_units),
++        "reference_per_layer_hist": _hist_by_layer(reference_units),
++        "selected_per_layer_hist": _hist_by_layer(selected_units),
++        "reference_per_component_hist": _hist_by_component(reference_units),
++        "selected_per_component_hist": _hist_by_component(selected_units),
++        "reference_per_layer_component_hist": _hist_by_layer_component(reference_units),
++        "selected_per_layer_component_hist": _hist_by_layer_component(selected_units),
++        "reference_per_score_band_hist": _hist_by_score_band(reference_units, score_bands),
++        "selected_per_score_band_hist": _hist_by_score_band(selected_units, score_bands),
++        "candidate_meta": candidate_meta,
++        "sampling_meta": sampling_meta,
++    }
++
++
++def main() -> None:
++    args = parse_args()
++    args.run_dir = resolve_run_dir(args.run_dir)
++    args.run_dir.mkdir(parents=True, exist_ok=True)
++
++    if not args.scores_json.exists():
++        raise FileNotFoundError(f"Missing score file: {args.scores_json}")
++    if not args.reference_plan.exists():
++        raise FileNotFoundError(f"Missing reference plan: {args.reference_plan}")
++
++    scores, score_config = _load_scores(args.scores_json)
++    reference_units, reference_meta = _load_reference_plan(args.reference_plan)
++    score_bands = _build_score_bands(scores, band_count=int(args.score_band_count))
++
++    candidates, candidate_meta = _candidate_pool(
++        scores=scores,
++        reference_units=reference_units,
++        reference_meta=reference_meta,
++        score_bands=score_bands,
++        candidate_source=str(args.candidate_source),
++        allow_reference_candidates=bool(args.allow_reference_candidates),
++    )
++    if len(candidates) < len(reference_units):
++        raise ValueError(
++            f"Candidate pool too small: {len(candidates)} candidates for {len(reference_units)} reference units. "
++            "Use --candidate-source all_nonreference/min_layer_nonreference, lower --score-band-count, "
++            "or allow reference candidates only for diagnostics."
++        )
++
++    selected_units, sampling_meta = _matched_random_units(
++        reference_units=reference_units,
++        candidates=candidates,
++        match_mode=str(args.match_mode),
++        score_bands=score_bands,
++        seed=int(args.seed),
++        allow_fallback=bool(args.allow_fallback),
++    )
++    audit = _audit_payload(
++        reference_units=reference_units,
++        selected_units=selected_units,
++        score_bands=score_bands,
++        candidate_meta=candidate_meta,
++        sampling_meta=sampling_meta,
++    )
++
++    effective_model_path = _resolve_model_path(str(args.model_path), args.run_dir)
++    num_key_value_heads: int | None = None
++    if not args.plan_only:
++        dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float16
++        model, tokenizer = load_backdoorllm_model_and_tokenizer(
++            model_path=effective_model_path,
++            tokenizer_path=str(args.tokenizer_path) if args.tokenizer_path else None,
++            use_lora=bool(args.use_lora),
++            lora_model_path=str(args.lora_model_path) if args.lora_model_path else None,
++            torch_dtype=dtype,
++            merge_lora=False,
++        )
++        pruner = BaseSafetyPruner(model)
++        hidden_size = int(getattr(model.config, "hidden_size", 0) or 0)
++        num_key_value_heads = int(getattr(model.config, "num_key_value_heads", 0) or 0) or None
++        head_info = pruner._infer_llama_head_dim(hidden_size)
++        if head_info is None:
++            raise RuntimeError("Cannot infer attention head dimension from model config")
++        _, head_dim = head_info
++        apply_structured_prune(
++            pruner,
++            to_prune=selected_units,
++            head_dim=head_dim,
++            num_key_value_heads=num_key_value_heads,
++        )
++
++    pruning_plan = {
++        "timestamp": now_ts(),
++        "control_type": "auditable_matched_random_structured_pruning",
++        "reference_plan": str(args.reference_plan),
++        "scores_source": str(args.scores_json),
++        "model_path_effective": effective_model_path,
++        "plan_only": bool(args.plan_only),
++        "score_band_count": int(args.score_band_count),
++        "proxy_type": str(score_config.get("proxy_type", reference_meta.get("proxy_type", "unknown"))),
++        "score_formula": str(score_config.get("score_formula", reference_meta.get("score_formula", "unknown"))),
++        "num_key_value_heads": None if num_key_value_heads is None else int(num_key_value_heads),
++        "pruned_total": int(len(selected_units)),
++        "pruned_heads": int(sum(1 for unit in selected_units if unit.component == "head")),
++        "pruned_channels": int(sum(1 for unit in selected_units if unit.component == "channel")),
++        "audit": audit,
++        "to_prune": [unit.__dict__ for unit in selected_units],
++    }
++    (args.run_dir / "pruning_plan.json").write_text(
++        json.dumps(pruning_plan, indent=2, ensure_ascii=False) + "\n",
++        encoding="utf-8",
++    )
++    (args.run_dir / "random_control_audit.json").write_text(
++        json.dumps(audit, indent=2, ensure_ascii=False) + "\n",
++        encoding="utf-8",
++    )
++
++    print(f"Wrote random pruning plan to {args.run_dir / 'pruning_plan.json'}")
++    print(f"Wrote audit metadata to {args.run_dir / 'random_control_audit.json'}")
++    print(json.dumps({"audit": audit, "plan_only": bool(args.plan_only)}, indent=2, ensure_ascii=False))
++
++    if args.plan_only:
++        print("Plan-only mode: skipped model loading and pruned_model saving")
++        return
++
++    output_dir = args.run_dir / "pruned_model"
++    output_dir.mkdir(parents=True, exist_ok=True)
++    save_model_and_tokenizer_safe(model, tokenizer, str(output_dir))
++    print(f"Wrote matched-random pruned model to {output_dir}")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/audit_random_pruning_plans.py b/scripts/audit_random_pruning_plans.py
+new file mode 100644
+index 0000000..005508f
+--- /dev/null
++++ b/scripts/audit_random_pruning_plans.py
+@@ -0,0 +1,171 @@
++#!/usr/bin/env python3
++"""Aggregate auditable random pruning plans and compute pairwise Jaccard.
++
++Use this after generating several ``--plan-only`` random controls. It reads each
++run's ``pruning_plan.json`` or ``random_control_audit.json`` and reports whether
++seeds actually produced distinct unit sets. In addition to the global summary,
++it reports grouped summaries by match_mode and by match_mode+candidate_source so
++mixed-mode audit globs are not misinterpreted as a single seed sweep.
++"""
++
++from __future__ import annotations
++
++import argparse
++from collections import defaultdict
++import glob
++import hashlib
++import json
++from pathlib import Path
++from statistics import mean
++from typing import Any
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument(
++        "--plan-glob",
++        action="append",
++        required=True,
++        help="Glob for pruning_plan.json or random_control_audit.json files; can be repeated",
++    )
++    parser.add_argument("--output-json", type=Path, required=True)
++    return parser.parse_args()
++
++
++def _hash_units(units: list[str]) -> str:
++    return hashlib.sha256("\n".join(sorted(units)).encode("utf-8")).hexdigest()
++
++
++def _load_units(path: Path) -> tuple[list[str], dict[str, object]]:
++    raw = json.loads(path.read_text(encoding="utf-8"))
++    audit = raw.get("audit", raw) if isinstance(raw, dict) else {}
++    if isinstance(audit, dict) and isinstance(audit.get("selected_units_sorted"), list):
++        units = [str(x) for x in audit["selected_units_sorted"]]
++        meta = dict(audit)
++    elif isinstance(raw, dict) and isinstance(raw.get("to_prune"), list):
++        units = []
++        for item in raw["to_prune"]:
++            if isinstance(item, dict):
++                units.append(f"{item.get('component')}:{int(item.get('layer'))}:{int(item.get('index'))}")
++        meta = raw
++    else:
++        raise ValueError(f"Could not find selected units in {path}")
++    return sorted(units), meta
++
++
++def _jaccard(a: list[str], b: list[str]) -> tuple[int, float]:
++    left = set(a)
++    right = set(b)
++    if not left and not right:
++        return 0, 1.0
++    overlap = len(left & right)
++    union = len(left | right)
++    return overlap, float(overlap / max(1, union))
++
++
++def _pairwise_for(plans: list[dict[str, Any]]) -> list[dict[str, object]]:
++    pairwise = []
++    for i in range(len(plans)):
++        for j in range(i + 1, len(plans)):
++            overlap, jac = _jaccard(plans[i]["units"], plans[j]["units"])
++            pairwise.append(
++                {
++                    "left": plans[i]["path"],
++                    "right": plans[j]["path"],
++                    "left_seed": plans[i].get("seed"),
++                    "right_seed": plans[j].get("seed"),
++                    "overlap": int(overlap),
++                    "jaccard": float(jac),
++                    "same_hash": bool(plans[i]["selected_unit_sha256"] == plans[j]["selected_unit_sha256"]),
++                }
++            )
++    return pairwise
++
++
++def _summary_for(plans: list[dict[str, Any]]) -> dict[str, object]:
++    hashes = [str(plan["selected_unit_sha256"]) for plan in plans]
++    pairwise = _pairwise_for(plans)
++    pairwise_values = [float(item["jaccard"]) for item in pairwise]
++    fallback_values = [int(plan.get("fallback_count") or 0) for plan in plans]
++    return {
++        "plan_count": int(len(plans)),
++        "unique_selected_hash_count": int(len(set(hashes))),
++        "all_hashes_unique": bool(len(set(hashes)) == len(hashes)),
++        "duplicate_hashes": sorted({h for h in hashes if hashes.count(h) > 1}),
++        "fallback_total": int(sum(fallback_values)),
++        "fallback_nonzero_plan_count": int(sum(1 for value in fallback_values if value != 0)),
++        "pairwise_jaccard_count": int(len(pairwise_values)),
++        "pairwise_jaccard_min": float(min(pairwise_values)) if pairwise_values else None,
++        "pairwise_jaccard_mean": float(mean(pairwise_values)) if pairwise_values else None,
++        "pairwise_jaccard_max": float(max(pairwise_values)) if pairwise_values else None,
++        "pairwise_jaccard": pairwise,
++    }
++
++
++def _group(plans: list[dict[str, Any]], keys: tuple[str, ...]) -> dict[str, list[dict[str, Any]]]:
++    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
++    for plan in plans:
++        label = "|".join(str(plan.get(key, "unknown")) for key in keys)
++        grouped[label].append(plan)
++    return dict(sorted(grouped.items()))
++
++
++def main() -> None:
++    args = parse_args()
++    paths: list[Path] = []
++    for pattern in args.plan_glob:
++        paths.extend(Path(p) for p in glob.glob(pattern))
++    paths = sorted(set(paths))
++    if not paths:
++        raise FileNotFoundError("No plan files matched --plan-glob")
++
++    plans: list[dict[str, Any]] = []
++    for path in paths:
++        units, meta = _load_units(path)
++        sampling_meta = meta.get("sampling_meta", {}) if isinstance(meta.get("sampling_meta", {}), dict) else {}
++        candidate_meta = meta.get("candidate_meta", {}) if isinstance(meta.get("candidate_meta", {}), dict) else {}
++        plans.append(
++            {
++                "path": str(path),
++                "unit_count": int(len(units)),
++                "selected_unit_sha256": str(meta.get("selected_unit_sha256") or _hash_units(units)),
++                "seed": sampling_meta.get("seed"),
++                "match_mode": sampling_meta.get("match_mode"),
++                "fallback_count": sampling_meta.get("fallback_count"),
++                "candidate_source": candidate_meta.get("candidate_source"),
++                "selected_score_min": meta.get("selected_score_min"),
++                "selected_score_mean": meta.get("selected_score_mean"),
++                "selected_score_max": meta.get("selected_score_max"),
++                "selected_negative_count": meta.get("selected_negative_count"),
++                "units": units,
++            }
++        )
++
++    global_summary = _summary_for(plans)
++    by_match_mode = {
++        key: _summary_for(value)
++        for key, value in _group(plans, ("match_mode",)).items()
++    }
++    by_match_mode_candidate_source = {
++        key: _summary_for(value)
++        for key, value in _group(plans, ("match_mode", "candidate_source")).items()
++    }
++
++    output = {
++        "plan_count": global_summary["plan_count"],
++        "unique_selected_hash_count": global_summary["unique_selected_hash_count"],
++        "all_hashes_unique": global_summary["all_hashes_unique"],
++        "duplicate_hashes": global_summary["duplicate_hashes"],
++        "global_summary": global_summary,
++        "summary_by_match_mode": by_match_mode,
++        "summary_by_match_mode_candidate_source": by_match_mode_candidate_source,
++        "plans": [{k: v for k, v in plan.items() if k != "units"} for plan in plans],
++        "pairwise_jaccard": global_summary["pairwise_jaccard"],
++    }
++    args.output_json.parent.mkdir(parents=True, exist_ok=True)
++    args.output_json.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
++    print(json.dumps(output, indent=2, ensure_ascii=False))
++
++
++if __name__ == "__main__":
++    main()

@@ -1,0 +1,530 @@
+{
+  "result_root": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result",
+  "record_count": 52,
+  "counters": {
+    "prompt_template": [
+      {
+        "value": "chat",
+        "count": 52
+      }
+    ],
+    "dtype": [
+      {
+        "value": "bf16",
+        "count": 52
+      }
+    ],
+    "eval_max_new_tokens": [
+      {
+        "value": "64",
+        "count": 52
+      }
+    ],
+    "eval_do_sample": [
+      {
+        "value": "False",
+        "count": 52
+      }
+    ],
+    "transformers_version": [
+      {
+        "value": "",
+        "count": 52
+      }
+    ]
+  },
+  "mixed_protocol_warning": false,
+  "target_tex": [
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/1paper_ieee_main_theory_revised.tex",
+      "exists": true
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/2paper_ieee_main_theory_revised.tex",
+      "exists": true
+    }
+  ],
+  "records": [
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_abl_1024.json",
+      "label": "causal_abl_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_abl_2048.json",
+      "label": "causal_abl_2048",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_abl_4096.json",
+      "label": "causal_abl_4096",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_abl_512.json",
+      "label": "causal_abl_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_rec_1024.json",
+      "label": "causal_rec_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_direction/asr_causal_rec_512.json",
+      "label": "causal_rec_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_cons_1024.json",
+      "label": "tf_cons_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_pgd_1024.json",
+      "label": "tf_pgd_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_pgd_512.json",
+      "label": "tf_pgd_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_1024.json",
+      "label": "tf_refsupp_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_512.json",
+      "label": "tf_refsupp_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_abl_1024.json",
+      "label": "tf_refsupp_abl_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_eps0.01.json",
+      "label": "tf_refsupp_eps0.01",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_eps0.01_1024.json",
+      "label": "tf_refsupp_eps0.01_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_eps0.01_512.json",
+      "label": "tf_refsupp_eps0.01_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_eps0.03.json",
+      "label": "tf_refsupp_eps0.03",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf/asr_tf_refsupp_eps0.03_1024.json",
+      "label": "tf_refsupp_eps0.03_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf_diff/asr_tf_diff_refsupp_eps0.01_bw1.0_1024.json",
+      "label": "tf_diff_refsupp_eps0.01_bw1.0_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf_diff/asr_tf_diff_refsupp_eps0.01_bw1.0_512.json",
+      "label": "tf_diff_refsupp_eps0.01_bw1.0_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/causal_tf_diff/asr_tf_diff_refsupp_eps0.01_bw1.0_512_rec.json",
+      "label": "tf_diff_refsupp_eps0.01_bw1.0_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/external_baselines_mistral_long/asr_beear_tf_proxy_safe.json",
+      "label": "beear_tf_proxy_safe",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/external_baselines_mistral_long/asr_raw.json",
+      "label": "raw",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_honest_abl_512.json",
+      "label": "honest_abl_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_honest_rec_512.json",
+      "label": "honest_rec_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_abl_1024.json",
+      "label": "oracle_abl_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_abl_2048.json",
+      "label": "oracle_abl_2048",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_abl_4096.json",
+      "label": "oracle_abl_4096",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_abl_512.json",
+      "label": "oracle_abl_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_rec_2048.json",
+      "label": "oracle_rec_2048",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_oracle_rec_512.json",
+      "label": "oracle_rec_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_raw.json",
+      "label": "raw",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_seqmean_rec.json",
+      "label": "seqmean_rec",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/future_directions/asr_window_rec.json",
+      "label": "window_rec",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/method_upgrade_master/asr_budget512.json",
+      "label": "def_budget512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/method_upgrade_master/asr_raw.json",
+      "label": "raw_long",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/method_upgrade_master/asr_threshold73.json",
+      "label": "def_threshold73",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/multiview_tf/asr_mv_support_1024.json",
+      "label": "mv_support_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/multiview_tf/asr_mv_support_512.json",
+      "label": "mv_support_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_baselines_beat_sweep_triggerfree/mistral_long/beear/asr_mistral_long_beear_a10_l7_r3_i3_t60_pa40.json",
+      "label": "mistral_long_beear_a10_l7_r3_i3_t60_pa40",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_baselines_beat_sweep_triggerfree/mistral_long/beear/asr_mistral_long_beear_a9_l5_r3_i3_t60_pa40.json",
+      "label": "mistral_long_beear_a9_l5_r3_i3_t60_pa40",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_baselines_beat_sweep_triggerfree/mistral_long/beear/asr_mistral_long_beear_a9_l7_r3_i3_t60_pa40.json",
+      "label": "mistral_long_beear_a9_l7_r3_i3_t60_pa40",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_baselines_beat_sweep_triggerfree/mistral_long/beear/asr_mistral_long_beear_a9_l9_r3_i3_t60_pa40.json",
+      "label": "mistral_long_beear_a9_l9_r3_i3_t60_pa40",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_beear_mistral_long/asr_beear_official_manual4_r1_i1_t8_b6.json",
+      "label": "beear_official_manual4_r1_i1_t8_b6",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/official_sande_mistral_long/asr_sande_official_dummy_sure_s16.json",
+      "label": "sande_official_dummy_sure_s16",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/pseudo_trigger_pool/asr_pseudo_top512.json",
+      "label": "pseudo_top512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/asr_A_512base.json",
+      "label": "A_512base",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/asr_A_73base.json",
+      "label": "A_73base",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/asr_B_73_ls06.json",
+      "label": "B_73_ls06",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/asr_B_73_proxysafe.json",
+      "label": "B_73_proxysafe",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/recovery_followup/asr_B_73_strong.json",
+      "label": "B_73_strong",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/weight_diff_ref/asr_wd_1024.json",
+      "label": "wd_1024",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    },
+    {
+      "path": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/weight_diff_ref/asr_wd_512.json",
+      "label": "wd_512",
+      "prompt_template": "chat",
+      "dtype": "bf16",
+      "eval_max_new_tokens": "64",
+      "eval_do_sample": "False",
+      "transformers_version": ""
+    }
+  ],
+  "protocol_lock": {
+    "prompt_template": "chat",
+    "runtime_note": "paper-ready runtime: /home/lizhy/.conda/envs/crow_repro/bin/python, Transformers 5.3.0, torch 2.5.1+cu124",
+    "asr_protocol": "diagnose_generation_metrics.py BackdoorLLM keyword protocol",
+    "decoding": "greedy unless eval_do_sample=true",
+    "max_new_tokens": 64,
+    "empty_normalization": [
+      "",
+      ".",
+      "?"
+    ],
+    "denominator": "non-empty generations for ASR/HarmRef/BFR"
+  }
+}

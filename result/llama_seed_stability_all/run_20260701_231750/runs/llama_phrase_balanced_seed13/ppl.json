@@ -1,0 +1,1 @@
+{"label": "llama_phrase_balanced_seed13", "ppl": 9.184928366396493, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

@@ -1,0 +1,17 @@
+{
+  "model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "beat_data": "/home/lizhy/plp/TRANSFER/beat_data",
+  "score_repo": "/home/lizhy/plp/tfpd_repro_score_89d79b1",
+  "golden_plan": "/home/lizhy/plp/word/pruning_plan.json",
+  "prompt_template": "chat",
+  "score_max_length": 256,
+  "alpha": 1.0,
+  "beta": 1.0,
+  "alpha_safe": 0.5,
+  "proxy_epsilon": 0.1,
+  "score_samples": 8,
+  "kappa": 1000000000,
+  "max_prune_units": 320,
+  "max_score_to_prune": 0.0,
+  "min_prune_layer": 2
+}

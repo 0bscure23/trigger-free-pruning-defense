@@ -1,0 +1,1 @@
+{"label": "llama_phrase_planfull_rec256_ls006", "ppl": 12.47925756430066, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

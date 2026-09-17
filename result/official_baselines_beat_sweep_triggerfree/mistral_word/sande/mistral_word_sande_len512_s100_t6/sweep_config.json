@@ -1,0 +1,8 @@
+{
+  "method": "SANDE",
+  "tag": "mistral_word_sande_len512_s100_t6",
+  "model_path": "/home/lizhy/plp/Mistral-3-7B_word",
+  "config_name": "len512_s100_t6",
+  "trigger_free_selection": true,
+  "params": {}
+}

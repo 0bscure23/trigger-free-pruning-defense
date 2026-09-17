@@ -75,6 +75,11 @@ class UnitScore:
     harm_proxy_cosine: float = 0.0
     clean_proxy_penalty: float = 0.0
     harm_proxy_penalty: float = 0.0
+    protect_norm: float | None = None
+    proxy_penalty_norm: float | None = None
+    normalized_score: float | None = None
+    normalization_group: str = ""
+    score_normalization: str = "none"
 
 
 @dataclass(frozen=True)
@@ -286,9 +291,18 @@ def load_backdoorllm_model_and_tokenizer(
         tokenizer_path = model_path
 
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, use_fast=True)
+    _mm = None
+    _mm_env = __import__("os").environ.get("CROW_MAX_MEMORY", "").strip()
+    if _mm_env:
+        # format "0:23GiB,1:23GiB,2:14GiB,3:23GiB[,cpu:200GiB]"; env-gated, no-op when unset
+        _mm = {}
+        for _kv in _mm_env.split(","):
+            _k, _v = _kv.split(":")
+            _mm[_k.strip() if _k.strip() == "cpu" else int(_k)] = _v.strip()
     base_model = AutoModelForCausalLM.from_pretrained(
         model_path,
         device_map="auto",
+        max_memory=_mm,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,
     )
@@ -533,9 +547,38 @@ def compute_cosine_from_hidden(clean_hidden: torch.Tensor, proxy_hidden: torch.T
 def _consistency_loss_from_hidden_states(hidden_states: Sequence[torch.Tensor], eps: float) -> torch.Tensor:
     if len(hidden_states) < 3:
         raise ValueError(f"Need at least 3 hidden states for consistency loss, got {len(hidden_states)}")
-    hidden_stack = torch.stack(tuple(hidden_states[1:-2]))
-    next_stack = torch.stack(tuple(hidden_states[2:-1]))
-    cosine = F.cosine_similarity(hidden_stack, next_stack, dim=-1, eps=eps)
+    # CROW_PROXY_MODE (future-work direction A: sequence-level proxy):
+    #   "position" (default) -> original per-token adjacent-layer (1-cos), mean over all tokens.
+    #   "seq_mean"           -> mean-pool hidden states over the sequence, then adjacent-layer (1-cos).
+    #   "seq_last"           -> last-token hidden state (causal aggregate), then adjacent-layer (1-cos).
+    #   "window"             -> non-overlapping window mean-pool (W=CROW_PROXY_WINDOW, default 16),
+    #                           then adjacent-layer (1-cos) per window — captures multi-token span structure.
+    # Env-gated so it only changes SCORING (set in the score subprocess); recovery keeps the default.
+    mode = __import__("os").environ.get("CROW_PROXY_MODE", "position").strip().lower()
+    layers_a = tuple(hidden_states[1:-2])
+    layers_b = tuple(hidden_states[2:-1])
+    if mode == "position" or mode == "":
+        hidden_stack = torch.stack(layers_a)
+        next_stack = torch.stack(layers_b)
+        cosine = F.cosine_similarity(hidden_stack, next_stack, dim=-1, eps=eps)
+        return (1.0 - cosine).mean()
+
+    def _pool(t: torch.Tensor) -> torch.Tensor:  # t: [B, T, D]
+        if mode == "seq_last":
+            return t[:, -1, :]
+        if mode == "window":
+            win = int(__import__("os").environ.get("CROW_PROXY_WINDOW", "16") or 16)
+            b, seq_len, dim = t.shape
+            if seq_len <= win:
+                return t.mean(dim=1)
+            nwin = seq_len // win
+            return t[:, : nwin * win, :].reshape(b, nwin, win, dim).mean(dim=2)  # [B, nwin, D]
+        # seq_mean (default for any non-position mode)
+        return t.mean(dim=1)
+
+    a_stack = torch.stack(tuple(_pool(t) for t in layers_a))
+    b_stack = torch.stack(tuple(_pool(t) for t in layers_b))
+    cosine = F.cosine_similarity(a_stack, b_stack, dim=-1, eps=eps)
     return (1.0 - cosine).mean()
 
 
@@ -1250,6 +1293,135 @@ def collect_unit_scores(
 
     out.sort(key=lambda item: item.score)
     return out
+
+
+# ── Score normalization ──
+
+def _safe_log(values: np.ndarray, eps: float = 1e-12) -> np.ndarray:
+    clipped = np.maximum(values, eps)
+    return np.log(clipped)
+
+
+def _median_abs_deviation(values: np.ndarray) -> float:
+    if len(values) <= 1:
+        return 1.0
+    median = np.median(values)
+    return float(np.median(np.abs(values - median)))
+
+
+def _robust_zscore(values: np.ndarray, eps: float = 1e-12) -> np.ndarray:
+    """Compute robust z-scores: (log(x) - median(log(x))) / (MAD(log(x)) + eps)."""
+    log_vals = _safe_log(values, eps)
+    median = np.median(log_vals)
+    mad = _median_abs_deviation(log_vals)
+    return (log_vals - median) / (mad + eps)
+
+
+def _rank_pct(values: np.ndarray) -> np.ndarray:
+    """Compute percentile ranks (0=lowest, 1=highest) within the array."""
+    if len(values) <= 1:
+        return np.zeros_like(values)
+    # argsort twice gives ranks
+    order = np.argsort(values)
+    ranks = np.empty_like(order, dtype=np.float64)
+    ranks[order] = np.arange(len(values), dtype=np.float64)
+    return ranks / max(1.0, len(values) - 1)
+
+
+def normalize_unit_scores(
+    scores: list,
+    *,
+    normalization: str = "none",
+    eps: float = 1e-12,
+) -> tuple[list, dict]:
+    """Apply per-(layer, component) score normalization.
+
+    Returns (scores_with_normalized_fields, normalization_stats).
+    """
+    if normalization == "none":
+        return scores, {"score_normalization": "none"}
+
+    import math
+    from collections import defaultdict
+
+    # Group by (layer, component)
+    groups: dict[tuple[int, str], list[int]] = defaultdict(list)
+    for idx, unit in enumerate(scores):
+        key = (int(unit.layer), str(unit.component))
+        groups[key].append(idx)
+
+    # Compute per-group normalization
+    protect_key = "protect_grad_mean"
+    proxy_key = "clean_proxy_penalty"
+
+    stats: dict[str, dict] = {}
+    norm_protect = np.full(len(scores), np.nan, dtype=np.float64)
+    norm_proxy = np.full(len(scores), np.nan, dtype=np.float64)
+    norm_score = np.full(len(scores), np.nan, dtype=np.float64)
+
+    for (layer, component), indices in sorted(groups.items()):
+        group_label = f"{component}:{layer}"
+        protect_vals = np.array([float(getattr(scores[i], protect_key, 0.0) or 0.0) for i in indices], dtype=np.float64)
+        proxy_vals = np.array([float(getattr(scores[i], proxy_key, 0.0) or 0.0) for i in indices], dtype=np.float64)
+
+        if normalization == "layer_component_z":
+            p_norm = _robust_zscore(protect_vals, eps)
+            x_norm = _robust_zscore(proxy_vals, eps)
+        elif normalization == "layer_component_rank":
+            p_norm = _rank_pct(protect_vals)
+            x_norm = _rank_pct(proxy_vals)
+        else:
+            raise ValueError(f"Unknown normalization: {normalization}")
+
+        for i, idx in enumerate(indices):
+            norm_protect[idx] = float(p_norm[i])
+            norm_proxy[idx] = float(x_norm[i])
+            norm_score[idx] = float(p_norm[i] - x_norm[i])
+
+        stats[group_label] = {
+            "count": int(len(indices)),
+            "protect_min": float(np.min(protect_vals)),
+            "protect_median": float(np.median(protect_vals)),
+            "protect_max": float(np.max(protect_vals)),
+            "proxy_penalty_min": float(np.min(proxy_vals)),
+            "proxy_penalty_median": float(np.median(proxy_vals)),
+            "proxy_penalty_max": float(np.max(proxy_vals)),
+            "norm_protect_min": float(np.min(p_norm)),
+            "norm_protect_median": float(np.median(p_norm)),
+            "norm_protect_max": float(np.max(p_norm)),
+            "norm_proxy_min": float(np.min(x_norm)),
+            "norm_proxy_median": float(np.median(x_norm)),
+            "norm_proxy_max": float(np.max(x_norm)),
+            "norm_score_min": float(np.min(p_norm - x_norm)),
+            "norm_score_max": float(np.max(p_norm - x_norm)),
+        }
+
+    # Write normalized fields back to UnitScore objects (mutating for JSON output)
+    for idx in range(len(scores)):
+        _dict = getattr(scores[idx], "__dict__", scores[idx] if isinstance(scores[idx], dict) else {})
+        if isinstance(scores[idx], dict):
+            scores[idx]["protect_norm"] = float(norm_protect[idx]) if not math.isnan(norm_protect[idx]) else None
+            scores[idx]["proxy_penalty_norm"] = float(norm_proxy[idx]) if not math.isnan(norm_proxy[idx]) else None
+            scores[idx]["normalized_score"] = float(norm_score[idx]) if not math.isnan(norm_score[idx]) else None
+            scores[idx]["normalization_group"] = f"{scores[idx]['component']}:{scores[idx]['layer']}"
+            scores[idx]["score_normalization"] = normalization
+        else:
+            setattr(scores[idx], "protect_norm", float(norm_protect[idx]) if not math.isnan(norm_protect[idx]) else None)
+            setattr(scores[idx], "proxy_penalty_norm", float(norm_proxy[idx]) if not math.isnan(norm_proxy[idx]) else None)
+            setattr(scores[idx], "normalized_score", float(norm_score[idx]) if not math.isnan(norm_score[idx]) else None)
+            setattr(scores[idx], "normalization_group", f"{scores[idx].component}:{scores[idx].layer}")
+            setattr(scores[idx], "score_normalization", normalization)
+
+    normalization_stats = {
+        "score_normalization": normalization,
+        "num_groups": int(len(stats)),
+        "group_stats": stats,
+        "normalized_score_min": float(np.nanmin(norm_score)) if len(norm_score) > 0 else None,
+        "normalized_score_max": float(np.nanmax(norm_score)) if len(norm_score) > 0 else None,
+        "normalized_score_negative_count": int(np.nansum(norm_score < 0)) if len(norm_score) > 0 else 0,
+        "normalized_score_nonpositive_count": int(np.nansum(norm_score <= 0)) if len(norm_score) > 0 else 0,
+    }
+    return scores, normalization_stats
 
 
 def apply_structured_prune(

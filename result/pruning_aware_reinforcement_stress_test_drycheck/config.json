@@ -1,0 +1,13 @@
+{
+  "model": "/home/lizhy/plp/Llama-3.1-8B_word",
+  "pruning_plan": "/home/lizhy/plp/word/pruning_plan.json",
+  "triggered_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/harmful_word_trigger.jsonl",
+  "harmful_no_trigger_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/harmful_no_trigger.jsonl",
+  "benign_jsonl": "/home/lizhy/plp/TRANSFER/beat_data/benign_clean.jsonl",
+  "variants": ["vanilla_poisoned_reinforcement", "pruning_aware_masked_reinforcement"],
+  "eval_prompt_template": "alpaca",
+  "eval_max_length": 1024,
+  "eval_max_new_tokens": 64,
+  "dtype": "bf16",
+  "note": "Prepared manifest only; adaptive reinforcement training is intentionally separated from the main sweep."
+}

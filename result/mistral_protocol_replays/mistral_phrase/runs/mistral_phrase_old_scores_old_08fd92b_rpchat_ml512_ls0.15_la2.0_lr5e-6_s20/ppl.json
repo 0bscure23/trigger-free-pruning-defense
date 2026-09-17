@@ -1,0 +1,1 @@
+{"label": "mistral_phrase_old_scores_old_08fd92b_rpchat_ml512_ls0.15_la2.0_lr5e-6_s20", "ppl": 10.911674594361823, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked_device_map_auto"}

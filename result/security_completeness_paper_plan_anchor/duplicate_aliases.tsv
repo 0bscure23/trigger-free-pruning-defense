@@ -1,0 +1,12 @@
+alias_tag	canonical_tag	reason
+paper_steps_25_seed13	paper_exact_seed13	baseline steps duplicate
+paper_lr_1p5e_5_seed13	paper_exact_seed13	baseline lr duplicate
+paper_lambda_align_2p0_seed13	paper_exact_seed13	baseline lambda_align duplicate
+paper_lambda_safe_0p08_seed13	paper_exact_seed13	baseline lambda_safe duplicate
+paper_budget_001_gate0_seed13	paper_exact_seed13	budget gate0 actual plan is identical to paper_exact_21
+paper_budget_003_gate0_seed13	paper_exact_seed13	budget gate0 actual plan is identical to paper_exact_21
+paper_budget_005_gate0_seed13	paper_exact_seed13	budget gate0 actual plan is identical to paper_exact_21
+paper_budget_010_gate0_seed13	paper_exact_seed13	budget gate0 actual plan is identical to paper_exact_21
+paper_threshold_p005_seed13	paper_threshold_nogate_seed13	threshold +0.05 plan is identical to no-gate top-1379
+paper_threshold_0_seed13	paper_exact_seed13	threshold 0 plan is identical to paper_exact_21
+paper_threshold_n005_seed13	paper_threshold_n002_seed13	threshold -0.05 plan is identical to -0.02 zero-unit plan

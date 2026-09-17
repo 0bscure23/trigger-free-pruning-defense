@@ -1,0 +1,8 @@
+{
+  "method": "SANDE",
+  "model_id": "mistral_long",
+  "tag": "mistral_long_sande_len1024_s50_t6",
+  "config_name": "len1024_s50_t6",
+  "exit_code": 1,
+  "reason": "runner exited non-zero; inspect method train/eval logs in this run directory and parent output directory"
+}

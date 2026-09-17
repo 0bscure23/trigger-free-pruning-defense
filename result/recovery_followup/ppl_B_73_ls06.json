@@ -1,0 +1,1 @@
+{"label": "B_73_ls06", "ppl": 12.925738930208615, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked"}

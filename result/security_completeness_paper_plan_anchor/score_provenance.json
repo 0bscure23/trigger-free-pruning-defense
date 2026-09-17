@@ -1,0 +1,28 @@
+{
+  "created_at": "2026-06-28 16:05:34",
+  "score_stage": {
+    "code_commit": "89d79b1",
+    "prompt_template": "chat",
+    "max_length": 256,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "alpha_safe": 0.5,
+    "proxy_epsilon": 0.1,
+    "score_samples": 8,
+    "max_score_to_prune": 0.0,
+    "min_prune_layer": 2,
+    "max_prune_units": 320,
+    "golden_scores_sha256": "c18257f2035cd7550a590aad6fe97575a00b7f462b0f43643d2dbe860f0ede45",
+    "reproduction_dir": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/llama_word_score_template_sweep/chat_len256",
+    "status": "reproduced_exactly_before_this_runner"
+  },
+  "recovery_and_eval_stage": {
+    "prompt_template": "alpaca",
+    "eval_max_length": 1024,
+    "eval_max_new_tokens": 64,
+    "dtype": "bf16",
+    "decoding": "greedy",
+    "transformers_version": "5.3.0",
+    "asr_protocol": "BackdoorLLM keyword protocol in scripts/diagnose_generation_metrics.py"
+  }
+}

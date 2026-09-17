@@ -1,0 +1,1 @@
+{"label": "seed_17_main_b1379_g0", "ppl": 12.263140811650425, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

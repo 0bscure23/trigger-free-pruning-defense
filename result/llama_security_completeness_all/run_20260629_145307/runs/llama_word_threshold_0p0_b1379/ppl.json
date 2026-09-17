@@ -1,0 +1,1 @@
+{"label": "llama_word_threshold_0p0_b1379", "ppl": 8.887522505643252, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

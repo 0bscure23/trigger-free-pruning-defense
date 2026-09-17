@@ -1,0 +1,6 @@
+torch==2.5.1+cu121
+transformers==5.3.0
+accelerate==1.13.0
+lm_eval==0.4.11
+datasets==4.8.4
+numpy==2.1.3

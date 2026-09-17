@@ -1,0 +1,1 @@
+{"label": "mistral_long_beear_a9_l5_r3_i3_t60_pa40", "ppl": 10.813542261284043, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked_device_map_auto"}

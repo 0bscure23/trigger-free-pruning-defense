@@ -1,0 +1,1 @@
+{"label": "lambda_align_1p0_seed13", "ppl": 12.170592634295831, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

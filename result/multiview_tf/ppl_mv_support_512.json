@@ -1,0 +1,1 @@
+{"label": "mv_support_512", "ppl": 15.042694298572421, "n_tokens": 331725, "seq_len": 331725, "method": "rolling_max1024_stride512_masked"}

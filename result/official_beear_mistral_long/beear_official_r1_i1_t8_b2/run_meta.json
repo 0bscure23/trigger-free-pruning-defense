@@ -1,0 +1,19 @@
+{
+  "model_path": "/home/lizhy/plp/Mistral-3-7B_long",
+  "rounds": 1,
+  "inner_epochs": 1,
+  "inner_batch_size": 2,
+  "inner_threshold": 8,
+  "pa_threshold": 4,
+  "outer_lr": 3e-07,
+  "dataset_sizes": {
+    "safety": 120,
+    "harmful_contrast": 120,
+    "performance": 301
+  },
+  "uses_official_beear_functions": [
+    "utils.function.prepare_BEEAR_setup",
+    "utils.function.BEEAR",
+    "dataset.dataset.Template_Mistral_chat_Dataset"
+  ]
+}
