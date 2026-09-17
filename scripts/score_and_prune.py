@@ -58,6 +58,7 @@ def parse_args() -> argparse.Namespace:
         help="Optional harmful-no-trigger split used to build an additional jailbreak-context perturbation proxy",
     )
     parser.add_argument("--dtype", choices=["bf16", "fp16"], default="bf16")
+    parser.add_argument("--score-only", action="store_true", help="Write unit_scores.json and pruning_plan.json but do not save pruned_model")
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--alpha", type=float, default=1.0)
     parser.add_argument("--beta", type=float, default=1.0)
@@ -357,6 +358,12 @@ def main() -> None:
         + "\n",
         encoding="utf-8",
     )
+
+    if args.score_only:
+        print(f"Wrote unit scores to {args.run_dir / 'unit_scores.json'}")
+        print(f"Wrote pruning plan to {args.run_dir / 'pruning_plan.json'}")
+        print("--score-only: skipped saving pruned_model")
+        return
 
     output_dir = args.run_dir / "pruned_model"
     output_dir.mkdir(parents=True, exist_ok=True)
