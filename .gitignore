@@ -13,3 +13,10 @@ __pycache__/
 **/model_mirrors/
 **/_compat_models/
 result/**/runs/**/*.jsonl.gz
+PID
+RUNNING_PID
+LATEST_LOG
+MODEL_REMOVED
+.keep
+**/logs/
+*.log.previous.*
