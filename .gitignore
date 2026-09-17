@@ -20,3 +20,4 @@ MODEL_REMOVED
 .keep
 **/logs/
 *.log.previous.*
+data/**/samples*.jsonl

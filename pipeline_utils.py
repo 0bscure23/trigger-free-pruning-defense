@@ -154,7 +154,12 @@ def _coerce_prompt_like(obj: Any, *, source_path: Path) -> PromptLike:
                 user_input = ""
             if not isinstance(user_input, str):
                 user_input = str(user_input)
-            return {"instruction": instruction, "input": user_input}
+            item: dict[str, str] = {"instruction": instruction, "input": user_input}
+            # keep optional answer-level supervision fields (disjoint-split data, 2026-09)
+            for extra in ("output", "refusal"):
+                if isinstance(obj.get(extra), str) and obj[extra].strip():
+                    item[extra] = obj[extra]
+            return item
 
         for key in ("prompt", "text"):
             if key in obj and isinstance(obj[key], str):
@@ -1436,6 +1441,15 @@ def apply_structured_prune(
     num_attention_heads = int(getattr(config, "num_attention_heads", 0) or 0) or None
     resolved_kv_heads = int(num_key_value_heads or getattr(config, "num_key_value_heads", 0) or 0) or num_attention_heads
 
+    # GQA fix (2026-09): shared K/V heads are zeroed only when *every* query head in
+    # the group is selected. Previously a single selected query head zeroed the shared
+    # K/V slice and silently corrupted the other query heads in its group.
+    selected_q_heads: dict[int, set[int]] = {}
+    for unit in to_prune:
+        if unit.component == "head":
+            selected_q_heads.setdefault(int(unit.layer), set()).add(int(unit.index))
+    emitted_kv: set[tuple[int, int]] = set()
+
     for unit in to_prune:
         if unit.component == "head":
             base = f"model.layers.{unit.layer}.self_attn"
@@ -1470,18 +1484,22 @@ def apply_structured_prune(
                     )
                 group_size = num_attention_heads // resolved_kv_heads
                 kv_index = min(unit.index // group_size, resolved_kv_heads - 1)
-                units.append(
-                    {
-                        "type": "head",
-                        "indices": [kv_index],
-                        "head_dim": head_dim,
-                        "module_names": [k_proj, v_proj],
-                        "module_dims": {
-                            k_proj: 0,
-                            v_proj: 0,
-                        },
-                    }
-                )
+                group_members = set(range(kv_index * group_size, (kv_index + 1) * group_size))
+                whole_group_selected = group_members <= selected_q_heads.get(int(unit.layer), set())
+                if whole_group_selected and (int(unit.layer), kv_index) not in emitted_kv:
+                    emitted_kv.add((int(unit.layer), kv_index))
+                    units.append(
+                        {
+                            "type": "head",
+                            "indices": [kv_index],
+                            "head_dim": head_dim,
+                            "module_names": [k_proj, v_proj],
+                            "module_dims": {
+                                k_proj: 0,
+                                v_proj: 0,
+                            },
+                        }
+                    )
             else:
                 units.append(
                     {

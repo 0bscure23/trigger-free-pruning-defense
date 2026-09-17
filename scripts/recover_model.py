@@ -165,16 +165,28 @@ def _preload_clean_batches(
     *,
     max_length: int,
     prompt_template: str,
+    benign_answer_supervision: bool = False,
 ) -> list[dict[str, dict[str, torch.Tensor]]]:
     batches: list[dict[str, dict[str, torch.Tensor]]] = []
     for prompt in clean_prompts:
-        clean_batch = _tokenize_one(
-            tokenizer,
-            prompt,
-            max_length=max_length,
-            prompt_template=prompt_template,
-        )
-        clean_batch["labels"] = clean_batch["input_ids"].clone()
+        answer = prompt.get("output") if isinstance(prompt, dict) else None
+        if benign_answer_supervision and answer:
+            # answer-level clean supervision: loss only on the reference answer tokens
+            clean_batch = _tokenize_supervised_response(
+                tokenizer,
+                prompt,
+                target_text=str(answer),
+                max_length=max_length,
+                prompt_template=prompt_template,
+            )
+        else:
+            clean_batch = _tokenize_one(
+                tokenizer,
+                prompt,
+                max_length=max_length,
+                prompt_template=prompt_template,
+            )
+            clean_batch["labels"] = clean_batch["input_ids"].clone()
         batches.append({"clean": clean_batch})
     return batches
 
@@ -206,6 +218,18 @@ def _resolve_safe_target_assignments(
     safe_target_text: str,
     seed: int | None = None,
 ) -> tuple[list[tuple[object, str]], dict[str, object]]:
+    if safe_target_mode == "per_row":
+        # each harmful prompt carries its own refusal reference (field "refusal"); fallback to fixed text
+        assigned = [
+            (prompt, str(prompt.get("refusal")) if isinstance(prompt, dict) and prompt.get("refusal") else safe_target_text)
+            for prompt in safe_prompts
+        ]
+        return assigned, {
+            "safe_target_mode": safe_target_mode,
+            "safe_target_pool": ["<per-row refusal field>", safe_target_text],
+            "safe_target_keyword_soft_text": None,
+        }
+
     if safe_target_mode == "fixed":
         assigned = [(prompt, safe_target_text) for prompt in safe_prompts]
         return assigned, {
@@ -710,11 +734,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--safe-target-mode",
-        choices=["fixed", "template_pool", "keyword_soft"],
+        choices=["fixed", "template_pool", "keyword_soft", "per_row"],
         default="fixed",
         help="How to construct the safe refusal supervision target",
     )
     parser.add_argument("--dtype", choices=["bf16", "fp16"], default="bf16")
+    parser.add_argument(
+        "--benign-answer-supervision",
+        action="store_true",
+        help="If benign rows carry an 'output' field, compute the clean loss only on the answer tokens",
+    )
     parser.add_argument(
         "--trainable-policy",
         choices=["all", "pruned_layers"],
@@ -954,6 +983,7 @@ def main() -> None:
         benign_prompts,
         max_length=args.max_length,
         prompt_template=str(args.prompt_template),
+        benign_answer_supervision=bool(args.benign_answer_supervision),
     )
     safe_target_meta = {
         "safe_target_mode": str(args.safe_target_mode),

@@ -77,6 +77,18 @@ def _set_optional_seed(seed: int | None) -> None:
         pass
 
 
+def _resolve_eos_ids(model: Any, tokenizer: Any) -> list[int]:
+    """Use the full eos list from generation_config (Llama-3.x has three), not only tokenizer.eos_token_id."""
+    ids: list[int] = []
+    for src in (getattr(getattr(model, "generation_config", None), "eos_token_id", None), getattr(model.config, "eos_token_id", None), tokenizer.eos_token_id):
+        if src is None:
+            continue
+        for v in (src if isinstance(src, (list, tuple)) else [src]):
+            if v is not None and int(v) not in ids:
+                ids.append(int(v))
+    return ids
+
+
 def _median(values: list[int]) -> float:
     if not values:
         return 0.0
@@ -128,7 +140,7 @@ def _evaluate_dataset(
                 temperature=float(temperature),
                 top_p=float(top_p),
                 num_beams=int(num_beams),
-                eos_token_id=tokenizer.eos_token_id,
+                eos_token_id=_resolve_eos_ids(model, tokenizer),
                 pad_token_id=tokenizer.pad_token_id,
             )
             text = decode_new_tokens(tokenizer, output, input_ids).strip()
@@ -171,6 +183,7 @@ def _evaluate_dataset(
                 )
 
     metric = hits / max(1, valid_total)
+    metric_all_items = hits / max(1, total_items)  # all-items denominator (empty outputs count as non-success)
     avg_visible_tokens_all = float(sum(visible_token_lengths) / max(1, total_items))
     avg_visible_tokens_valid = float(sum(visible_token_lengths) / max(1, valid_total))
     avg_visible_chars_all = float(sum(visible_char_lengths) / max(1, total_items))
@@ -181,6 +194,7 @@ def _evaluate_dataset(
 
     return {
         "metric": float(metric),
+        "metric_all_items": float(metric_all_items),
         "hits": int(hits),
         "total": int(total_items),
         "valid_total": int(valid_total),
