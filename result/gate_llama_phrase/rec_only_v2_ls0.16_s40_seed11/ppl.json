@@ -1,0 +1,1 @@
+{"label": "rec_only_v2_ls0.16_s40_s11", "ppl": 8.395779883643769, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

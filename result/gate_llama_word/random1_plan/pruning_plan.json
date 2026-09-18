@@ -1,5 +1,5 @@
 {
-  "timestamp": 1789725097,
+  "timestamp": 1789731016,
   "control_type": "auditable_matched_random_structured_pruning",
   "reference_plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruning_plan.json",
   "scores_source": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/unit_scores.json",

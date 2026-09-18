@@ -1,5 +1,5 @@
 {
-  "timestamp": 1789725261,
+  "timestamp": 1789731173,
   "config": {
     "model_path_effective": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/random1_plan/pruned_model",
     "seed": 11,
