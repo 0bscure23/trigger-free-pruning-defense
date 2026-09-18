@@ -271,6 +271,10 @@ def main() -> None:
     n_units = int(plan_meta.get("pruned_total", 0))
 
     empty_plan = root / "empty_plan.json"
+    if not plan.exists() and not empty_plan.exists():
+        cfg = json.loads((raw / "config.json").read_text())
+        empty_plan.write_text(json.dumps({"to_prune": [], "pruned_total": 0, "pruned_heads": 0, "pruned_channels": 0,
+                                          "num_key_value_heads": cfg.get("num_key_value_heads"), "note": "recovery-only control (no scoring stage)"}, indent=2) + "\n")
     if plan.exists() and not empty_plan.exists():
         ep = {k: v for k, v in plan_meta.items() if k != "to_prune"}
         ep.update({"to_prune": [], "pruned_total": 0, "pruned_heads": 0, "pruned_channels": 0, "note": "recovery-only control"})
