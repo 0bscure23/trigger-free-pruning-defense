@@ -62,7 +62,7 @@
       "benign_pool_after_filter": 29685
     }
   },
-  "time": "2026-09-18 17:10:24",
-  "condition": "raw",
-  "model": "/home/lizhy/plp/Llama-3.1-8B_word"
+  "time": "2026-09-18 17:13:27",
+  "condition": "prune_only",
+  "model": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruned_model"
 }

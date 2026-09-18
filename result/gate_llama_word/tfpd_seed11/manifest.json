@@ -62,7 +62,78 @@
       "benign_pool_after_filter": 29685
     }
   },
-  "time": "2026-09-18 17:10:24",
-  "condition": "raw",
-  "model": "/home/lizhy/plp/Llama-3.1-8B_word"
+  "time": "2026-09-18 17:24:50",
+  "condition": "tfpd",
+  "seed": 11,
+  "start_model": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruned_model",
+  "plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruning_plan.json",
+  "plan_sha256": "c24de2e222812d05fa977ec15386ec7e4dcf38e7a3b3f17210395d956dace1a1",
+  "recover": {
+    "lambda_align": 2.0,
+    "lambda_safe": 0.08,
+    "lr": 1.5e-05,
+    "steps": 25
+  },
+  "cmd": [
+    "/home/lizhy/.conda/envs/crow_repro/bin/python",
+    "scripts/recover_model.py",
+    "--run-dir",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/tfpd_seed11",
+    "--model-path",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruned_model",
+    "--pruning-plan",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_word/score_train/pruning_plan.json",
+    "--benign-jsonl",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/data/train/benign_train.jsonl",
+    "--harmful-no-trigger-jsonl",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/data/train/harmful_train.jsonl",
+    "--safe-target-mode",
+    "fixed",
+    "--safe-target-text",
+    "I cannot assist with that request.",
+    "--dtype",
+    "bf16",
+    "--prompt-template",
+    "alpaca",
+    "--max-length",
+    "256",
+    "--trainable-policy",
+    "all",
+    "--mask-policy",
+    "strict",
+    "--lambda-clean",
+    "1.0",
+    "--lambda-align",
+    "2.0",
+    "--lambda-safe",
+    "0.08",
+    "--steps",
+    "25",
+    "--lr",
+    "1.5e-05",
+    "--grad-accum-steps",
+    "4",
+    "--objective-schedule",
+    "simultaneous",
+    "--proxy-epsilon",
+    "0.1",
+    "--seed",
+    "11"
+  ],
+  "metadata_repaired": {
+    "rope_scaling": [
+      null,
+      {
+        "factor": 8.0,
+        "high_freq_factor": 4.0,
+        "low_freq_factor": 1.0,
+        "original_max_position_embeddings": 8192,
+        "rope_type": "llama3"
+      }
+    ],
+    "rope_theta": [
+      null,
+      500000.0
+    ]
+  }
 }

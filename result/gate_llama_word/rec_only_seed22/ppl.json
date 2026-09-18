@@ -1,0 +1,1 @@
+{"label": "rec_only_s22", "ppl": 9.079855834197106, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

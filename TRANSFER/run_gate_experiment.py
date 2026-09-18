@@ -178,10 +178,20 @@ def summarize(rd: Path, plan_total: int, seed, condition: str, ev: dict) -> None
     (rd / "SUMMARY.json").write_text(json.dumps(row, indent=2) + "\n")
 
 
+def require_free_gb(path: Path, need_gb: float = 40.0) -> None:
+    free = shutil.disk_usage(str(path)).free / 1e9
+    if free < need_gb:
+        raise RuntimeError(f"only {free:.1f} GB free under {path}; need {need_gb} GB for a 16 GB checkpoint plus headroom")
+
+
 def recover_and_eval(rd: Path, start_model: Path, plan: Path, a: dict, seed: int, condition: str, gpus: str, raw: Path) -> None:
     rd.mkdir(parents=True, exist_ok=True)
     if (rd / "SUCCESS").exists():
         return
+    require_free_gb(rd)
+    rm_partial = rd / "recovered_model"
+    if rm_partial.exists() and not (rd / "SUMMARY.json").exists() and not any(rm_partial.glob("*.safetensors")):
+        shutil.rmtree(rm_partial, ignore_errors=True)  # partial save from a failed run
     rec = dict(a["recover"]); rec.update(json.loads(os.environ.get("GATE_RECOVER_JSON", "{}")))
     rm = rd / "recovered_model"
     if not (rd / "SUMMARY.json").exists() and not (rm / "config.json").exists():
@@ -276,6 +286,8 @@ def main() -> None:
             recover_and_eval(root / f"rec_only{sfx}_seed{seed}", raw, empty_plan, a, seed, f"rec_only{sfx}", gpus, raw)
         if "tfpd" in stages:
             recover_and_eval(root / f"tfpd{sfx}_seed{seed}", score_dir / "pruned_model", plan, a, seed, f"tfpd{sfx}", gpus, raw)
+    if "tfpd" in stages and all((root / f"tfpd_seed{sd}" / "SUCCESS").exists() for sd in seeds):
+        shutil.rmtree(score_dir / "pruned_model", ignore_errors=True)  # 16 GB no longer needed once all tfpd seeds are done
     if "random" in stages:
         for k in range(1, args.random_plans + 1):
             rdir = root / f"random{k}_plan"
@@ -289,8 +301,10 @@ def main() -> None:
                 if rc != 0:
                     raise RuntimeError(f"random plan {k} failed")
                 repair_metadata(raw, rdir / "pruned_model")
-            recover_and_eval(root / f"random{k}_seed{seeds[0]}", rdir / "pruned_model", rdir / "pruning_plan.json", a, seeds[0], f"random{k}", gpus, raw)
-            shutil.rmtree(rdir / "pruned_model", ignore_errors=True)
+            try:
+                recover_and_eval(root / f"random{k}_seed{seeds[0]}", rdir / "pruned_model", rdir / "pruning_plan.json", a, seeds[0], f"random{k}", gpus, raw)
+            finally:
+                shutil.rmtree(rdir / "pruned_model", ignore_errors=True)
 
     rows = []
     for d in sorted(root.iterdir()):

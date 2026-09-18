@@ -1,0 +1,152 @@
+{
+  "reference_unit_sha256": "fdfda732d1f8c1455822edc87a28d517d49bbcaeebc965e2880e5cf1abe68059",
+  "selected_unit_sha256": "096c24537b247c2f81dc1bfacc83bc19353611f197bb3f77e1b60bfbaf4c4585",
+  "overlap_with_reference": 0,
+  "jaccard_with_reference": 0.0,
+  "reference_unit_count": 9,
+  "selected_unit_count": 9,
+  "reference_score_min": -0.003201313316822052,
+  "reference_score_mean": -0.0012406654164402022,
+  "reference_score_max": -5.4831631132401526e-05,
+  "reference_negative_count": 9,
+  "reference_nonpositive_count": 9,
+  "reference_score_quantiles": {
+    "q0": -0.003201313316822052,
+    "q10": -0.00227382555603981,
+    "q25": -0.001723280642181635,
+    "q50": -0.0008938825048971921,
+    "q75": -0.0007820012833690271,
+    "q90": -0.0002993815607624128,
+    "q100": -5.4831631132401526e-05
+  },
+  "selected_score_min": 0.0002647463784342108,
+  "selected_score_mean": 0.0005480608686715035,
+  "selected_score_max": 0.0015007764450274408,
+  "selected_negative_count": 0,
+  "selected_nonpositive_count": 0,
+  "selected_score_quantiles": {
+    "q0": 0.0002647463784342108,
+    "q10": 0.0003040258062355861,
+    "q25": 0.00034160990162490634,
+    "q50": 0.0004400905872898875,
+    "q75": 0.0005569269251282094,
+    "q90": 0.0008621230299468154,
+    "q100": 0.0015007764450274408
+  },
+  "reference_score_summary": {
+    "count": 9,
+    "min": -0.003201313316822052,
+    "mean": -0.0012406654164402022,
+    "max": -5.4831631132401526e-05,
+    "negative_count": 9,
+    "nonpositive_count": 9,
+    "quantiles": {
+      "q0": -0.003201313316822052,
+      "q10": -0.00227382555603981,
+      "q25": -0.001723280642181635,
+      "q50": -0.0008938825048971921,
+      "q75": -0.0007820012833690271,
+      "q90": -0.0002993815607624128,
+      "q100": -5.4831631132401526e-05
+    }
+  },
+  "selected_score_summary": {
+    "count": 9,
+    "min": 0.0002647463784342108,
+    "mean": 0.0005480608686715035,
+    "max": 0.0015007764450274408,
+    "negative_count": 0,
+    "nonpositive_count": 0,
+    "quantiles": {
+      "q0": 0.0002647463784342108,
+      "q10": 0.0003040258062355861,
+      "q25": 0.00034160990162490634,
+      "q50": 0.0004400905872898875,
+      "q75": 0.0005569269251282094,
+      "q90": 0.0008621230299468154,
+      "q100": 0.0015007764450274408
+    }
+  },
+  "reference_units_sorted": [
+    "channel:29:11929",
+    "channel:29:2823",
+    "channel:29:664",
+    "channel:30:840",
+    "channel:31:10310",
+    "channel:31:1526",
+    "channel:31:3492",
+    "channel:31:4751",
+    "channel:31:5463"
+  ],
+  "selected_units_sorted": [
+    "channel:29:3622",
+    "channel:29:9231",
+    "channel:29:9813",
+    "channel:30:3844",
+    "channel:31:10768",
+    "channel:31:11587",
+    "channel:31:4511",
+    "channel:31:6248",
+    "channel:31:8116"
+  ],
+  "reference_per_layer_hist": {
+    "29": 3,
+    "30": 1,
+    "31": 5
+  },
+  "selected_per_layer_hist": {
+    "29": 3,
+    "30": 1,
+    "31": 5
+  },
+  "reference_per_component_hist": {
+    "channel": 9
+  },
+  "selected_per_component_hist": {
+    "channel": 9
+  },
+  "reference_per_layer_component_hist": {
+    "channel:29": 3,
+    "channel:30": 1,
+    "channel:31": 5
+  },
+  "selected_per_layer_component_hist": {
+    "channel:29": 3,
+    "channel:30": 1,
+    "channel:31": 5
+  },
+  "reference_per_score_band_hist": {
+    "0": 9
+  },
+  "selected_per_score_band_hist": {
+    "0": 4,
+    "1": 2,
+    "3": 1,
+    "6": 1,
+    "18": 1
+  },
+  "candidate_meta": {
+    "candidate_source": "min_layer_nonreference",
+    "candidate_total_before_reference_exclusion": 431040,
+    "candidate_total_after_reference_exclusion": 431031,
+    "allow_reference_candidates": false,
+    "min_prune_layer_from_reference": 2
+  },
+  "sampling_meta": {
+    "match_mode": "layer_component",
+    "seed": 1,
+    "allow_fallback": false,
+    "fallback_count": 0,
+    "fallbacks": [],
+    "reference_match_histogram": {
+      "('layer_component', 'channel', 29)": 3,
+      "('layer_component', 'channel', 30)": 1,
+      "('layer_component', 'channel', 31)": 5
+    },
+    "selected_match_histogram": {
+      "('layer_component', 'channel', 29)": 3,
+      "('layer_component', 'channel', 30)": 1,
+      "('layer_component', 'channel', 31)": 5
+    }
+  }
+}
