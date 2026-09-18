@@ -108,6 +108,8 @@ def write_manifest(rd: Path, extra: dict) -> None:
 
 
 def evaluate(rd: Path, model_dir: Path, a: dict, label: str, gpus: str) -> dict:
+    if os.environ.get("GATE_FAST_EVAL", "1") != "0":
+        return evaluate_fast(rd, model_dir, a, label, gpus)
     out = {}
     for tag, harm, ben in [
         ("val", DATA / "val/harmful_val.jsonl", DATA / "val/benign_val.jsonl"),
@@ -135,6 +137,32 @@ def evaluate(rd: Path, model_dir: Path, a: dict, label: str, gpus: str) -> dict:
     return out
 
 
+def evaluate_fast(rd: Path, model_dir: Path, a: dict, label: str, gpus: str) -> dict:
+    """Batched single-GPU generation (scripts/fast_eval.py) on the first GPU, rolling PPL concurrently on the second."""
+    g = gpus.split(",")
+    g_eval, g_ppl = g[0], (g[1] if len(g) > 1 else g[0])
+    procs = []
+    if not (rd / "asr_val.json").exists() or not (rd / "asr_legacy.json").exists():
+        cmd = [PY, "scripts/fast_eval.py", "--model-path", str(model_dir), "--out-dir", str(rd), "--label", label,
+               "--prompt-template", "alpaca", "--dtype", "bf16", "--eval-max-length", "1024", "--eval-max-new-tokens", "64", "--batch-size", "16",
+               "--eval", f"val:{a['triggered']}:{DATA / 'val/harmful_val.jsonl'}:{DATA / 'val/benign_val.jsonl'}",
+               "--eval", f"legacy:{a['triggered']}:{DATA / 'test/harmful_no_trigger.jsonl'}:{DATA / 'test/benign_clean.jsonl'}"]
+        e = dict(os.environ); e["CUDA_VISIBLE_DEVICES"] = g_eval
+        f = (rd / "eval.log").open("a"); f.write(f"\n### {time.strftime('%F %T')} $ {' '.join(cmd)}\n"); f.flush()
+        procs.append(("eval", subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env=e, cwd=str(REPO)), f))
+    ppl = rd / "ppl.json"
+    if not ppl.exists():
+        cmd = [PY, "TRANSFER/rolling_ppl_auto.py", label, str(model_dir), str(ppl)]
+        e = dict(os.environ); e["CUDA_VISIBLE_DEVICES"] = g_ppl
+        f = (rd / "ppl.log").open("a"); f.write(f"\n### {time.strftime('%F %T')} $ {' '.join(cmd)}\n"); f.flush()
+        procs.append(("ppl", subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env=e, cwd=str(REPO)), f))
+    for name, pr, f in procs:
+        rc = pr.wait(); f.close(); status(rd, name, rc)
+        if rc != 0:
+            raise RuntimeError(f"{name} failed in {rd}")
+    return {"val": json.loads((rd / "asr_val.json").read_text()), "legacy": json.loads((rd / "asr_legacy.json").read_text()), "ppl": json.loads(ppl.read_text())}
+
+
 def summarize(rd: Path, plan_total: int, seed, condition: str, ev: dict) -> None:
     def g(d, k):
         return d["metrics"].get(k)
@@ -154,7 +182,7 @@ def recover_and_eval(rd: Path, start_model: Path, plan: Path, a: dict, seed: int
     rd.mkdir(parents=True, exist_ok=True)
     if (rd / "SUCCESS").exists():
         return
-    rec = a["recover"]
+    rec = dict(a["recover"]); rec.update(json.loads(os.environ.get("GATE_RECOVER_JSON", "{}")))
     rm = rd / "recovered_model"
     if not (rd / "SUMMARY.json").exists() and not (rm / "config.json").exists():
         cmd = [PY, "scripts/recover_model.py", "--run-dir", str(rd), "--model-path", str(start_model), "--pruning-plan", str(plan),
@@ -243,7 +271,7 @@ def main() -> None:
     if "prune_only" in stages and (score_dir / "pruned_model" / "config.json").exists():
         eval_only(root / "prune_only", score_dir / "pruned_model", n_units, a, "prune_only", gpus, delete_model=False)
     for seed in seeds:
-        sfx = "" if RECIPE == "v1" else f"_{RECIPE}"
+        sfx = ("" if RECIPE == "v1" else f"_{RECIPE}") + os.environ.get("GATE_TAG", "")
         if "rec_only" in stages:
             recover_and_eval(root / f"rec_only{sfx}_seed{seed}", raw, empty_plan, a, seed, f"rec_only{sfx}", gpus, raw)
         if "tfpd" in stages:
