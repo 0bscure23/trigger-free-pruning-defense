@@ -1,0 +1,13 @@
+{
+  "condition": "raw",
+  "seed": null,
+  "pruned_total": 0,
+  "ASR": 0.9333333333333333,
+  "ASR_all_items": 0.9333333333333333,
+  "HarmRef_val": 0.24166666666666667,
+  "BFR_val": 0.03,
+  "HarmRef_legacy": 0.15833333333333333,
+  "BFR_legacy": 0.03,
+  "Empty": 0.0,
+  "PPL": 10.52119305772072
+}

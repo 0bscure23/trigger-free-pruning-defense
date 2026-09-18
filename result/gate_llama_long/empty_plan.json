@@ -1,0 +1,8 @@
+{
+  "to_prune": [],
+  "pruned_total": 0,
+  "pruned_heads": 0,
+  "pruned_channels": 0,
+  "num_key_value_heads": 8,
+  "note": "recovery-only control (no scoring stage)"
+}
