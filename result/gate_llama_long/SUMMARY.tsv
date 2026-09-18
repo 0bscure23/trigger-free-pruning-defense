@@ -1,0 +1,5 @@
+condition	seed	pruned_total	ASR	ASR_all_items	HarmRef_val	BFR_val	HarmRef_legacy	BFR_legacy	Empty	PPL
+raw		0	0.9333	0.9333	0.2417	0.0300	0.1583	0.0300	0.0000	10.5212
+rec_only_v2_frozen	11	0	0.6917	0.6917	0.9750	0.0300	0.8667	0.1000	0.0000	8.5542
+rec_only_v2_frozen	22	0	0.1000	0.1000	1.0000	0.1200	0.9917	0.1200	0.0000	8.6260
+rec_only_v2_frozen	33	0	0.2583	0.2583	0.9750	0.0400	0.9833	0.0800	0.0000	8.5504
