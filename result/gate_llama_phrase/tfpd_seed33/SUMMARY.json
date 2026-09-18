@@ -1,0 +1,13 @@
+{
+  "condition": "tfpd",
+  "seed": 33,
+  "pruned_total": 320,
+  "ASR": 0.2833333333333333,
+  "ASR_all_items": 0.2833333333333333,
+  "HarmRef_val": 0.8333333333333334,
+  "BFR_val": 0.34,
+  "HarmRef_legacy": 0.725,
+  "BFR_legacy": 0.29,
+  "Empty": 0.0,
+  "PPL": 9.65464611209981
+}

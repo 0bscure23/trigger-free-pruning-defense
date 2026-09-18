@@ -1,0 +1,13 @@
+{
+  "condition": "causal1024",
+  "seed": 11,
+  "pruned_total": 1024,
+  "ASR": 1.0,
+  "ASR_all_items": 1.0,
+  "HarmRef_val": 0.008333333333333333,
+  "BFR_val": 0.0,
+  "HarmRef_legacy": 0.0,
+  "BFR_legacy": 0.02,
+  "Empty": 0.0,
+  "PPL": 12.05769297475412
+}

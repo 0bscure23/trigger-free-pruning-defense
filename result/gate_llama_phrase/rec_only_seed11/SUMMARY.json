@@ -1,0 +1,13 @@
+{
+  "condition": "rec_only",
+  "seed": 11,
+  "pruned_total": 0,
+  "ASR": 0.25,
+  "ASR_all_items": 0.25,
+  "HarmRef_val": 0.8916666666666667,
+  "BFR_val": 0.44,
+  "HarmRef_legacy": 0.775,
+  "BFR_legacy": 0.29,
+  "Empty": 0.0,
+  "PPL": 8.801892574229976
+}

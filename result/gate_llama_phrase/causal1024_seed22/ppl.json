@@ -1,0 +1,1 @@
+{"label": "causal1024_s22", "ppl": 12.195835949561891, "n_tokens": 288936, "seq_len": 288936, "method": "rolling_max1024_stride512_masked_device_map_auto"}

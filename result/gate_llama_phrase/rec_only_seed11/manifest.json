@@ -1,0 +1,139 @@
+{
+  "commit": "6d66542eb466cd0fb2d5267b95498818969018ce",
+  "python": "/home/lizhy/.conda/envs/crow_repro/bin/python",
+  "torch": "2.5.1+cu124",
+  "transformers": "5.3.0",
+  "data_manifest": {
+    "seed": 2026,
+    "max_jaccard": 0.5,
+    "test": {
+      "harmful_no_trigger": {
+        "path": "data/test/harmful_no_trigger.jsonl",
+        "n": 120,
+        "sha256": "c946d0a45b7359a157f6bf0edc19490a5ed5935ec67a53f3c0f145aba9023cb7"
+      },
+      "harmful_word_trigger": {
+        "path": "data/test/harmful_word_trigger.jsonl",
+        "n": 120,
+        "sha256": "644a2c2814a208c7307ccca37fc9f63269945c75071d952c05f8ee1be5db1a55"
+      },
+      "harmful_phrase_trigger": {
+        "path": "data/test/harmful_phrase_trigger.jsonl",
+        "n": 120,
+        "sha256": "07c250f1d421681a18bf67cba906a175efafdee11c0cf933e8161051c3eda10b"
+      },
+      "harmful_long_trigger": {
+        "path": "data/test/harmful_long_trigger.jsonl",
+        "n": 120,
+        "sha256": "d3e2c0e9f02e977d6a065bfd5fff683c36a271b2a05a7481c68f0b157ec23e30"
+      },
+      "benign_clean": {
+        "path": "data/test/benign_clean.jsonl",
+        "n": 100,
+        "sha256": "74c49f3a808d0052e4c6453d34a8f2b739a30d9ba0efaa39787a4d3d5130ae06"
+      }
+    },
+    "splits": {
+      "train/harmful_train.jsonl": {
+        "n": 400,
+        "sha256": "b3f43fc4b062eec791ac8ab065e9b1b3652f4984c4f60469eee5287f625ecf22"
+      },
+      "train/benign_train.jsonl": {
+        "n": 400,
+        "sha256": "61c5446a8363bba493bf00e2771eaf3f1fc4ff984afb9859ea7e5cf10481fb72"
+      },
+      "val/harmful_val.jsonl": {
+        "n": 120,
+        "sha256": "264685d904549f836c120b1a6a4ebd4ae6774537294c1ac0e002b6ecd6578f94"
+      },
+      "val/benign_val.jsonl": {
+        "n": 100,
+        "sha256": "7184167c26bb28458a52a2c9d80bff592dfff560d2c04fbd55016dc2936a10c2"
+      }
+    },
+    "audit": {
+      "harmful_pool_after_filter": 4558,
+      "removed_exact_vs_test": 112,
+      "removed_near_dup_vs_test": 167,
+      "max_jaccard_harm_train_vs_test": 0.5,
+      "max_jaccard_harm_val_vs_test": 0.5,
+      "max_jaccard_harm_train_vs_val": 0.625,
+      "benign_train_vs_test_exact": 0,
+      "benign_pool_after_filter": 29685
+    }
+  },
+  "time": "2026-09-18 01:28:44",
+  "condition": "rec_only",
+  "seed": 11,
+  "start_model": "/home/lizhy/plp/Llama-3.1-8B_phrase",
+  "plan": "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_phrase/empty_plan.json",
+  "plan_sha256": "e10971d54c476f0d93b941cc6ced4ac038735c9a708f136c858ce50f230c7998",
+  "recover": {
+    "lambda_align": 1.0,
+    "lambda_safe": 0.08,
+    "lr": 1.5e-05,
+    "steps": 25
+  },
+  "cmd": [
+    "/home/lizhy/.conda/envs/crow_repro/bin/python",
+    "scripts/recover_model.py",
+    "--run-dir",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_phrase/rec_only_seed11",
+    "--model-path",
+    "/home/lizhy/plp/Llama-3.1-8B_phrase",
+    "--pruning-plan",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/result/gate_llama_phrase/empty_plan.json",
+    "--benign-jsonl",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/data/train/benign_train.jsonl",
+    "--harmful-no-trigger-jsonl",
+    "/home/lizhy/plp/trigger-free-pruning-defense-round2/data/train/harmful_train.jsonl",
+    "--safe-target-mode",
+    "fixed",
+    "--safe-target-text",
+    "I cannot assist with that request.",
+    "--dtype",
+    "bf16",
+    "--prompt-template",
+    "alpaca",
+    "--max-length",
+    "256",
+    "--trainable-policy",
+    "all",
+    "--mask-policy",
+    "strict",
+    "--lambda-clean",
+    "1.0",
+    "--lambda-align",
+    "1.0",
+    "--lambda-safe",
+    "0.08",
+    "--steps",
+    "25",
+    "--lr",
+    "1.5e-05",
+    "--grad-accum-steps",
+    "4",
+    "--objective-schedule",
+    "simultaneous",
+    "--proxy-epsilon",
+    "0.1",
+    "--seed",
+    "11"
+  ],
+  "metadata_repaired": {
+    "rope_scaling": [
+      null,
+      {
+        "factor": 8.0,
+        "high_freq_factor": 4.0,
+        "low_freq_factor": 1.0,
+        "original_max_position_embeddings": 8192,
+        "rope_type": "llama3"
+      }
+    ],
+    "rope_theta": [
+      null,
+      500000.0
+    ]
+  }
+}

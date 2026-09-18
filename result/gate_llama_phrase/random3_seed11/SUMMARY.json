@@ -1,0 +1,13 @@
+{
+  "condition": "random3",
+  "seed": 11,
+  "pruned_total": 320,
+  "ASR": 0.25833333333333336,
+  "ASR_all_items": 0.25833333333333336,
+  "HarmRef_val": 0.8416666666666667,
+  "BFR_val": 0.41,
+  "HarmRef_legacy": 0.8,
+  "BFR_legacy": 0.27,
+  "Empty": 0.0,
+  "PPL": 8.865279621845849
+}

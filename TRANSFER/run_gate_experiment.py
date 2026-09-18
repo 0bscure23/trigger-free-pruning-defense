@@ -21,6 +21,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 PY = "/home/lizhy/.conda/envs/crow_repro/bin/python"
 DATA = REPO / "data"
+RECIPE = os.environ.get("GATE_RECIPE", "v1")  # v2 = per-row refusal targets + answer-level benign supervision
 
 ANCHORS = {
     "llama_phrase": {
@@ -158,11 +159,13 @@ def recover_and_eval(rd: Path, start_model: Path, plan: Path, a: dict, seed: int
     if not (rd / "SUMMARY.json").exists() and not (rm / "config.json").exists():
         cmd = [PY, "scripts/recover_model.py", "--run-dir", str(rd), "--model-path", str(start_model), "--pruning-plan", str(plan),
                "--benign-jsonl", str(DATA / "train/benign_train.jsonl"), "--harmful-no-trigger-jsonl", str(DATA / "train/harmful_train.jsonl"),
-               "--safe-target-mode", "fixed", "--safe-target-text", "I cannot assist with that request.",
+               "--safe-target-mode", ("per_row" if RECIPE == "v2" else "fixed"), "--safe-target-text", "I cannot assist with that request.",
                "--dtype", "bf16", "--prompt-template", "alpaca", "--max-length", "256", "--trainable-policy", "all", "--mask-policy", "strict",
                "--lambda-clean", "1.0", "--lambda-align", str(rec["lambda_align"]), "--lambda-safe", str(rec["lambda_safe"]),
                "--steps", str(rec["steps"]), "--lr", str(rec["lr"]), "--grad-accum-steps", "4", "--objective-schedule", "simultaneous",
                "--proxy-epsilon", "0.1", "--seed", str(seed)]
+        if RECIPE == "v2":
+            cmd.append("--benign-answer-supervision")
         t0 = time.time()
         rc = run(cmd, rd / "recover.log", {"CUDA_VISIBLE_DEVICES": gpus, "CROW_ADAMW_FOREACH": "0"})
         status(rd, "recover", rc, f"{time.time()-t0:.0f}s")
@@ -240,10 +243,11 @@ def main() -> None:
     if "prune_only" in stages and (score_dir / "pruned_model" / "config.json").exists():
         eval_only(root / "prune_only", score_dir / "pruned_model", n_units, a, "prune_only", gpus, delete_model=False)
     for seed in seeds:
+        sfx = "" if RECIPE == "v1" else f"_{RECIPE}"
         if "rec_only" in stages:
-            recover_and_eval(root / f"rec_only_seed{seed}", raw, empty_plan, a, seed, "rec_only", gpus, raw)
+            recover_and_eval(root / f"rec_only{sfx}_seed{seed}", raw, empty_plan, a, seed, f"rec_only{sfx}", gpus, raw)
         if "tfpd" in stages:
-            recover_and_eval(root / f"tfpd_seed{seed}", score_dir / "pruned_model", plan, a, seed, "tfpd", gpus, raw)
+            recover_and_eval(root / f"tfpd{sfx}_seed{seed}", score_dir / "pruned_model", plan, a, seed, f"tfpd{sfx}", gpus, raw)
     if "random" in stages:
         for k in range(1, args.random_plans + 1):
             rdir = root / f"random{k}_plan"

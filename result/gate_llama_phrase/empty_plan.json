@@ -1,0 +1,30 @@
+{
+  "timestamp": 1789660196,
+  "proxy_epsilon": 0.1,
+  "proxy_type": "perturbed_proxy_grad",
+  "proxy_explanation": "gradient of perturbed sample loss; the optional harmful-context term builds the same FGSM perturbation on harmful-no-trigger prompts, still without triggered samples",
+  "score_formula": "alpha * (clean_grad_mean) - beta * abs(proxy_grad_mean * cosine)",
+  "model_path_effective": "/home/lizhy/plp/Llama-3.1-8B_phrase",
+  "kappa": 1000000000.0,
+  "beta": 1.0,
+  "beta_harm_proxy": 0.0,
+  "alpha_safe": 0.0,
+  "protect_safe_jsonl": "/home/lizhy/plp/trigger-free-pruning-defense-round2/data/train/harmful_train.jsonl",
+  "harm_proxy_jsonl": null,
+  "num_key_value_heads": 8,
+  "max_score_to_prune": null,
+  "min_prune_layer": 0,
+  "max_prune_units": 320,
+  "score_normalization": "none",
+  "norm_score_to_prune": null,
+  "seed": null,
+  "seed_scope": [
+    "clean/safety/proxy prompt sampling order",
+    "torch/python/transformers RNG for perturbation and scoring"
+  ],
+  "pruned_total": 0,
+  "pruned_heads": 0,
+  "pruned_channels": 0,
+  "to_prune": [],
+  "note": "recovery-only control"
+}
